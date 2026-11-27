@@ -19,22 +19,6 @@
       }
     },
     {
-      "name": "cli:Appointment update",
-      "when": {
-        "cli_variants": [
-          [
-            "Appointment",
-            "update",
-            "--id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Appointment delete",
       "when": {
         "cli_variants": [
@@ -61,6 +45,22 @@
             "end_time": "2024-01-01T00:00:00"
           }
         }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Appointment update",
+      "when": {
+        "cli_variants": [
+          [
+            "Appointment",
+            "update",
+            "--id",
+            "1"
+          ]
+        ]
       },
       "expect": {
         "exit": 0

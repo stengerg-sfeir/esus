@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Customer', 'AuditLog']
-REPOSITORIES = ['CustomerRepository', 'AuditLogRepository']
+MODELS = ['AuditLog', 'Customer']
+REPOSITORIES = ['AuditLogRepository', 'CustomerRepository']
 SERVICES = []
 
 
@@ -200,6 +200,13 @@ def build_parser():
     parser.add_argument('--db', default=None,
                         help=('SQLite file for record storage (default: ' + DEFAULT_DB + ' in the working directory; use :memory: to stay in memory)'))
     sub = parser.add_subparsers(dest='command')
+    p_AuditLog = sub.add_parser('AuditLog')
+    sub_AuditLog = p_AuditLog.add_subparsers(dest='subcommand')
+    p_AuditLog_add = sub_AuditLog.add_parser('add')
+    p_AuditLog_add.add_argument('--operation', type=str, required=True, dest='operation')
+    p_AuditLog_add.add_argument('--customer-id', type=int, required=True, dest='customer_id')
+    p_AuditLog_add.add_argument('--timestamp', type=str, required=True, dest='timestamp')
+    p_AuditLog_add.set_defaults(_binding=('AuditLog', 'add'))
     p_Customer = sub.add_parser('Customer')
     sub_Customer = p_Customer.add_subparsers(dest='subcommand')
     p_Customer_add = sub_Customer.add_parser('add')
@@ -209,6 +216,9 @@ def build_parser():
     p_Customer_add.add_argument('--created-at', type=str, required=False, dest='created_at')
     p_Customer_add.add_argument('--updated-at', type=str, required=False, dest='updated_at')
     p_Customer_add.set_defaults(_binding=('Customer', 'add'))
+    p_Customer_delete = sub_Customer.add_parser('delete')
+    p_Customer_delete.add_argument('--id', type=int, required=True, dest='id')
+    p_Customer_delete.set_defaults(_binding=('Customer', 'delete'))
     p_Customer_update = sub_Customer.add_parser('update')
     p_Customer_update.add_argument('--id', type=int, required=True, dest='id')
     p_Customer_update.add_argument('--name', type=str, required=False, dest='name')
@@ -216,16 +226,6 @@ def build_parser():
     p_Customer_update.add_argument('--phone', type=str, required=False, dest='phone')
     p_Customer_update.add_argument('--updated-at', type=str, required=False, dest='updated_at')
     p_Customer_update.set_defaults(_binding=('Customer', 'update'))
-    p_Customer_delete = sub_Customer.add_parser('delete')
-    p_Customer_delete.add_argument('--id', type=int, required=True, dest='id')
-    p_Customer_delete.set_defaults(_binding=('Customer', 'delete'))
-    p_AuditLog = sub.add_parser('AuditLog')
-    sub_AuditLog = p_AuditLog.add_subparsers(dest='subcommand')
-    p_AuditLog_add = sub_AuditLog.add_parser('add')
-    p_AuditLog_add.add_argument('--operation', type=str, required=True, dest='operation')
-    p_AuditLog_add.add_argument('--customer-id', type=int, required=True, dest='customer_id')
-    p_AuditLog_add.add_argument('--timestamp', type=str, required=True, dest='timestamp')
-    p_AuditLog_add.set_defaults(_binding=('AuditLog', 'add'))
     return parser
 
 

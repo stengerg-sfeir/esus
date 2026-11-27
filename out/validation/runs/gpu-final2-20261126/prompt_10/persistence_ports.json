@@ -1,13 +1,24 @@
 {
   "persistence_ports": {
+    "entity_mappings": [
+      {
+        "entity": "Note",
+        "indexes": [
+          "title",
+          "creation_date"
+        ],
+        "primary_key": "id",
+        "table": "notes"
+      }
+    ],
     "repositories": [
       {
         "entity": "Note",
         "interface_name": "NoteRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new Note.",
+            "name": "create",
             "params": [
               {
                 "name": "title",
@@ -22,56 +33,12 @@
                 "type": "datetime.datetime"
               }
             ],
-            "return_type": "models.Note",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Note"
           },
           {
-            "name": "read_all",
-            "description": "Lists every Note; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "title",
-                "type": "str"
-              },
-              {
-                "name": "content",
-                "type": "str"
-              },
-              {
-                "name": "creation_date",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "list[Note]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Note.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "title",
-                "type": "str"
-              },
-              {
-                "name": "content",
-                "type": "str"
-              },
-              {
-                "name": "creation_date",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.Note",
-            "raises": []
-          },
-          {
-            "name": "delete",
             "description": "Deletes an existing Note.",
+            "name": "delete",
             "params": [
               {
                 "name": "id",
@@ -90,32 +57,65 @@
                 "type": "datetime.datetime"
               }
             ],
-            "return_type": "None",
-            "raises": []
+            "raises": [],
+            "return_type": "None"
           },
           {
-            "name": "read_one",
+            "description": "Lists every Note; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "content",
+                "type": "str"
+              },
+              {
+                "name": "creation_date",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Note]"
+          },
+          {
             "description": "Reads one Note by its key.",
+            "name": "read_one",
             "params": [
               {
                 "name": "id",
                 "type": "int"
               }
             ],
-            "return_type": "models.Note",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Note"
+          },
+          {
+            "description": "Updates an existing Note.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "content",
+                "type": "str"
+              },
+              {
+                "name": "creation_date",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Note"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Note",
-        "table": "notes",
-        "primary_key": "id",
-        "indexes": [
-          "title",
-          "creation_date"
         ]
       }
     ]

@@ -2,114 +2,114 @@
   "interaction_adapters": [
     {
       "action_name": "customeradd",
-      "target_service": "CustomerRepository",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "email",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "email",
+          "transform": "DIRECT"
+        }
+      ],
       "target_method": "create",
-      "input_fields": [
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "customerupdate",
-      "target_service": "CustomerRepository",
-      "target_method": "update",
-      "input_fields": [
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
+      "target_service": "CustomerRepository"
     },
     {
       "action_name": "customerdelete",
-      "target_service": "CustomerRepository",
+      "input_fields": [],
       "target_method": "delete",
-      "input_fields": []
+      "target_service": "CustomerRepository"
+    },
+    {
+      "action_name": "customerupdate",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "email",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "email",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "CustomerRepository"
     },
     {
       "action_name": "orderadd",
-      "target_service": "OrderRepository",
-      "target_method": "create",
       "input_fields": [
         {
           "field_name": "customer_id",
-          "target_param": "customer_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Customer",
-          "required": true
+          "required": true,
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "order_date",
+          "lookup_entity": null,
+          "required": true,
           "target_param": "order_date",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
-          "required": true
+          "transform": "ISO_DATE"
         },
         {
           "field_name": "status",
-          "target_param": "status",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "orderupdate",
-      "target_service": "OrderRepository",
-      "target_method": "update",
-      "input_fields": [
-        {
-          "field_name": "order_id",
-          "target_param": "order_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Order",
-          "required": true
-        },
-        {
-          "field_name": "status",
+          "required": true,
           "target_param": "status",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
+          "transform": "DIRECT"
         }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "OrderRepository"
     },
     {
       "action_name": "orderdelete",
-      "target_service": "OrderRepository",
-      "target_method": "delete",
       "input_fields": [
         {
           "field_name": "order_id",
-          "target_param": "order_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Order",
-          "required": true
+          "required": true,
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID"
         }
-      ]
+      ],
+      "target_method": "delete",
+      "target_service": "OrderRepository"
+    },
+    {
+      "action_name": "orderupdate",
+      "input_fields": [
+        {
+          "field_name": "order_id",
+          "lookup_entity": "Order",
+          "required": true,
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "status",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "status",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "OrderRepository"
     }
   ]
 }

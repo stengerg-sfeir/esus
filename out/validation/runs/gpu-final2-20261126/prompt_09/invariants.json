@@ -1,80 +1,80 @@
 {
   "invariants": [
     {
-      "text": "Employee.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An employee's age and salary cannot be modified to violate the constraints of being between 18 and 70 for age and positive for salary."
     },
     {
-      "text": "Employee.name must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An employee's age must be between 18 and 70, inclusive."
     },
     {
-      "text": "Employee.name must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An employee's email must be a valid email address format."
     },
     {
-      "text": "Employee.email must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An employee's salary must be a positive number."
     },
     {
-      "text": "Employee.email must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.age must be an integer"
     },
     {
-      "text": "Employee.age must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.age must not be null"
     },
     {
-      "text": "Employee.age must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.email must be a string"
     },
     {
-      "text": "Employee.salary must be a number",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.email must not be null"
     },
     {
-      "text": "Employee.salary must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "An employee's email must be a valid email address format.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Employee.name must be a string"
     },
     {
-      "text": "An employee's age must be between 18 and 70, inclusive.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Employee.name must not be null"
     },
     {
-      "text": "An employee's salary must be a positive number.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Employee.salary must be a number"
     },
     {
-      "text": "When creating a new employee, the system must validate that the email is valid, the age is between 18 and 70, and the salary is positive before saving the record to the database.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Employee.salary must not be null"
     },
     {
-      "text": "When updating an employee's age, the new age must still be between 18 and 70, inclusive.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The sum of all employees' salaries must be greater than zero if there are any employees in the database."
     },
     {
-      "text": "When updating an employee's salary, the new salary must still be positive.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The total number of employees in the database must not exceed the maximum allowed by the application's design, if such a limit is enforced."
     },
     {
-      "text": "When updating an employee's email, the new email must be a valid email address format.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When creating a new employee, the system must validate that the email is valid, the age is between 18 and 70, and the salary is positive before saving the record to the database."
     },
     {
-      "text": "The total number of employees in the database must not exceed the maximum allowed by the application's design, if such a limit is enforced.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When updating an employee's age, the new age must still be between 18 and 70, inclusive."
     },
     {
-      "text": "The sum of all employees' salaries must be greater than zero if there are any employees in the database.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When updating an employee's email, the new email must be a valid email address format."
     },
     {
-      "text": "An employee's age and salary cannot be modified to violate the constraints of being between 18 and 70 for age and positive for salary.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When updating an employee's salary, the new salary must still be positive."
     }
   ]
 }

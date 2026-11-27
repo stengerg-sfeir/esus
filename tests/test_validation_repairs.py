@@ -437,6 +437,77 @@ class ProseServiceMethodTests(unittest.TestCase):
         self.assertNotIn("ExpenseNotFoundError", method["raises"])
 
 
+class ProseIdempotenceTests(unittest.TestCase):
+    def test_a_prose_bullet_is_not_a_service_method(self):
+        models = [{"name": "Loan", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "book_id", "type": "int"},
+            {"name": "member_id", "type": "int"}]}]
+        services = [{"service_name": "LibraryService", "methods": []}]
+        requirements = (
+            "**LibraryService** — business logic:\n"
+            "- borrow_book(book_id, member_id): borrows a book\n"
+            "- Every day a loan is overdue: the fine increases\n")
+        repairs.repair_named_service_methods(
+            services, models, [], requirements)
+        names = [method["name"] for method in services[0]["methods"]]
+        self.assertEqual(names, ["borrow_book"])
+
+    def test_an_existing_search_capability_is_not_duplicated(self):
+        models = [{"name": "Book", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "title", "type": "string"}]}]
+        services = [
+            {"service_name": "LibraryService", "methods": [
+                {"name": "search_books", "params": [
+                    {"name": "query", "type": "str"}],
+                 "return_type": "list[Book]"}]},
+            {"service_name": "BookRepository", "methods": []},
+        ]
+        repairs.repair_prose_query_actions(
+            services, models, "Users can search books by title.")
+        self.assertEqual(services[1]["methods"], [])
+
+    def test_a_narrower_search_method_suppresses_the_bare_one(self):
+        models = [{"name": "Book", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "title", "type": "string"}]}]
+        services = [{"service_name": "BookRepository", "methods": [
+            {"name": "search_by_title", "params": [
+                {"name": "title", "type": "str"}],
+             "return_type": "list[Book]"}]}]
+        repairs.repair_prose_query_actions(
+            services, models, "Users can search books by title.")
+        self.assertEqual([method["name"] for method in services[0]["methods"]],
+                         ["search_by_title"])
+
+    def test_a_state_action_without_a_surface_is_not_added(self):
+        models = [{"name": "Book", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "borrow_status", "type": "boolean"}]}]
+        services = [{"service_name": "BookRepository", "methods": []}]
+        adapters = [{"action_name": "loanadd",
+                     "target_method": "create_loan"}]
+        repairs.repair_prose_state_actions(
+            services, models, "A member can borrow a book.", None, adapters)
+        self.assertEqual(services[0]["methods"], [])
+
+    def test_a_state_action_owned_by_a_service_is_not_duplicated(self):
+        models = [{"name": "Book", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "borrow_status", "type": "boolean"}]}]
+        services = [
+            {"service_name": "LoanService", "methods": [
+                {"name": "borrow_book", "params": []}]},
+            {"service_name": "BookRepository", "methods": []},
+        ]
+        adapters = [{"action_name": "borrow",
+                     "target_method": "borrow_book"}]
+        repairs.repair_prose_state_actions(
+            services, models, "A member can borrow a book.", None, adapters)
+        self.assertEqual(services[1]["methods"], [])
+
+
 class ProseQueryTests(unittest.TestCase):
     def test_filter_and_low_stock_are_added(self):
         models = [{"name": "Product", "fields": [

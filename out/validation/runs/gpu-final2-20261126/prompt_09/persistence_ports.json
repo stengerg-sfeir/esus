@@ -1,13 +1,23 @@
 {
   "persistence_ports": {
+    "entity_mappings": [
+      {
+        "entity": "Employee",
+        "indexes": [
+          "email"
+        ],
+        "primary_key": "id",
+        "table": "employees"
+      }
+    ],
     "repositories": [
       {
         "entity": "Employee",
         "interface_name": "EmployeeRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new Employee.",
+            "name": "create",
             "params": [
               {
                 "name": "name",
@@ -26,76 +36,12 @@
                 "type": "int"
               }
             ],
-            "return_type": "models.Employee",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Employee"
           },
           {
-            "name": "read_one",
-            "description": "Reads one Employee by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Employee",
-            "raises": []
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every Employee; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              },
-              {
-                "name": "age",
-                "type": "int"
-              },
-              {
-                "name": "salary",
-                "type": "int"
-              }
-            ],
-            "return_type": "list[Employee]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Employee.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              },
-              {
-                "name": "age",
-                "type": "int"
-              },
-              {
-                "name": "salary",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Employee",
-            "raises": []
-          },
-          {
-            "name": "delete",
             "description": "Deletes an existing Employee.",
+            "name": "delete",
             "params": [
               {
                 "name": "id",
@@ -118,19 +64,73 @@
                 "type": "int"
               }
             ],
-            "return_type": "None",
-            "raises": []
+            "raises": [],
+            "return_type": "None"
+          },
+          {
+            "description": "Lists every Employee; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "age",
+                "type": "int"
+              },
+              {
+                "name": "salary",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Employee]"
+          },
+          {
+            "description": "Reads one Employee by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Employee"
+          },
+          {
+            "description": "Updates an existing Employee.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "age",
+                "type": "int"
+              },
+              {
+                "name": "salary",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Employee"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Employee",
-        "table": "employees",
-        "primary_key": "id",
-        "indexes": [
-          "email"
         ]
       }
     ]

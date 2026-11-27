@@ -192,15 +192,15 @@ def build_parser():
     p_Project_add.add_argument('--status', type=str, required=True, dest='status')
     p_Project_add.add_argument('--is-deleted', action='store_true', dest='is_deleted')
     p_Project_add.set_defaults(_binding=('Project', 'add'))
+    p_Project_delete = sub_Project.add_parser('delete')
+    p_Project_delete.add_argument('--project-id', type=int, required=True, dest='project_id')
+    p_Project_delete.set_defaults(_binding=('Project', 'delete'))
     p_Project_update = sub_Project.add_parser('update')
     p_Project_update.add_argument('--project-id', type=int, required=False, dest='project_id')
     p_Project_update.add_argument('--name', type=str, required=False, dest='name')
     p_Project_update.add_argument('--description', type=str, required=False, dest='description')
     p_Project_update.add_argument('--status', type=str, required=False, dest='status')
     p_Project_update.set_defaults(_binding=('Project', 'update'))
-    p_Project_delete = sub_Project.add_parser('delete')
-    p_Project_delete.add_argument('--project-id', type=int, required=True, dest='project_id')
-    p_Project_delete.set_defaults(_binding=('Project', 'delete'))
     return parser
 
 

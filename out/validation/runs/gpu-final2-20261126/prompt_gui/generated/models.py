@@ -12,6 +12,15 @@ from typing import Any, Dict, List, Literal, Optional
 
 
 @dataclass
+class StorageLocation:
+    id: int = None
+    zone_name: str = None
+    row_number: int = None
+    shelf_number: int = None
+    max_capacity: int = None
+
+
+@dataclass
 class Wine:
     id: int = None
     name: str = None
@@ -22,12 +31,3 @@ class Wine:
     selling_price: Decimal = None
     stock_quantity: int = None
     storage_location_id: int = None
-
-
-@dataclass
-class StorageLocation:
-    id: int = None
-    zone_name: str = None
-    row_number: int = None
-    shelf_number: int = None
-    max_capacity: int = None

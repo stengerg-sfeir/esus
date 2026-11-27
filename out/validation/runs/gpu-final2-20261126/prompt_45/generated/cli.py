@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Room', 'Guest', 'Booking']
-REPOSITORIES = ['RoomRepository', 'GuestRepository', 'BookingRepository']
+MODELS = ['Booking', 'Guest', 'Room']
+REPOSITORIES = ['BookingRepository', 'GuestRepository', 'RoomRepository']
 SERVICES = ['BookingService']
 
 
@@ -284,6 +284,9 @@ def build_parser():
     p_Booking_add.add_argument('--check-out-date', type=str, required=True, dest='check_out_date')
     p_Booking_add.add_argument('--booking-status', type=str, required=True, dest='booking_status')
     p_Booking_add.set_defaults(_binding=('Booking', 'add'))
+    p_Booking_delete = sub_Booking.add_parser('delete')
+    p_Booking_delete.add_argument('--id', type=int, required=True, dest='id')
+    p_Booking_delete.set_defaults(_binding=('Booking', 'delete'))
     p_Booking_update = sub_Booking.add_parser('update')
     p_Booking_update.add_argument('--id', type=int, required=False, dest='id')
     p_Booking_update.add_argument('--room-id', type=int, required=False, dest='room_id')
@@ -292,25 +295,6 @@ def build_parser():
     p_Booking_update.add_argument('--check-out-date', type=str, required=False, dest='check_out_date')
     p_Booking_update.add_argument('--booking-status', type=str, required=False, dest='booking_status')
     p_Booking_update.set_defaults(_binding=('Booking', 'update'))
-    p_Booking_delete = sub_Booking.add_parser('delete')
-    p_Booking_delete.add_argument('--id', type=int, required=True, dest='id')
-    p_Booking_delete.set_defaults(_binding=('Booking', 'delete'))
-    p_Room = sub.add_parser('Room')
-    sub_Room = p_Room.add_subparsers(dest='subcommand')
-    p_Room_add = sub_Room.add_parser('add')
-    p_Room_add.add_argument('--room-number', type=str, required=False, dest='room_number')
-    p_Room_add.add_argument('--availability-status', action='store_true', dest='availability_status')
-    p_Room_add.set_defaults(_binding=('Room', 'add'))
-    p_Room_update = sub_Room.add_parser('update')
-    p_Room_update.add_argument('--id', type=int, required=True, dest='id')
-    p_Room_update.add_argument('--room-number', type=str, required=False, dest='room_number')
-    p_Room_update.add_argument('--availability-status', action='store_true', dest='availability_status')
-    p_Room_update.set_defaults(_binding=('Room', 'update'))
-    p_Room_delete = sub_Room.add_parser('delete')
-    p_Room_delete.add_argument('--id', type=int, required=True, dest='id')
-    p_Room_delete.add_argument('--room-number', type=str, required=False, dest='room_number')
-    p_Room_delete.add_argument('--availability-status', action='store_true', dest='availability_status')
-    p_Room_delete.set_defaults(_binding=('Room', 'delete'))
     p_Guest = sub.add_parser('Guest')
     sub_Guest = p_Guest.add_subparsers(dest='subcommand')
     p_Guest_add = sub_Guest.add_parser('add')
@@ -319,13 +303,6 @@ def build_parser():
     p_Guest_add.add_argument('--email', type=str, required=False, dest='email')
     p_Guest_add.add_argument('--phone-number', type=str, required=False, dest='phone_number')
     p_Guest_add.set_defaults(_binding=('Guest', 'add'))
-    p_Guest_update = sub_Guest.add_parser('update')
-    p_Guest_update.add_argument('--id', type=int, required=True, dest='id')
-    p_Guest_update.add_argument('--first-name', type=str, required=False, dest='first_name')
-    p_Guest_update.add_argument('--last-name', type=str, required=False, dest='last_name')
-    p_Guest_update.add_argument('--email', type=str, required=False, dest='email')
-    p_Guest_update.add_argument('--phone-number', type=str, required=False, dest='phone_number')
-    p_Guest_update.set_defaults(_binding=('Guest', 'update'))
     p_Guest_delete = sub_Guest.add_parser('delete')
     p_Guest_delete.add_argument('--id', type=int, required=True, dest='id')
     p_Guest_delete.add_argument('--first-name', type=str, required=False, dest='first_name')
@@ -333,6 +310,29 @@ def build_parser():
     p_Guest_delete.add_argument('--email', type=str, required=False, dest='email')
     p_Guest_delete.add_argument('--phone-number', type=str, required=False, dest='phone_number')
     p_Guest_delete.set_defaults(_binding=('Guest', 'delete'))
+    p_Guest_update = sub_Guest.add_parser('update')
+    p_Guest_update.add_argument('--id', type=int, required=True, dest='id')
+    p_Guest_update.add_argument('--first-name', type=str, required=False, dest='first_name')
+    p_Guest_update.add_argument('--last-name', type=str, required=False, dest='last_name')
+    p_Guest_update.add_argument('--email', type=str, required=False, dest='email')
+    p_Guest_update.add_argument('--phone-number', type=str, required=False, dest='phone_number')
+    p_Guest_update.set_defaults(_binding=('Guest', 'update'))
+    p_Room = sub.add_parser('Room')
+    sub_Room = p_Room.add_subparsers(dest='subcommand')
+    p_Room_add = sub_Room.add_parser('add')
+    p_Room_add.add_argument('--room-number', type=str, required=False, dest='room_number')
+    p_Room_add.add_argument('--availability-status', action='store_true', dest='availability_status')
+    p_Room_add.set_defaults(_binding=('Room', 'add'))
+    p_Room_delete = sub_Room.add_parser('delete')
+    p_Room_delete.add_argument('--id', type=int, required=True, dest='id')
+    p_Room_delete.add_argument('--room-number', type=str, required=False, dest='room_number')
+    p_Room_delete.add_argument('--availability-status', action='store_true', dest='availability_status')
+    p_Room_delete.set_defaults(_binding=('Room', 'delete'))
+    p_Room_update = sub_Room.add_parser('update')
+    p_Room_update.add_argument('--id', type=int, required=True, dest='id')
+    p_Room_update.add_argument('--room-number', type=str, required=False, dest='room_number')
+    p_Room_update.add_argument('--availability-status', action='store_true', dest='availability_status')
+    p_Room_update.set_defaults(_binding=('Room', 'update'))
     return parser
 
 

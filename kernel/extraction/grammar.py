@@ -54,6 +54,26 @@ GENERIC_TYPE_RULE = (
 # `string`, because a type may be `Optional[Member]` or `datetime.date`.
 IDENTIFIER_RULE = r'identifier ::= "\"" [a-zA-Z_] [a-zA-Z0-9_]* "\""'
 
+# Role suffixes the rest of the pipeline relies on. The checker pairs a
+# service with its repository by name, the not-found repair looks for
+# `<Entity>NotFoundError`, and the generator decides whether a holder is a
+# service or a repository from its name. Leaving the suffix free made those
+# relationships depend on the model remembering an English convention. These
+# rules make a name without its role suffix unrepresentable.
+#
+# `Error` and `Exception` are both accepted because the requirements name both
+# spellings (`CategoryNotFoundError`, `BudgetExceededException`); the suffix
+# itself is what carries the meaning, not one particular word.
+ERROR_NAME_RULE = (
+    r'error-name ::= "\"" [a-zA-Z_] [a-zA-Z0-9_]* ("Error" | "Exception") "\""'
+)
+SERVICE_NAME_RULE = (
+    r'service-name ::= "\"" [a-zA-Z_] [a-zA-Z0-9_]* ("Service" | "Repository") "\""'
+)
+REPOSITORY_NAME_RULE = (
+    r'repository-name ::= "\"" [a-zA-Z_] [a-zA-Z0-9_]* "Repository" "\""'
+)
+
 # A subcommand name that is a path of one to three words ("category add"). Only
 # the grammar of a prompt that nests command groups includes it (see
 # `grammar_open.facade_rules`); `identifier` stays the name rule everywhere else.
@@ -103,7 +123,15 @@ BASE_ERROR_RULE = (
     r'"\"TypeError\"" | "\"Exception\""'
 )
 
-SHARED_RULES = (STRING_RULE, BOOLEAN_RULE, IDENTIFIER_RULE, WS_RULE)
+SHARED_RULES = (
+    STRING_RULE,
+    BOOLEAN_RULE,
+    IDENTIFIER_RULE,
+    ERROR_NAME_RULE,
+    SERVICE_NAME_RULE,
+    REPOSITORY_NAME_RULE,
+    WS_RULE,
+)
 
 # Repetition caps. A closed vocabulary bounds which items can appear but not
 # how many, so every list is capped to keep a model that loops from filling the

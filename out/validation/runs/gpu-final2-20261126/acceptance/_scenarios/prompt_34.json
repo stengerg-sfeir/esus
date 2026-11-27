@@ -19,6 +19,28 @@
       }
     },
     {
+      "name": "cli:Order delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "delete",
+            "--order-id",
+            "1"
+          ],
+          [
+            "Order",
+            "delete",
+            "--order-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
       "name": "cli:Order update",
       "when": {
         "cli_variants": [
@@ -45,28 +67,6 @@
       }
     },
     {
-      "name": "cli:Order delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Order",
-            "delete",
-            "--order-id",
-            "1"
-          ],
-          [
-            "Order",
-            "delete",
-            "--order-id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:OrderLine add",
       "when": {
         "cli_variants": [
@@ -83,22 +83,6 @@
             "2",
             "--total-price",
             "2"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:OrderLine update",
-      "when": {
-        "cli_variants": [
-          [
-            "OrderLine",
-            "update",
-            "--order-line-id",
-            "1"
           ]
         ]
       },
@@ -142,6 +126,22 @@
             "total_price": 2.0
           }
         }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:OrderLine update",
+      "when": {
+        "cli_variants": [
+          [
+            "OrderLine",
+            "update",
+            "--order-line-id",
+            "1"
+          ]
+        ]
       },
       "expect": {
         "exit": 0

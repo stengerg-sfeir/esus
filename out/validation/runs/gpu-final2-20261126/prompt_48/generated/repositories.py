@@ -58,7 +58,7 @@ class BookRepository:
         self._store = store
 
 
-    def create(self, title: str = None, author: str = None, genre: str = None, isbn: str = None, publication_year: int = None, category: str = None) -> Any:
+    def create(self, title: str = None, author: str = None, genre: str = None, isbn: str = None, publication_year: int = None, category: str = None) -> models.Book:
         """Creates a new Book. [crud:create: STANDARD_CRUD]"""
         values = {}
         if title is not None:
@@ -100,7 +100,7 @@ class BookRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Book(**r) for r in found]
 
-    def read_one(self, id: int = None) -> Any:
+    def read_one(self, id: int = None) -> models.Book:
         """Reads one Book by its key. [crud:read_one: READ_ONE_BY_ID]"""
         found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
         if not found:

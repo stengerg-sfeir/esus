@@ -2,167 +2,167 @@
   "interaction_adapters": [
     {
       "action_name": "projectcreate",
-      "target_service": "ProjectRepository",
-      "target_method": "create",
       "input_fields": [
         {
           "field_name": "title",
-          "target_param": "title",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "title",
+          "transform": "DIRECT"
         },
         {
           "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "description",
+          "transform": "DIRECT"
         },
         {
           "field_name": "created_at",
-          "target_param": "created_at",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
           "required": true,
-          "status": "deduced"
+          "status": "deduced",
+          "target_param": "created_at",
+          "transform": "ISO_DATE"
         },
         {
           "field_name": "updated_at",
-          "target_param": "updated_at",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
           "required": true,
-          "status": "deduced"
+          "status": "deduced",
+          "target_param": "updated_at",
+          "transform": "ISO_DATE"
         }
-      ]
-    },
-    {
-      "action_name": "projectupdate",
-      "target_service": "ProjectRepository",
-      "target_method": "update",
-      "input_fields": [
-        {
-          "field_name": "title",
-          "target_param": "title",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "ProjectRepository"
     },
     {
       "action_name": "projectdelete",
-      "target_service": "ProjectRepository",
+      "input_fields": [],
       "target_method": "delete",
-      "input_fields": []
+      "target_service": "ProjectRepository"
+    },
+    {
+      "action_name": "projectupdate",
+      "input_fields": [
+        {
+          "field_name": "title",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "title",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "description",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "description",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "ProjectRepository"
     },
     {
       "action_name": "taskcreate",
-      "target_service": "TaskRepository",
-      "target_method": "create",
       "input_fields": [
         {
           "field_name": "title",
-          "target_param": "title",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "title",
+          "transform": "DIRECT"
         },
         {
           "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "description",
+          "transform": "DIRECT"
         },
         {
           "field_name": "status",
-          "target_param": "status",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "status",
+          "transform": "DIRECT"
         },
         {
           "field_name": "priority",
-          "target_param": "priority",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "priority",
+          "transform": "DIRECT"
         },
         {
           "field_name": "project_id",
-          "target_param": "project_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Project",
           "required": true,
-          "status": "explicit"
+          "status": "explicit",
+          "target_param": "project_id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "created_at",
-          "target_param": "created_at",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
           "required": true,
-          "status": "deduced"
+          "status": "deduced",
+          "target_param": "created_at",
+          "transform": "ISO_DATE"
         },
         {
           "field_name": "updated_at",
-          "target_param": "updated_at",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
           "required": true,
-          "status": "deduced"
+          "status": "deduced",
+          "target_param": "updated_at",
+          "transform": "ISO_DATE"
         }
-      ]
-    },
-    {
-      "action_name": "taskupdate",
-      "target_service": "TaskRepository",
-      "target_method": "update",
-      "input_fields": [
-        {
-          "field_name": "title",
-          "target_param": "title",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "status",
-          "target_param": "status",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "priority",
-          "target_param": "priority",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "TaskRepository"
     },
     {
       "action_name": "taskdelete",
-      "target_service": "TaskRepository",
+      "input_fields": [],
       "target_method": "delete",
-      "input_fields": []
+      "target_service": "TaskRepository"
+    },
+    {
+      "action_name": "taskupdate",
+      "input_fields": [
+        {
+          "field_name": "title",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "title",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "description",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "description",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "status",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "status",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "priority",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "priority",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "TaskRepository"
     }
   ]
 }

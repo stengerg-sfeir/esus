@@ -58,7 +58,7 @@ class ProductRepository:
         self._store = store
 
 
-    def create(self, name: str = None, price: int = None) -> Any:
+    def create(self, name: str = None, price: int = None) -> models.Product:
         """Creates a new Product. [crud:create: STANDARD_CRUD]"""
         values = {}
         if name is not None:
@@ -74,13 +74,21 @@ class ProductRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
         return models.Product(**record)
 
-    def read_one(self, product_id: int = None) -> Any:
-        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', product_id)])
+    def delete(self, product_id: int = None, name: str = None, price: int = None) -> None:
+        """Deletes an existing Product. [crud:delete: STANDARD_CRUD]"""
+        criteria = []
+        if product_id is not None:
+            criteria.append(('product_id', 'eq', product_id))
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if price is not None:
+            criteria.append(('price', 'eq', price))
+        found = self._store.select(self.ENTITY, criteria)
         if not found:
-            return None
-        record = found[0]
-        return models.Product(**record)
+            raise LookupError(f"Product delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
 
     def read_all(self, name: str = None, price: int = None) -> list[models.Product]:
         """Lists every Product; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
@@ -92,7 +100,15 @@ class ProductRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Product(**r) for r in found]
 
-    def update(self, product_id: int = None, name: str = None, price: int = None) -> Any:
+    def read_one(self, product_id: int = None) -> models.Product:
+        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', product_id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Product(**record)
+
+    def update(self, product_id: int = None, name: str = None, price: int = None) -> models.Product:
         """Updates an existing Product. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if product_id is not None:
@@ -113,22 +129,6 @@ class ProductRepository:
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Product(**record)
 
-    def delete(self, product_id: int = None, name: str = None, price: int = None) -> None:
-        """Deletes an existing Product. [crud:delete: STANDARD_CRUD]"""
-        criteria = []
-        if product_id is not None:
-            criteria.append(('product_id', 'eq', product_id))
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if price is not None:
-            criteria.append(('price', 'eq', price))
-        found = self._store.select(self.ENTITY, criteria)
-        if not found:
-            raise LookupError(f"Product delete matched no records")
-        for record in found:
-            self._store.delete(self.ENTITY, self.PK, record[self.PK])
-        return None
-
 
 class SalesRecordRepository:
     ENTITY = "SalesRecord"
@@ -138,7 +138,7 @@ class SalesRecordRepository:
         self._store = store
 
 
-    def create(self, product_id: int = None, quantity: int = None, sale_date: Any = None) -> Any:
+    def create(self, product_id: int = None, quantity: int = None, sale_date: Any = None) -> models.SalesRecord:
         """Creates a new SalesRecord. [crud:create: STANDARD_CRUD]"""
         values = {}
         if product_id is not None:
@@ -156,6 +156,32 @@ class SalesRecordRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("product_id", "Product", "product_id", None)])
         return models.SalesRecord(**record)
 
+    def delete(self, sales_id: int = None, product_id: int = None, quantity: int = None, sale_date: Any = None) -> None:
+        """Deletes an existing SalesRecord. [crud:delete: name-only: step F never saw this method]"""
+        criteria = []
+        if sales_id is not None:
+            criteria.append(('sales_id', 'eq', sales_id))
+        if product_id is not None:
+            criteria.append(('product_id', 'eq', product_id))
+        if quantity is not None:
+            criteria.append(('quantity', 'eq', quantity))
+        if sale_date is not None:
+            criteria.append(('sale_date', 'eq', sale_date))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            raise LookupError(f"SalesRecord delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
+
+    def get_sales_records_by_product_id(self, product_id: int = None) -> list[models.SalesRecord]:
+        """Lists the SalesRecord records belonging to one Product. [mechanical contained-name filter]"""
+        criteria = []
+        if product_id is not None:
+            criteria.append(('product_id', 'eq', product_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.SalesRecord(**row) for row in found], models.SalesRecord)
+
     def read_all(self, product_id: int = None, quantity: int = None, sale_date: Any = None) -> list[models.SalesRecord]:
         """Lists every SalesRecord; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
         criteria = []
@@ -168,21 +194,13 @@ class SalesRecordRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.SalesRecord(**r) for r in found]
 
-    def read_one(self, sales_id: int = None) -> Any:
+    def read_one(self, sales_id: int = None) -> models.SalesRecord:
         """Reads one SalesRecord by its key. [crud:read_one: READ_ONE_BY_ID]"""
         found = self._store.select(self.ENTITY, [(self.PK, 'eq', sales_id)])
         if not found:
             return None
         record = found[0]
         return models.SalesRecord(**record)
-
-    def get_sales_records_by_product_id(self, product_id: int = None) -> list[models.SalesRecord]:
-        """Lists the SalesRecord records belonging to one Product. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
-        criteria = []
-        if product_id is not None:
-            criteria.append(('product_id', 'eq', product_id))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.SalesRecord(**r) for r in found]
 
     def update(self, sales_id: int = None, product_id: int = None, quantity: int = None, sale_date: Any = None) -> models.SalesRecord:
         """Updates an existing SalesRecord. [crud:update: name-only: step F never saw this method]"""
@@ -206,21 +224,3 @@ class SalesRecordRepository:
             raise ValueError(f"SalesRecord.quantity must be > 0, got {value!r}")
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.SalesRecord(**record)
-
-    def delete(self, sales_id: int = None, product_id: int = None, quantity: int = None, sale_date: Any = None) -> None:
-        """Deletes an existing SalesRecord. [crud:delete: name-only: step F never saw this method]"""
-        criteria = []
-        if sales_id is not None:
-            criteria.append(('sales_id', 'eq', sales_id))
-        if product_id is not None:
-            criteria.append(('product_id', 'eq', product_id))
-        if quantity is not None:
-            criteria.append(('quantity', 'eq', quantity))
-        if sale_date is not None:
-            criteria.append(('sale_date', 'eq', sale_date))
-        found = self._store.select(self.ENTITY, criteria)
-        if not found:
-            raise LookupError(f"SalesRecord delete matched no records")
-        for record in found:
-            self._store.delete(self.ENTITY, self.PK, record[self.PK])
-        return None

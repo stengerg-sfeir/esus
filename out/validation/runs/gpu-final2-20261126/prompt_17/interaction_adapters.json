@@ -2,17 +2,17 @@
   "interaction_adapters": [
     {
       "action_name": "search_product_by_name",
-      "target_service": "ProductRepository",
-      "target_method": "search_product_by_name",
       "input_fields": [
         {
           "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "name",
+          "transform": "DIRECT"
         }
-      ]
+      ],
+      "target_method": "search_product_by_name",
+      "target_service": "ProductRepository"
     }
   ]
 }

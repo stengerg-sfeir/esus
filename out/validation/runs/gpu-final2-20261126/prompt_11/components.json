@@ -1,236 +1,5 @@
 {
   "components": {
-    "facade": {
-      "type": "cli",
-      "technology": "argparse",
-      "invocation": {
-        "positional": [
-          {
-            "name": "title",
-            "type": "str",
-            "required": true
-          },
-          {
-            "name": "author",
-            "type": "str",
-            "required": true
-          },
-          {
-            "name": "isbn",
-            "type": "str",
-            "required": true
-          },
-          {
-            "name": "publication_year",
-            "type": "int",
-            "required": true
-          }
-        ],
-        "options": [
-          {
-            "name": "--search",
-            "short": "-s",
-            "type": "str",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--help",
-            "short": "-h",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--version",
-            "short": "-v",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--update",
-            "short": "-u",
-            "type": "str",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--delete",
-            "short": "-d",
-            "type": "str",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--list",
-            "short": "-l",
-            "type": "bool",
-            "required": false,
-            "default": null
-          }
-        ],
-        "commands": [
-          {
-            "name": "Book",
-            "options": [],
-            "subcommands": [
-              {
-                "name": "add",
-                "options": [
-                  {
-                    "name": "--title",
-                    "short": null,
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--author",
-                    "short": null,
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--isbn",
-                    "short": null,
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--publication-year",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "list",
-                "options": [
-                  {
-                    "name": "--title",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--author",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--isbn",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--publication-year",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "update",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--title",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--author",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--isbn",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--publication-year",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "delete",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--title",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--author",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--isbn",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--publication-year",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "persistence": {
-      "required": true,
-      "technology": "sqlite"
-    },
-    "external_access": [],
     "crud_services": [
       {
         "entity": "Book",
@@ -242,6 +11,237 @@
           "delete"
         ]
       }
-    ]
+    ],
+    "external_access": [],
+    "facade": {
+      "invocation": {
+        "commands": [
+          {
+            "name": "Book",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--title",
+                    "required": true,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--author",
+                    "required": true,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--isbn",
+                    "required": true,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--publication-year",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--title",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--author",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--isbn",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--publication-year",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--title",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--author",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--isbn",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--publication-year",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--title",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--author",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--isbn",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--publication-year",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "options": [
+          {
+            "default": null,
+            "name": "--search",
+            "required": false,
+            "short": "-s",
+            "type": "str"
+          },
+          {
+            "default": null,
+            "name": "--help",
+            "required": false,
+            "short": "-h",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--version",
+            "required": false,
+            "short": "-v",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--update",
+            "required": false,
+            "short": "-u",
+            "type": "str"
+          },
+          {
+            "default": null,
+            "name": "--delete",
+            "required": false,
+            "short": "-d",
+            "type": "str"
+          },
+          {
+            "default": null,
+            "name": "--list",
+            "required": false,
+            "short": "-l",
+            "type": "bool"
+          }
+        ],
+        "positional": [
+          {
+            "name": "title",
+            "required": true,
+            "type": "str"
+          },
+          {
+            "name": "author",
+            "required": true,
+            "type": "str"
+          },
+          {
+            "name": "isbn",
+            "required": true,
+            "type": "str"
+          },
+          {
+            "name": "publication_year",
+            "required": true,
+            "type": "int"
+          }
+        ]
+      },
+      "technology": "argparse",
+      "type": "cli"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    }
   }
 }

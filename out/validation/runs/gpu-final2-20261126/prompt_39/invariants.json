@@ -1,204 +1,204 @@
 {
   "invariants": [
     {
-      "text": "User.user_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A Product's price must be greater than zero."
     },
     {
-      "text": "User.email must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A user can only create an order if they have a valid user_id associated with an Order record."
     },
     {
-      "text": "User.email must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A user can only view orders where the user_id matches their own user_id."
     },
     {
-      "text": "User.password_hash must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A user's email must be unique across all users."
     },
     {
-      "text": "User.password_hash must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An OrderItem must reference a valid Order and a valid Product through order_id and product_id."
     },
     {
-      "text": "User.is_admin must be a boolean",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Only users with is_admin = true can modify products or users."
     },
     {
-      "text": "User.is_admin must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Order.order_date must be a datetime"
     },
     {
-      "text": "User.created_at must be a datetime",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Order.order_date must not be null"
     },
     {
-      "text": "User.created_at must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Order.order_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Product.product_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Order.status must be a string"
     },
     {
-      "text": "Product.name must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Order.status must not be null"
     },
     {
-      "text": "Product.name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Order.total_amount must be a number"
     },
     {
-      "text": "Product.description must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Order.total_amount must not be null"
     },
     {
-      "text": "Product.price must be a number",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Order.user_id must be an integer"
     },
     {
-      "text": "Product.price must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Order.user_id must not be null"
     },
     {
-      "text": "Product.stock_quantity must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Order.user_id must reference an existing User.user_id"
     },
     {
-      "text": "Product.stock_quantity must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "OrderItem.order_id must be an integer"
     },
     {
-      "text": "Product.created_at must be a datetime",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "OrderItem.order_id must not be null"
     },
     {
-      "text": "Product.created_at must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "OrderItem.order_id must reference an existing Order.order_id"
     },
     {
-      "text": "Order.order_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "OrderItem.order_item_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Order.user_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "OrderItem.product_id must be an integer"
     },
     {
-      "text": "Order.user_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "OrderItem.product_id must not be null"
     },
     {
-      "text": "Order.user_id must reference an existing User.user_id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "OrderItem.product_id must reference an existing Product.product_id"
     },
     {
-      "text": "Order.order_date must be a datetime",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "OrderItem.quantity must be an integer"
     },
     {
-      "text": "Order.order_date must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "OrderItem.quantity must not be null"
     },
     {
-      "text": "Order.total_amount must be a number",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "OrderItem.unit_price must be a number"
     },
     {
-      "text": "Order.total_amount must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "OrderItem.unit_price must not be null"
     },
     {
-      "text": "Order.status must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.created_at must be a datetime"
     },
     {
-      "text": "Order.status must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.created_at must not be null"
     },
     {
-      "text": "OrderItem.order_item_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.description must be a string"
     },
     {
-      "text": "OrderItem.order_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.name must be a string"
     },
     {
-      "text": "OrderItem.order_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.name must not be null"
     },
     {
-      "text": "OrderItem.order_id must reference an existing Order.order_id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.price must be a number"
     },
     {
-      "text": "OrderItem.product_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.price must not be null"
     },
     {
-      "text": "OrderItem.product_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.product_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "OrderItem.product_id must reference an existing Product.product_id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.stock_quantity must be an integer"
     },
     {
-      "text": "OrderItem.quantity must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.stock_quantity must not be null"
     },
     {
-      "text": "OrderItem.quantity must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "The order_date in an Order must be on or after the created_at timestamp of the corresponding Product if the product is being ordered."
     },
     {
-      "text": "OrderItem.unit_price must be a number",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "The status of an Order must be one of 'pending', 'completed', or 'cancelled'."
     },
     {
-      "text": "OrderItem.unit_price must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "The stock_quantity of a Product must not go below zero after any order is processed."
     },
     {
-      "text": "The total_amount in an Order must equal the sum of (quantity * unit_price) for all OrderItems in that Order.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The total_amount in an Order must equal the sum of (quantity * unit_price) for all OrderItems in that Order."
     },
     {
-      "text": "Only users with is_admin = true can modify products or users.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.created_at must be a datetime"
     },
     {
-      "text": "A user can only create an order if they have a valid user_id associated with an Order record.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.created_at must not be null"
     },
     {
-      "text": "An OrderItem must reference a valid Order and a valid Product through order_id and product_id.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.email must be a string"
     },
     {
-      "text": "The stock_quantity of a Product must not go below zero after any order is processed.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.email must not be null"
     },
     {
-      "text": "A user can only view orders where the user_id matches their own user_id.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.is_admin must be a boolean"
     },
     {
-      "text": "The status of an Order must be one of 'pending', 'completed', or 'cancelled'.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.is_admin must not be null"
     },
     {
-      "text": "A Product's price must be greater than zero.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.password_hash must be a string"
     },
     {
-      "text": "The order_date in an Order must be on or after the created_at timestamp of the corresponding Product if the product is being ordered.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.password_hash must not be null"
     },
     {
-      "text": "A user's email must be unique across all users.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.user_id must be an auto-incremented integer primary key with default value None"
     }
   ]
 }

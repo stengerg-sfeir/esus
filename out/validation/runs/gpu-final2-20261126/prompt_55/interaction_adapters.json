@@ -2,87 +2,87 @@
   "interaction_adapters": [
     {
       "action_name": "create_product",
-      "target_service": "ProductRepository",
-      "target_method": "create",
       "input_fields": [
         {
           "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "name",
+          "transform": "DIRECT"
         },
         {
           "field_name": "stock_quantity",
-          "target_param": "stock_quantity",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "stock_quantity",
+          "transform": "DIRECT"
         },
         {
           "field_name": "price",
+          "lookup_entity": null,
+          "required": true,
           "target_param": "price",
-          "transform": "DECIMAL_TO_CENTS",
-          "lookup_entity": null,
-          "required": true
+          "transform": "DECIMAL_TO_CENTS"
         }
-      ]
-    },
-    {
-      "action_name": "update_product_stock",
-      "target_service": "ProductRepository",
-      "target_method": "updateProductStock",
-      "input_fields": [
-        {
-          "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Product",
-          "required": true
-        },
-        {
-          "field_name": "new_stock_quantity",
-          "target_param": "new_stock_quantity",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "ProductRepository"
     },
     {
       "action_name": "saleadd",
-      "target_service": "SaleRepository",
-      "target_method": "create",
       "input_fields": [
         {
           "field_name": "product_id",
-          "target_param": "product_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Product",
-          "required": false
+          "required": false,
+          "target_param": "product_id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "quantity",
-          "target_param": "quantity",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "quantity",
+          "transform": "DIRECT"
         },
         {
           "field_name": "sale_date",
-          "target_param": "sale_date",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "sale_date",
+          "transform": "ISO_DATE"
         },
         {
           "field_name": "user_id",
-          "target_param": "user_id",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "user_id",
+          "transform": "DIRECT"
         }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "SaleRepository"
+    },
+    {
+      "action_name": "update_product_stock",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "lookup_entity": "Product",
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "new_stock_quantity",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "new_stock_quantity",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "updateProductStock",
+      "target_service": "ProductRepository"
     }
   ]
 }

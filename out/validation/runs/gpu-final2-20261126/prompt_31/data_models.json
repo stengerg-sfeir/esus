@@ -1,75 +1,75 @@
 {
   "data_models": [
     {
-      "name": "Customer",
       "fields": [
         {
-          "name": "id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "name",
-          "type": "string",
-          "primary_key": false,
+          "foreign_key": {
+            "relationship": "one_to_many",
+            "target_entity": "Customer",
+            "target_field": "id"
+          },
+          "name": "customer_id",
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
         },
         {
-          "name": "email",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
+          "name": "balance",
+          "nullable": false,
+          "primary_key": false,
           "status": "explicit",
-          "unique_status": "rejected"
+          "type": "decimal",
+          "unique": false
         }
-      ]
+      ],
+      "name": "Account"
     },
     {
-      "name": "Account",
       "fields": [
         {
-          "name": "id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "customer_id",
-          "type": "int",
-          "primary_key": false,
+          "foreign_key": null,
+          "name": "name",
           "nullable": false,
-          "unique": false,
-          "foreign_key": {
-            "target_entity": "Customer",
-            "target_field": "id",
-            "relationship": "one_to_many"
-          },
-          "status": "explicit"
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
         },
         {
-          "name": "balance",
-          "type": "decimal",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "email",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false,
+          "unique_status": "rejected"
         }
-      ]
+      ],
+      "name": "Customer"
     }
   ]
 }

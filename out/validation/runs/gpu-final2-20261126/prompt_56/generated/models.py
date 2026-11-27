@@ -19,14 +19,6 @@ class Customer:
 
 
 @dataclass
-class Product:
-    product_id: int = None
-    name: str = None
-    description: Optional[str] = None
-    stock_quantity: int = None
-
-
-@dataclass
 class Order:
     order_id: int = None
     customer_id: int = None
@@ -36,6 +28,15 @@ class Order:
 
 @dataclass
 class OrderProduct:
+    order_product_id: int = None
     order_id: int = None
     product_id: int = None
     quantity: int = None
+
+
+@dataclass
+class Product:
+    product_id: int = None
+    name: str = None
+    description: Optional[str] = None
+    stock_quantity: int = None

@@ -1,64 +1,64 @@
 {
   "invariants": [
     {
-      "text": "Customer.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A deposit increases the account balance by the amount of the deposit."
     },
     {
-      "text": "Customer.name must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A withdrawal decreases the account balance by the amount of the withdrawal."
     },
     {
-      "text": "Customer.name must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A withdrawal is rejected if the result of the withdrawal operation would make the account balance negative."
     },
     {
-      "text": "Customer.email must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Account.balance must be a number"
     },
     {
-      "text": "Customer.email must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Account.balance must not be null"
     },
     {
-      "text": "Account.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Account.customer_id must be an integer"
     },
     {
-      "text": "Account.customer_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Account.customer_id must not be null"
     },
     {
-      "text": "Account.customer_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Account.customer_id must reference an existing Customer.id"
     },
     {
-      "text": "Account.customer_id must reference an existing Customer.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Account.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Account.balance must be a number",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An account must belong to a customer, and the customer_id field must reference a valid customer in the Customer entity."
     },
     {
-      "text": "Account.balance must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.email must be a string"
     },
     {
-      "text": "A withdrawal is rejected if the result of the withdrawal operation would make the account balance negative.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Customer.email must not be null"
     },
     {
-      "text": "A deposit increases the account balance by the amount of the deposit.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Customer.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "A withdrawal decreases the account balance by the amount of the withdrawal.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Customer.name must be a string"
     },
     {
-      "text": "An account must belong to a customer, and the customer_id field must reference a valid customer in the Customer entity.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Customer.name must not be null"
     }
   ]
 }

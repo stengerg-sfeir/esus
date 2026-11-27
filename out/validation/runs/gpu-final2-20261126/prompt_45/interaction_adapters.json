@@ -2,304 +2,304 @@
   "interaction_adapters": [
     {
       "action_name": "bookingadd",
-      "target_service": "BookingService",
+      "input_fields": [
+        {
+          "field_name": "room_id",
+          "lookup_entity": "Room",
+          "required": true,
+          "target_param": "room_id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "guest_id",
+          "lookup_entity": "Guest",
+          "required": true,
+          "target_param": "guest_id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "check_in_date",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "check_in_date",
+          "transform": "ISO_DATE"
+        },
+        {
+          "field_name": "check_out_date",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "check_out_date",
+          "transform": "ISO_DATE"
+        },
+        {
+          "field_name": "booking_status",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "booking_status",
+          "transform": "DIRECT"
+        }
+      ],
       "target_method": "create_booking",
-      "input_fields": [
-        {
-          "field_name": "room_id",
-          "target_param": "room_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Room",
-          "required": true
-        },
-        {
-          "field_name": "guest_id",
-          "target_param": "guest_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Guest",
-          "required": true
-        },
-        {
-          "field_name": "check_in_date",
-          "target_param": "check_in_date",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "check_out_date",
-          "target_param": "check_out_date",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "booking_status",
-          "target_param": "booking_status",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "bookingupdate",
-      "target_service": "BookingService",
-      "target_method": "update_booking",
-      "input_fields": [
-        {
-          "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Booking",
-          "required": false
-        },
-        {
-          "field_name": "room_id",
-          "target_param": "room_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Room",
-          "required": false
-        },
-        {
-          "field_name": "guest_id",
-          "target_param": "guest_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Guest",
-          "required": false
-        },
-        {
-          "field_name": "check_in_date",
-          "target_param": "check_in_date",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "check_out_date",
-          "target_param": "check_out_date",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "booking_status",
-          "target_param": "booking_status",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
+      "target_service": "BookingService"
     },
     {
       "action_name": "bookingdelete",
-      "target_service": "BookingService",
-      "target_method": "delete_booking",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Booking",
-          "required": true
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
         }
-      ]
+      ],
+      "target_method": "delete_booking",
+      "target_service": "BookingService"
     },
     {
-      "action_name": "roomadd",
-      "target_service": "RoomRepository",
-      "target_method": "create",
-      "input_fields": [
-        {
-          "field_name": "room_number",
-          "target_param": "room_number",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "availability_status",
-          "target_param": "availability_status",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "roomupdate",
-      "target_service": "RoomRepository",
-      "target_method": "update",
+      "action_name": "bookingupdate",
       "input_fields": [
         {
           "field_name": "id",
+          "lookup_entity": "Booking",
+          "required": false,
           "target_param": "id",
-          "transform": "LOOKUP_ID",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "room_id",
           "lookup_entity": "Room",
-          "required": true
+          "required": false,
+          "target_param": "room_id",
+          "transform": "LOOKUP_ID"
         },
         {
-          "field_name": "room_number",
-          "target_param": "room_number",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
+          "field_name": "guest_id",
+          "lookup_entity": "Guest",
+          "required": false,
+          "target_param": "guest_id",
+          "transform": "LOOKUP_ID"
         },
         {
-          "field_name": "availability_status",
-          "target_param": "availability_status",
-          "transform": "DIRECT",
+          "field_name": "check_in_date",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "check_in_date",
+          "transform": "ISO_DATE"
+        },
+        {
+          "field_name": "check_out_date",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "check_out_date",
+          "transform": "ISO_DATE"
+        },
+        {
+          "field_name": "booking_status",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "booking_status",
+          "transform": "DIRECT"
         }
-      ]
-    },
-    {
-      "action_name": "roomdelete",
-      "target_service": "RoomRepository",
-      "target_method": "delete",
-      "input_fields": [
-        {
-          "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Room",
-          "required": true
-        },
-        {
-          "field_name": "room_number",
-          "target_param": "room_number",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "availability_status",
-          "target_param": "availability_status",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
+      ],
+      "target_method": "update_booking",
+      "target_service": "BookingService"
     },
     {
       "action_name": "guestadd",
-      "target_service": "GuestRepository",
+      "input_fields": [
+        {
+          "field_name": "first_name",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "first_name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "last_name",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "last_name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "email",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "email",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "phone_number",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "phone_number",
+          "transform": "DIRECT"
+        }
+      ],
       "target_method": "create",
-      "input_fields": [
-        {
-          "field_name": "first_name",
-          "target_param": "first_name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "last_name",
-          "target_param": "last_name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "phone_number",
-          "target_param": "phone_number",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "guestupdate",
-      "target_service": "GuestRepository",
-      "target_method": "update",
-      "input_fields": [
-        {
-          "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Guest",
-          "required": true
-        },
-        {
-          "field_name": "first_name",
-          "target_param": "first_name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "last_name",
-          "target_param": "last_name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "phone_number",
-          "target_param": "phone_number",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
+      "target_service": "GuestRepository"
     },
     {
       "action_name": "guestdelete",
-      "target_service": "GuestRepository",
-      "target_method": "delete",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Guest",
-          "required": true
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "first_name",
-          "target_param": "first_name",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "first_name",
+          "transform": "DIRECT"
         },
         {
           "field_name": "last_name",
-          "target_param": "last_name",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "last_name",
+          "transform": "DIRECT"
         },
         {
           "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "email",
+          "transform": "DIRECT"
         },
         {
           "field_name": "phone_number",
-          "target_param": "phone_number",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "phone_number",
+          "transform": "DIRECT"
         }
-      ]
+      ],
+      "target_method": "delete",
+      "target_service": "GuestRepository"
+    },
+    {
+      "action_name": "guestupdate",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "lookup_entity": "Guest",
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "first_name",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "first_name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "last_name",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "last_name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "email",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "email",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "phone_number",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "phone_number",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "GuestRepository"
+    },
+    {
+      "action_name": "roomadd",
+      "input_fields": [
+        {
+          "field_name": "room_number",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "room_number",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "availability_status",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "availability_status",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "create",
+      "target_service": "RoomRepository"
+    },
+    {
+      "action_name": "roomdelete",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "lookup_entity": "Room",
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "room_number",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "room_number",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "availability_status",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "availability_status",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "delete",
+      "target_service": "RoomRepository"
+    },
+    {
+      "action_name": "roomupdate",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "lookup_entity": "Room",
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "room_number",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "room_number",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "availability_status",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "availability_status",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "RoomRepository"
     }
   ]
 }

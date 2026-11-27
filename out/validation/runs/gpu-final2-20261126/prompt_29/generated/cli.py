@@ -222,12 +222,12 @@ def build_parser():
     p_Customer_add.add_argument('--email', type=str, required=True, dest='email')
     p_Customer_add.add_argument('--name', type=str, required=True, dest='name')
     p_Customer_add.set_defaults(_binding=('Customer', 'add'))
+    p_Customer_delete = sub_Customer.add_parser('delete')
+    p_Customer_delete.set_defaults(_binding=('Customer', 'delete'))
     p_Customer_update = sub_Customer.add_parser('update')
     p_Customer_update.add_argument('--email', type=str, required=False, dest='email')
     p_Customer_update.add_argument('--name', type=str, required=False, dest='name')
     p_Customer_update.set_defaults(_binding=('Customer', 'update'))
-    p_Customer_delete = sub_Customer.add_parser('delete')
-    p_Customer_delete.set_defaults(_binding=('Customer', 'delete'))
     p_Order = sub.add_parser('Order')
     sub_Order = p_Order.add_subparsers(dest='subcommand')
     p_Order_add = sub_Order.add_parser('add')
@@ -235,11 +235,11 @@ def build_parser():
     p_Order_add.add_argument('--order-items', type=str, required=False, dest='order_items')
     p_Order_add.add_argument('--customer-id', type=int, required=True, dest='customer_id')
     p_Order_add.set_defaults(_binding=('Order', 'add'))
+    p_Order_delete = sub_Order.add_parser('delete')
+    p_Order_delete.set_defaults(_binding=('Order', 'delete'))
     p_Order_update = sub_Order.add_parser('update')
     p_Order_update.add_argument('--status', type=str, required=True, dest='status')
     p_Order_update.set_defaults(_binding=('Order', 'update'))
-    p_Order_delete = sub_Order.add_parser('delete')
-    p_Order_delete.set_defaults(_binding=('Order', 'delete'))
     return parser
 
 

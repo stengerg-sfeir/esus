@@ -1,37 +1,37 @@
 {
   "data_models": [
     {
-      "name": "Task",
       "fields": [
         {
-          "name": "id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "description",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "description",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
         },
         {
-          "name": "is_completed",
-          "type": "boolean",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "is_completed",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "boolean",
+          "unique": false
         }
-      ]
+      ],
+      "name": "Task"
     }
   ]
 }

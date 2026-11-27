@@ -21,6 +21,20 @@
       }
     },
     {
+      "name": "cli:Project delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Project",
+            "delete"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
       "name": "cli:Project update",
       "when": {
         "cli_variants": [
@@ -39,20 +53,6 @@
             "description": "value1"
           }
         }
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Project delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Project",
-            "delete"
-          ]
-        ]
       },
       "expect": {
         "exit": 0
@@ -85,6 +85,20 @@
       }
     },
     {
+      "name": "cli:Task delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "delete"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
       "name": "cli:Task update",
       "when": {
         "cli_variants": [
@@ -109,20 +123,6 @@
             "priority": "low"
           }
         }
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Task delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Task",
-            "delete"
-          ]
-        ]
       },
       "expect": {
         "exit": 0

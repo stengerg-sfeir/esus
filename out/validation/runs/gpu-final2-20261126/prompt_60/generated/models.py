@@ -12,6 +12,12 @@ from typing import Any, Dict, List, Literal, Optional
 
 
 @dataclass
+class Category:
+    category_id: int = None
+    name: str = None
+
+
+@dataclass
 class Customer:
     customer_id: int = None
     name: str = None
@@ -19,18 +25,12 @@ class Customer:
 
 
 @dataclass
-class Product:
-    product_id: int = None
-    name: str = None
-    category_id: int = None
-    stock_quantity: int = None
-    price: Decimal = None
-
-
-@dataclass
-class Category:
-    category_id: int = None
-    name: str = None
+class Invoice:
+    invoice_id: int = None
+    order_id: int = None
+    total_amount: Decimal = None
+    generated_at: datetime.datetime = None
+    customer_id: int = None
 
 
 @dataclass
@@ -54,9 +54,9 @@ class OrderItem:
 
 
 @dataclass
-class Invoice:
-    invoice_id: int = None
-    order_id: int = None
-    total_amount: Decimal = None
-    generated_at: datetime.datetime = None
-    customer_id: int = None
+class Product:
+    product_id: int = None
+    name: str = None
+    category_id: int = None
+    stock_quantity: int = None
+    price: Decimal = None

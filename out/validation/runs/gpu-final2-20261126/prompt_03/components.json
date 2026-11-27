@@ -1,144 +1,5 @@
 {
   "components": {
-    "facade": {
-      "type": "cli",
-      "technology": "argparse",
-      "invocation": {
-        "positional": [
-          {
-            "name": "task",
-            "type": "str",
-            "required": false
-          }
-        ],
-        "options": [
-          {
-            "name": "--complete",
-            "short": "-c",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--delete",
-            "short": "-d",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--help",
-            "short": "-h",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--version",
-            "short": "-v",
-            "type": "bool",
-            "required": false,
-            "default": null
-          }
-        ],
-        "commands": [
-          {
-            "name": "Task",
-            "options": [],
-            "subcommands": [
-              {
-                "name": "add",
-                "options": [
-                  {
-                    "name": "--description",
-                    "short": null,
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--is-completed",
-                    "short": null,
-                    "type": "bool",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "list",
-                "options": [
-                  {
-                    "name": "--description",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--is-completed",
-                    "short": null,
-                    "type": "bool",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "delete",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--description",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "update",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--description",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--is-completed",
-                    "short": null,
-                    "type": "bool",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "persistence": {
-      "required": false,
-      "technology": "none"
-    },
-    "external_access": [],
     "crud_services": [
       {
         "entity": "Task",
@@ -150,6 +11,145 @@
           "read_one"
         ]
       }
-    ]
+    ],
+    "external_access": [],
+    "facade": {
+      "invocation": {
+        "commands": [
+          {
+            "name": "Task",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--description",
+                    "required": true,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--is-completed",
+                    "required": false,
+                    "short": null,
+                    "type": "bool"
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--description",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--description",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--is-completed",
+                    "required": false,
+                    "short": null,
+                    "type": "bool"
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--description",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--is-completed",
+                    "required": false,
+                    "short": null,
+                    "type": "bool"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "options": [
+          {
+            "default": null,
+            "name": "--complete",
+            "required": false,
+            "short": "-c",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--delete",
+            "required": false,
+            "short": "-d",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--help",
+            "required": false,
+            "short": "-h",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--version",
+            "required": false,
+            "short": "-v",
+            "type": "bool"
+          }
+        ],
+        "positional": [
+          {
+            "name": "task",
+            "required": false,
+            "type": "str"
+          }
+        ]
+      },
+      "technology": "argparse",
+      "type": "cli"
+    },
+    "persistence": {
+      "required": false,
+      "technology": "none"
+    }
   }
 }

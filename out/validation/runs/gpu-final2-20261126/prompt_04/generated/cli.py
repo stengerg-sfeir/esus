@@ -203,10 +203,6 @@ def build_parser():
     p_Task_add.add_argument('--created-at', type=str, required=True, dest='created_at')
     p_Task_add.add_argument('--updated-at', type=str, required=True, dest='updated_at')
     p_Task_add.set_defaults(_binding=('Task', 'add'))
-    p_Task_list = sub_Task.add_parser('list')
-    p_Task_list.add_argument('--description', type=str, required=False, dest='description')
-    p_Task_list.add_argument('--is-complete', action='store_true', dest='is_complete')
-    p_Task_list.set_defaults(_binding=('Task', 'list'))
     p_Task_update = sub_Task.add_parser('update')
     p_Task_update.add_argument('--id', type=int, required=True, dest='id')
     p_Task_update.add_argument('--is-complete', action='store_true', dest='is_complete')
@@ -214,6 +210,10 @@ def build_parser():
     p_Task_delete = sub_Task.add_parser('delete')
     p_Task_delete.add_argument('--id', type=int, required=True, dest='id')
     p_Task_delete.set_defaults(_binding=('Task', 'delete'))
+    p_Task_list = sub_Task.add_parser('list')
+    p_Task_list.add_argument('--description', type=str, required=False, dest='description')
+    p_Task_list.add_argument('--is-complete', action='store_true', dest='is_complete')
+    p_Task_list.set_defaults(_binding=('Task', 'list'))
     return parser
 
 

@@ -1,13 +1,35 @@
 {
   "persistence_ports": {
+    "entity_mappings": [
+      {
+        "entity": "Project",
+        "indexes": [
+          "created_at",
+          "updated_at"
+        ],
+        "primary_key": "project_id",
+        "table": "projects"
+      },
+      {
+        "entity": "Task",
+        "indexes": [
+          "status",
+          "project_id",
+          "created_at",
+          "updated_at"
+        ],
+        "primary_key": "task_id",
+        "table": "tasks"
+      }
+    ],
     "repositories": [
       {
         "entity": "Project",
         "interface_name": "ProjectRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new Project.",
+            "name": "create",
             "params": [
               {
                 "name": "title",
@@ -26,64 +48,12 @@
                 "type": "datetime.datetime"
               }
             ],
-            "return_type": "models.Project",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Project"
           },
           {
-            "name": "read_all",
-            "description": "Lists every Project; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "title",
-                "type": "str"
-              },
-              {
-                "name": "description",
-                "type": "str"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "list[Project]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Project.",
-            "params": [
-              {
-                "name": "project_id",
-                "type": "int"
-              },
-              {
-                "name": "title",
-                "type": "str"
-              },
-              {
-                "name": "description",
-                "type": "str"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.Project",
-            "raises": []
-          },
-          {
-            "name": "delete",
             "description": "Deletes an existing Project.",
+            "name": "delete",
             "params": [
               {
                 "name": "project_id",
@@ -106,24 +76,12 @@
                 "type": "datetime.datetime"
               }
             ],
-            "return_type": "None",
-            "raises": []
+            "raises": [],
+            "return_type": "None"
           },
           {
-            "name": "read_one",
-            "description": "Reads one Project by its key.",
-            "params": [
-              {
-                "name": "project_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Project",
-            "raises": []
-          },
-          {
-            "name": "find_project_by_title",
             "description": "Retrieves a project by its title, returning the project object if found, otherwise None.",
+            "name": "find_project_by_title",
             "params": [
               {
                 "name": "title",
@@ -131,6 +89,70 @@
               }
             ],
             "return_type": "Project | None"
+          },
+          {
+            "description": "Lists every Project; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Project]"
+          },
+          {
+            "description": "Reads one Project by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "project_id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Project"
+          },
+          {
+            "description": "Updates an existing Project.",
+            "name": "update",
+            "params": [
+              {
+                "name": "project_id",
+                "type": "int"
+              },
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Project"
           }
         ]
       },
@@ -139,8 +161,19 @@
         "interface_name": "TaskRepository",
         "methods": [
           {
-            "name": "create",
+            "description": "Returns the number of tasks with a specific priority (e.g., 'high', 'medium', 'low').",
+            "name": "count_tasks_by_priority",
+            "params": [
+              {
+                "name": "priority",
+                "type": "str"
+              }
+            ],
+            "return_type": "int"
+          },
+          {
             "description": "Creates a new Task.",
+            "name": "create",
             "params": [
               {
                 "name": "title",
@@ -171,88 +204,12 @@
                 "type": "datetime.datetime"
               }
             ],
-            "return_type": "models.Task",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Task"
           },
           {
-            "name": "read_all",
-            "description": "Lists every Task; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "title",
-                "type": "str"
-              },
-              {
-                "name": "description",
-                "type": "str"
-              },
-              {
-                "name": "status",
-                "type": "str"
-              },
-              {
-                "name": "priority",
-                "type": "str"
-              },
-              {
-                "name": "project_id",
-                "type": "int"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "list[Task]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Task.",
-            "params": [
-              {
-                "name": "task_id",
-                "type": "int"
-              },
-              {
-                "name": "title",
-                "type": "str"
-              },
-              {
-                "name": "description",
-                "type": "str"
-              },
-              {
-                "name": "status",
-                "type": "str"
-              },
-              {
-                "name": "priority",
-                "type": "str"
-              },
-              {
-                "name": "project_id",
-                "type": "int"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.Task",
-            "raises": []
-          },
-          {
-            "name": "delete",
             "description": "Deletes an existing Task.",
+            "name": "delete",
             "params": [
               {
                 "name": "task_id",
@@ -287,36 +244,12 @@
                 "type": "datetime.datetime"
               }
             ],
-            "return_type": "None",
-            "raises": []
+            "raises": [],
+            "return_type": "None"
           },
           {
-            "name": "read_one",
-            "description": "Reads one Task by its key.",
-            "params": [
-              {
-                "name": "task_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Task",
-            "raises": []
-          },
-          {
-            "name": "get_tasks_by_project_id",
-            "description": "Lists the Task records belonging to one Project.",
-            "params": [
-              {
-                "name": "project_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "list[Task]",
-            "raises": []
-          },
-          {
-            "name": "find_task_by_title_and_project_id",
             "description": "Retrieves a task by its title and the project it belongs to, returning the task object if found, otherwise None.",
+            "name": "find_task_by_title_and_project_id",
             "params": [
               {
                 "name": "title",
@@ -330,19 +263,20 @@
             "return_type": "Task | None"
           },
           {
-            "name": "count_tasks_by_priority",
-            "description": "Returns the number of tasks with a specific priority (e.g., 'high', 'medium', 'low').",
+            "description": "Lists the Task records belonging to one Project.",
+            "name": "get_tasks_by_project_id",
             "params": [
               {
-                "name": "priority",
-                "type": "str"
+                "name": "project_id",
+                "type": "int"
               }
             ],
-            "return_type": "int"
+            "raises": [],
+            "return_type": "list[Task]"
           },
           {
-            "name": "get_tasks_with_status_and_project_id",
             "description": "Returns a list of tasks that match a specific status and belong to a given project ID.",
+            "name": "get_tasks_with_status_and_project_id",
             "params": [
               {
                 "name": "status",
@@ -354,29 +288,95 @@
               }
             ],
             "return_type": "list[Task]"
+          },
+          {
+            "description": "Lists every Task; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              },
+              {
+                "name": "priority",
+                "type": "str"
+              },
+              {
+                "name": "project_id",
+                "type": "int"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Task]"
+          },
+          {
+            "description": "Reads one Task by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "task_id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Task"
+          },
+          {
+            "description": "Updates an existing Task.",
+            "name": "update",
+            "params": [
+              {
+                "name": "task_id",
+                "type": "int"
+              },
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              },
+              {
+                "name": "priority",
+                "type": "str"
+              },
+              {
+                "name": "project_id",
+                "type": "int"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Task"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Project",
-        "table": "projects",
-        "primary_key": "project_id",
-        "indexes": [
-          "created_at",
-          "updated_at"
-        ]
-      },
-      {
-        "entity": "Task",
-        "table": "tasks",
-        "primary_key": "task_id",
-        "indexes": [
-          "status",
-          "project_id",
-          "created_at",
-          "updated_at"
         ]
       }
     ]

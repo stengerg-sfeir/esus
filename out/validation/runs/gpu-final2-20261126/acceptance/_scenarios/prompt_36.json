@@ -1,14 +1,12 @@
 {
   "scenarios": [
     {
-      "name": "cli:Product add",
+      "name": "cli:Category add",
       "when": {
         "cli_variants": [
           [
-            "Product",
+            "Category",
             "add",
-            "--category-id",
-            "1",
             "--name",
             "value1",
             "--created-at",
@@ -23,14 +21,58 @@
       }
     },
     {
-      "name": "cli:Product update",
+      "name": "cli:Category delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Category",
+            "delete",
+            "--category-id",
+            "1"
+          ],
+          [
+            "Category",
+            "delete",
+            "--category-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Category update",
+      "when": {
+        "cli_variants": [
+          [
+            "Category",
+            "update",
+            "--category-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product add",
       "when": {
         "cli_variants": [
           [
             "Product",
-            "update",
-            "--product-id",
-            "1"
+            "add",
+            "--category-id",
+            "1",
+            "--name",
+            "value1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
           ]
         ]
       },
@@ -61,55 +103,13 @@
       }
     },
     {
-      "name": "cli:Category add",
+      "name": "cli:Product update",
       "when": {
         "cli_variants": [
           [
-            "Category",
-            "add",
-            "--name",
-            "value1",
-            "--created-at",
-            "2024-01-01T00:00:00",
-            "--updated-at",
-            "2024-01-01T00:00:00"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Category update",
-      "when": {
-        "cli_variants": [
-          [
-            "Category",
+            "Product",
             "update",
-            "--category-id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Category delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Category",
-            "delete",
-            "--category-id",
-            "1"
-          ],
-          [
-            "Category",
-            "delete",
-            "--category-id",
+            "--product-id",
             "1"
           ]
         ]

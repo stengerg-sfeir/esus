@@ -12,20 +12,20 @@ from typing import Any, Dict, List, Literal, Optional
 
 
 @dataclass
+class Customer:
+    customer_id: int = None
+    name: str = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+
+
+@dataclass
 class Product:
     product_id: int = None
     name: str = None
     description: Optional[str] = None
     price: Decimal = None
     stock_quantity: int = None
-
-
-@dataclass
-class Customer:
-    customer_id: int = None
-    name: str = None
-    email: Optional[str] = None
-    phone: Optional[str] = None
 
 
 @dataclass

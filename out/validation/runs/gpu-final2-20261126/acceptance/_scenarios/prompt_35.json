@@ -21,22 +21,6 @@
       }
     },
     {
-      "name": "cli:Product update",
-      "when": {
-        "cli_variants": [
-          [
-            "Product",
-            "update",
-            "--product-id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Product delete",
       "when": {
         "cli_variants": [
@@ -63,6 +47,22 @@
             "category": "value1"
           }
         }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "update",
+            "--product-id",
+            "1"
+          ]
+        ]
       },
       "expect": {
         "exit": 0

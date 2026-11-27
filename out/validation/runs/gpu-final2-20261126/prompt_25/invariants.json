@@ -1,56 +1,56 @@
 {
   "invariants": [
     {
-      "text": "Employee.employee_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Department.department_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Employee.first_name must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Department.department_name must be a string"
     },
     {
-      "text": "Employee.first_name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Department.department_name must not be null"
     },
     {
-      "text": "Employee.last_name must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.department_id must be an integer"
     },
     {
-      "text": "Employee.last_name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.department_id must not be null"
     },
     {
-      "text": "Employee.email must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.department_id must reference an existing Department.department_id"
     },
     {
-      "text": "Employee.email must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.email must be a string"
     },
     {
-      "text": "Employee.department_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.email must not be null"
     },
     {
-      "text": "Employee.department_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.employee_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Employee.department_id must reference an existing Department.department_id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.first_name must be a string"
     },
     {
-      "text": "Department.department_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.first_name must not be null"
     },
     {
-      "text": "Department.department_name must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.last_name must be a string"
     },
     {
-      "text": "Department.department_name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.last_name must not be null"
     }
   ]
 }

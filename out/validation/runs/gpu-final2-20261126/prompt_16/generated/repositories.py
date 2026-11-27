@@ -58,7 +58,7 @@ class CustomerRepository:
         self._store = store
 
 
-    def create(self, first_name: str = None, last_name: str = None, email: str = None, phone: str = None, created_at: Any = None, updated_at: Any = None) -> Any:
+    def create(self, first_name: str = None, last_name: str = None, email: str = None, phone: str = None, created_at: Any = None, updated_at: Any = None) -> models.Customer:
         """Creates a new Customer. [crud:create: STANDARD_CRUD]"""
         values = {}
         if first_name is not None:
@@ -81,58 +81,6 @@ class CustomerRepository:
         if values.get('updated_at') is None:
             values['updated_at'] = datetime.datetime.now()
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Customer(**record)
-
-    def read_one(self, customer_id: int = None) -> Any:
-        """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', customer_id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Customer(**record)
-
-    def read_all(self, first_name: str = None, last_name: str = None, email: str = None, phone: str = None, created_at: Any = None, updated_at: Any = None) -> list[models.Customer]:
-        """Lists every Customer; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if first_name is not None:
-            criteria.append(('first_name', 'eq', first_name))
-        if last_name is not None:
-            criteria.append(('last_name', 'eq', last_name))
-        if email is not None:
-            criteria.append(('email', 'eq', email))
-        if phone is not None:
-            criteria.append(('phone', 'eq', phone))
-        if created_at is not None:
-            criteria.append(('created_at', 'eq', created_at))
-        if updated_at is not None:
-            criteria.append(('updated_at', 'eq', updated_at))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Customer(**r) for r in found]
-
-    def update(self, customer_id: int = None, first_name: str = None, last_name: str = None, email: str = None, phone: str = None, created_at: Any = None, updated_at: Any = None) -> Any:
-        """Updates an existing Customer. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if customer_id is not None:
-            criteria.append(('customer_id', 'eq', customer_id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Customer update matched {len(found)} records")
-        patch = {}
-        if customer_id is not None and 'customer_id' in ['customer_id', 'first_name', 'last_name', 'email', 'phone', 'created_at', 'updated_at']:
-            patch['customer_id'] = customer_id
-        if first_name is not None and 'first_name' in ['customer_id', 'first_name', 'last_name', 'email', 'phone', 'created_at', 'updated_at']:
-            patch['first_name'] = first_name
-        if last_name is not None and 'last_name' in ['customer_id', 'first_name', 'last_name', 'email', 'phone', 'created_at', 'updated_at']:
-            patch['last_name'] = last_name
-        if email is not None and 'email' in ['customer_id', 'first_name', 'last_name', 'email', 'phone', 'created_at', 'updated_at']:
-            patch['email'] = email
-        if phone is not None and 'phone' in ['customer_id', 'first_name', 'last_name', 'email', 'phone', 'created_at', 'updated_at']:
-            patch['phone'] = phone
-        if created_at is not None and 'created_at' in ['customer_id', 'first_name', 'last_name', 'email', 'phone', 'created_at', 'updated_at']:
-            patch['created_at'] = created_at
-        if updated_at is not None and 'updated_at' in ['customer_id', 'first_name', 'last_name', 'email', 'phone', 'created_at', 'updated_at']:
-            patch['updated_at'] = updated_at
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Customer(**record)
 
     def delete(self, customer_id: int = None, first_name: str = None, last_name: str = None, email: str = None, phone: str = None, created_at: Any = None, updated_at: Any = None) -> None:
@@ -159,6 +107,24 @@ class CustomerRepository:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
 
+    def read_all(self, first_name: str = None, last_name: str = None, email: str = None, phone: str = None, created_at: Any = None, updated_at: Any = None) -> list[models.Customer]:
+        """Lists every Customer; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if first_name is not None:
+            criteria.append(('first_name', 'eq', first_name))
+        if last_name is not None:
+            criteria.append(('last_name', 'eq', last_name))
+        if email is not None:
+            criteria.append(('email', 'eq', email))
+        if phone is not None:
+            criteria.append(('phone', 'eq', phone))
+        if created_at is not None:
+            criteria.append(('created_at', 'eq', created_at))
+        if updated_at is not None:
+            criteria.append(('updated_at', 'eq', updated_at))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Customer(**r) for r in found]
+
     def read_all_paginated(self, page_number: int = None, page_size: int = None) -> list[models.Customer]:
         """Lists Customer records with the requested page number and page size. [mechanical pagination]"""
         criteria = []
@@ -174,3 +140,37 @@ class CustomerRepository:
         page_records = records[start:end]
         items = [models.Customer(**row) for row in page_records]
         return items
+
+    def read_one(self, customer_id: int = None) -> models.Customer:
+        """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', customer_id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Customer(**record)
+
+    def update(self, customer_id: int = None, first_name: str = None, last_name: str = None, email: str = None, phone: str = None, created_at: Any = None, updated_at: Any = None) -> models.Customer:
+        """Updates an existing Customer. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if customer_id is not None:
+            criteria.append(('customer_id', 'eq', customer_id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Customer update matched {len(found)} records")
+        patch = {}
+        if customer_id is not None and 'customer_id' in ['customer_id', 'first_name', 'last_name', 'email', 'phone', 'created_at', 'updated_at']:
+            patch['customer_id'] = customer_id
+        if first_name is not None and 'first_name' in ['customer_id', 'first_name', 'last_name', 'email', 'phone', 'created_at', 'updated_at']:
+            patch['first_name'] = first_name
+        if last_name is not None and 'last_name' in ['customer_id', 'first_name', 'last_name', 'email', 'phone', 'created_at', 'updated_at']:
+            patch['last_name'] = last_name
+        if email is not None and 'email' in ['customer_id', 'first_name', 'last_name', 'email', 'phone', 'created_at', 'updated_at']:
+            patch['email'] = email
+        if phone is not None and 'phone' in ['customer_id', 'first_name', 'last_name', 'email', 'phone', 'created_at', 'updated_at']:
+            patch['phone'] = phone
+        if created_at is not None and 'created_at' in ['customer_id', 'first_name', 'last_name', 'email', 'phone', 'created_at', 'updated_at']:
+            patch['created_at'] = created_at
+        if updated_at is not None and 'updated_at' in ['customer_id', 'first_name', 'last_name', 'email', 'phone', 'created_at', 'updated_at']:
+            patch['updated_at'] = updated_at
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.Customer(**record)

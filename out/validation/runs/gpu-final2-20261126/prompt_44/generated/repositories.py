@@ -50,112 +50,6 @@ def _model_list(records, model_cls):
 
 
 
-class ProductRepository:
-    ENTITY = "Product"
-    PK = "product_id"
-
-    def __init__(self, store):
-        self._store = store
-
-
-    def create(self, name: str = None, description: str = None, price: int = None, stock_quantity: int = None) -> Any:
-        """Creates a new Product. [crud:create: STANDARD_CRUD]"""
-        values = {}
-        if name is not None:
-            values['name'] = name
-        if description is not None:
-            values['description'] = description
-        if price is not None:
-            values['price'] = price
-        if stock_quantity is not None:
-            values['stock_quantity'] = stock_quantity
-        unknown = [k for k in values if k not in ['product_id', 'name', 'description', 'price', 'stock_quantity']]
-        if unknown:
-            raise ValueError(f"cannot create Product from {unknown}")
-        value = values.get('stock_quantity')
-        if value is not None and value < 0:
-            raise ValueError(f"Product.stock_quantity must be >= 0, got {value!r}")
-        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Product(**record)
-
-    def read_all(self, name: str = None, description: str = None, price: int = None, stock_quantity: int = None) -> list[models.Product]:
-        """Lists every Product; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if description is not None:
-            criteria.append(('description', 'eq', description))
-        if price is not None:
-            criteria.append(('price', 'eq', price))
-        if stock_quantity is not None:
-            criteria.append(('stock_quantity', 'eq', stock_quantity))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Product(**r) for r in found]
-
-    def read_one(self, product_id: int = None) -> Any:
-        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', product_id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Product(**record)
-
-    def update(self, product_id: int = None, name: str = None, description: str = None, price: int = None, stock_quantity: int = None) -> Any:
-        """Updates an existing Product. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if product_id is not None:
-            criteria.append(('product_id', 'eq', product_id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Product update matched {len(found)} records")
-        patch = {}
-        if product_id is not None and 'product_id' in ['product_id', 'name', 'description', 'price', 'stock_quantity']:
-            patch['product_id'] = product_id
-        if name is not None and 'name' in ['product_id', 'name', 'description', 'price', 'stock_quantity']:
-            patch['name'] = name
-        if description is not None and 'description' in ['product_id', 'name', 'description', 'price', 'stock_quantity']:
-            patch['description'] = description
-        if price is not None and 'price' in ['product_id', 'name', 'description', 'price', 'stock_quantity']:
-            patch['price'] = price
-        if stock_quantity is not None and 'stock_quantity' in ['product_id', 'name', 'description', 'price', 'stock_quantity']:
-            patch['stock_quantity'] = stock_quantity
-        value = patch.get('stock_quantity')
-        if value is not None and value < 0:
-            raise ValueError(f"Product.stock_quantity must be >= 0, got {value!r}")
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
-        return models.Product(**record)
-
-    def delete(self, product_id: int = None, name: str = None, description: str = None, price: int = None, stock_quantity: int = None) -> None:
-        """Deletes an existing Product. [crud:delete: STANDARD_CRUD]"""
-        criteria = []
-        if product_id is not None:
-            criteria.append(('product_id', 'eq', product_id))
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if description is not None:
-            criteria.append(('description', 'eq', description))
-        if price is not None:
-            criteria.append(('price', 'eq', price))
-        if stock_quantity is not None:
-            criteria.append(('stock_quantity', 'eq', stock_quantity))
-        found = self._store.select(self.ENTITY, criteria)
-        if not found:
-            raise LookupError(f"Product delete matched no records")
-        for record in found:
-            self._store.delete(self.ENTITY, self.PK, record[self.PK])
-        return None
-
-    def get_products_by_price_range(self, min_price: float = None, max_price: float = None) -> List[models.Product]:
-        """Retrieves all products within a specified price range, inclusive of both endpoints. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
-        criteria = []
-        if min_price is not None:
-            criteria.append(('price', 'ge', min_price))
-        if max_price is not None:
-            criteria.append(('price', 'le', max_price))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Product(**r) for r in found]
-
-
 class CustomerRepository:
     ENTITY = "Customer"
     PK = "customer_id"
@@ -164,7 +58,7 @@ class CustomerRepository:
         self._store = store
 
 
-    def create(self, name: str = None, email: str = None, phone: str = None) -> Any:
+    def create(self, name: str = None, email: str = None, phone: str = None) -> models.Customer:
         """Creates a new Customer. [crud:create: STANDARD_CRUD]"""
         values = {}
         if name is not None:
@@ -177,46 +71,6 @@ class CustomerRepository:
         if unknown:
             raise ValueError(f"cannot create Customer from {unknown}")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Customer(**record)
-
-    def read_all(self, name: str = None, email: str = None, phone: str = None) -> list[models.Customer]:
-        """Lists every Customer; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if email is not None:
-            criteria.append(('email', 'eq', email))
-        if phone is not None:
-            criteria.append(('phone', 'eq', phone))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Customer(**r) for r in found]
-
-    def read_one(self, customer_id: int = None) -> Any:
-        """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', customer_id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Customer(**record)
-
-    def update(self, customer_id: int = None, name: str = None, email: str = None, phone: str = None) -> Any:
-        """Updates an existing Customer. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if customer_id is not None:
-            criteria.append(('customer_id', 'eq', customer_id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Customer update matched {len(found)} records")
-        patch = {}
-        if customer_id is not None and 'customer_id' in ['customer_id', 'name', 'email', 'phone']:
-            patch['customer_id'] = customer_id
-        if name is not None and 'name' in ['customer_id', 'name', 'email', 'phone']:
-            patch['name'] = name
-        if email is not None and 'email' in ['customer_id', 'name', 'email', 'phone']:
-            patch['email'] = email
-        if phone is not None and 'phone' in ['customer_id', 'name', 'email', 'phone']:
-            patch['phone'] = phone
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Customer(**record)
 
     def delete(self, customer_id: int = None, name: str = None, email: str = None, phone: str = None) -> None:
@@ -258,6 +112,152 @@ class CustomerRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Customer(**r) for r in found]
 
+    def read_all(self, name: str = None, email: str = None, phone: str = None) -> list[models.Customer]:
+        """Lists every Customer; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if email is not None:
+            criteria.append(('email', 'eq', email))
+        if phone is not None:
+            criteria.append(('phone', 'eq', phone))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Customer(**r) for r in found]
+
+    def read_one(self, customer_id: int = None) -> models.Customer:
+        """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', customer_id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Customer(**record)
+
+    def update(self, customer_id: int = None, name: str = None, email: str = None, phone: str = None) -> models.Customer:
+        """Updates an existing Customer. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if customer_id is not None:
+            criteria.append(('customer_id', 'eq', customer_id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Customer update matched {len(found)} records")
+        patch = {}
+        if customer_id is not None and 'customer_id' in ['customer_id', 'name', 'email', 'phone']:
+            patch['customer_id'] = customer_id
+        if name is not None and 'name' in ['customer_id', 'name', 'email', 'phone']:
+            patch['name'] = name
+        if email is not None and 'email' in ['customer_id', 'name', 'email', 'phone']:
+            patch['email'] = email
+        if phone is not None and 'phone' in ['customer_id', 'name', 'email', 'phone']:
+            patch['phone'] = phone
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.Customer(**record)
+
+
+class ProductRepository:
+    ENTITY = "Product"
+    PK = "product_id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def create(self, name: str = None, description: str = None, price: int = None, stock_quantity: int = None) -> models.Product:
+        """Creates a new Product. [crud:create: STANDARD_CRUD]"""
+        values = {}
+        if name is not None:
+            values['name'] = name
+        if description is not None:
+            values['description'] = description
+        if price is not None:
+            values['price'] = price
+        if stock_quantity is not None:
+            values['stock_quantity'] = stock_quantity
+        unknown = [k for k in values if k not in ['product_id', 'name', 'description', 'price', 'stock_quantity']]
+        if unknown:
+            raise ValueError(f"cannot create Product from {unknown}")
+        value = values.get('stock_quantity')
+        if value is not None and value < 0:
+            raise ValueError(f"Product.stock_quantity must be >= 0, got {value!r}")
+        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
+        return models.Product(**record)
+
+    def delete(self, product_id: int = None, name: str = None, description: str = None, price: int = None, stock_quantity: int = None) -> None:
+        """Deletes an existing Product. [crud:delete: STANDARD_CRUD]"""
+        criteria = []
+        if product_id is not None:
+            criteria.append(('product_id', 'eq', product_id))
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if description is not None:
+            criteria.append(('description', 'eq', description))
+        if price is not None:
+            criteria.append(('price', 'eq', price))
+        if stock_quantity is not None:
+            criteria.append(('stock_quantity', 'eq', stock_quantity))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            raise LookupError(f"Product delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
+
+    def get_products_by_price_range(self, min_price: float = None, max_price: float = None) -> List[models.Product]:
+        """Retrieves all products within a specified price range, inclusive of both endpoints. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
+        criteria = []
+        if min_price is not None:
+            criteria.append(('price', 'ge', min_price))
+        if max_price is not None:
+            criteria.append(('price', 'le', max_price))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Product(**r) for r in found]
+
+    def read_all(self, name: str = None, description: str = None, price: int = None, stock_quantity: int = None) -> list[models.Product]:
+        """Lists every Product; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if description is not None:
+            criteria.append(('description', 'eq', description))
+        if price is not None:
+            criteria.append(('price', 'eq', price))
+        if stock_quantity is not None:
+            criteria.append(('stock_quantity', 'eq', stock_quantity))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Product(**r) for r in found]
+
+    def read_one(self, product_id: int = None) -> models.Product:
+        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', product_id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Product(**record)
+
+    def update(self, product_id: int = None, name: str = None, description: str = None, price: int = None, stock_quantity: int = None) -> models.Product:
+        """Updates an existing Product. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if product_id is not None:
+            criteria.append(('product_id', 'eq', product_id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Product update matched {len(found)} records")
+        patch = {}
+        if product_id is not None and 'product_id' in ['product_id', 'name', 'description', 'price', 'stock_quantity']:
+            patch['product_id'] = product_id
+        if name is not None and 'name' in ['product_id', 'name', 'description', 'price', 'stock_quantity']:
+            patch['name'] = name
+        if description is not None and 'description' in ['product_id', 'name', 'description', 'price', 'stock_quantity']:
+            patch['description'] = description
+        if price is not None and 'price' in ['product_id', 'name', 'description', 'price', 'stock_quantity']:
+            patch['price'] = price
+        if stock_quantity is not None and 'stock_quantity' in ['product_id', 'name', 'description', 'price', 'stock_quantity']:
+            patch['stock_quantity'] = stock_quantity
+        value = patch.get('stock_quantity')
+        if value is not None and value < 0:
+            raise ValueError(f"Product.stock_quantity must be >= 0, got {value!r}")
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.Product(**record)
+
 
 class SaleRepository:
     ENTITY = "Sale"
@@ -267,7 +267,7 @@ class SaleRepository:
         self._store = store
 
 
-    def create(self, customer_id: int = None, product_id: int = None, quantity: int = None, sale_date: Any = None, total_price: int = None) -> Any:
+    def create(self, customer_id: int = None, product_id: int = None, quantity: int = None, sale_date: Any = None, total_price: int = None) -> models.Sale:
         """Creates a new Sale. [crud:create: STANDARD_CRUD]"""
         values = {}
         if customer_id is not None:
@@ -284,45 +284,21 @@ class SaleRepository:
         if unknown:
             raise ValueError(f"cannot create Sale from {unknown}")
         value = values.get('quantity')
-        if value is not None and value < 0:
-            raise ValueError(f"Sale.quantity must be >= 0, got {value!r}")
-        value = values.get('quantity')
         if value is not None and value <= 0:
             raise ValueError(f"Sale.quantity must be > 0, got {value!r}")
+        value = values.get('quantity')
+        if value is not None and value < 0:
+            raise ValueError(f"Sale.quantity must be >= 0, got {value!r}")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("customer_id", "Customer", "customer_id", None), ("product_id", "Product", "product_id", None)])
         return models.Sale(**record)
 
-    def read_all(self, customer_id: int = None, product_id: int = None, quantity: int = None, sale_date: Any = None, total_price: int = None) -> list[models.Sale]:
-        """Lists every Sale; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if customer_id is not None:
-            criteria.append(('customer_id', 'eq', customer_id))
-        if product_id is not None:
-            criteria.append(('product_id', 'eq', product_id))
-        if quantity is not None:
-            criteria.append(('quantity', 'eq', quantity))
-        if sale_date is not None:
-            criteria.append(('sale_date', 'eq', sale_date))
-        if total_price is not None:
-            criteria.append(('total_price', 'eq', total_price))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Sale(**r) for r in found]
-
-    def read_one(self, sale_id: int = None) -> Any:
-        """Reads one Sale by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', sale_id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Sale(**record)
-
     def get_sales_by_customer_id(self, customer_id: int = None) -> list[models.Sale]:
-        """Lists the Sale records belonging to one Customer. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
+        """Lists the Sale records belonging to one Customer. [mechanical contained-name filter]"""
         criteria = []
         if customer_id is not None:
             criteria.append(('customer_id', 'eq', customer_id))
         found = self._store.select(self.ENTITY, criteria)
-        return [models.Sale(**r) for r in found]
+        return _model_list([models.Sale(**row) for row in found], models.Sale)
 
     def get_sales_by_date_range(self, start_date: datetime.datetime = None, end_date: datetime.datetime = None) -> List[models.Sale]:
         """Retrieves all sales records that occurred within a specified date range, inclusive of both endpoints. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
@@ -341,3 +317,27 @@ class SaleRepository:
             key = record.get('product_id')
             result[key] = result.get(key, 0) + (record.get('quantity') or 0)
         return result
+
+    def read_all(self, customer_id: int = None, product_id: int = None, quantity: int = None, sale_date: Any = None, total_price: int = None) -> list[models.Sale]:
+        """Lists every Sale; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if customer_id is not None:
+            criteria.append(('customer_id', 'eq', customer_id))
+        if product_id is not None:
+            criteria.append(('product_id', 'eq', product_id))
+        if quantity is not None:
+            criteria.append(('quantity', 'eq', quantity))
+        if sale_date is not None:
+            criteria.append(('sale_date', 'eq', sale_date))
+        if total_price is not None:
+            criteria.append(('total_price', 'eq', total_price))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Sale(**r) for r in found]
+
+    def read_one(self, sale_id: int = None) -> models.Sale:
+        """Reads one Sale by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', sale_id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Sale(**record)

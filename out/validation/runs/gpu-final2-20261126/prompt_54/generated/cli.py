@@ -189,16 +189,16 @@ def build_parser():
     p_Appointment_add.add_argument('--start-time', type=str, required=False, dest='start_time')
     p_Appointment_add.add_argument('--end-time', type=str, required=False, dest='end_time')
     p_Appointment_add.set_defaults(_binding=('Appointment', 'add'))
-    p_Appointment_update = sub_Appointment.add_parser('update')
-    p_Appointment_update.add_argument('--id', type=int, required=True, dest='id')
-    p_Appointment_update.add_argument('--start-time', type=str, required=False, dest='start_time')
-    p_Appointment_update.add_argument('--end-time', type=str, required=False, dest='end_time')
-    p_Appointment_update.set_defaults(_binding=('Appointment', 'update'))
     p_Appointment_delete = sub_Appointment.add_parser('delete')
     p_Appointment_delete.add_argument('--id', type=int, required=True, dest='id')
     p_Appointment_delete.add_argument('--start-time', type=str, required=False, dest='start_time')
     p_Appointment_delete.add_argument('--end-time', type=str, required=False, dest='end_time')
     p_Appointment_delete.set_defaults(_binding=('Appointment', 'delete'))
+    p_Appointment_update = sub_Appointment.add_parser('update')
+    p_Appointment_update.add_argument('--id', type=int, required=True, dest='id')
+    p_Appointment_update.add_argument('--start-time', type=str, required=False, dest='start_time')
+    p_Appointment_update.add_argument('--end-time', type=str, required=False, dest='end_time')
+    p_Appointment_update.set_defaults(_binding=('Appointment', 'update'))
     return parser
 
 

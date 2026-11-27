@@ -1,25 +1,10 @@
 {
   "service_contracts": [
     {
-      "service_name": "CustomerRepository",
       "methods": [
         {
-          "name": "read_one",
-          "description": "Reads one Customer by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Customer",
-          "raises": [
-            "CustomerNotFoundError"
-          ]
-        },
-        {
-          "name": "read_all",
           "description": "Lists every Customer; optional fields narrow the result.",
+          "name": "read_all",
           "params": [
             {
               "name": "name",
@@ -30,109 +15,31 @@
               "type": "str"
             }
           ],
-          "return_type": "list[Customer]",
-          "raises": []
-        }
-      ]
-    },
-    {
-      "service_name": "ProductRepository",
-      "methods": [
+          "raises": [],
+          "return_type": "list[Customer]"
+        },
         {
+          "description": "Reads one Customer by its key.",
           "name": "read_one",
-          "description": "Reads one Product by its key.",
           "params": [
             {
               "name": "id",
               "type": "int"
             }
           ],
-          "return_type": "models.Product",
           "raises": [
-            "ProductNotFoundError"
-          ]
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Product; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "price",
-              "type": "int"
-            }
+            "CustomerNotFoundError"
           ],
-          "return_type": "list[Product]",
-          "raises": []
+          "return_type": "models.Customer"
         }
-      ]
+      ],
+      "service_name": "CustomerRepository"
     },
     {
-      "service_name": "InvoiceRepository",
       "methods": [
         {
-          "name": "create",
-          "description": "Creates a new Invoice.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            },
-            {
-              "name": "issue_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "total_amount",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Invoice",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Invoice by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Invoice",
-          "raises": []
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Invoice; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            },
-            {
-              "name": "issue_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "total_amount",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Invoice]",
-          "raises": []
-        }
-      ]
-    },
-    {
-      "service_name": "InvoiceLineRepository",
-      "methods": [
-        {
-          "name": "create",
           "description": "Creates a new InvoiceLine.",
+          "name": "create",
           "params": [
             {
               "name": "invoice_id",
@@ -147,24 +54,117 @@
               "type": "int"
             }
           ],
-          "return_type": "models.InvoiceLine",
-          "raises": []
+          "raises": [],
+          "return_type": "models.InvoiceLine"
         },
         {
-          "name": "read_one",
           "description": "Reads one InvoiceLine by its key.",
+          "name": "read_one",
           "params": [
             {
               "name": "line_id",
               "type": "int"
             }
           ],
-          "return_type": "models.InvoiceLine",
           "raises": [
             "InvoiceLineNotFoundError"
-          ]
+          ],
+          "return_type": "models.InvoiceLine"
         }
-      ]
+      ],
+      "service_name": "InvoiceLineRepository"
+    },
+    {
+      "methods": [
+        {
+          "description": "Creates a new Invoice.",
+          "name": "create",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "issue_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "total_amount",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Invoice"
+        },
+        {
+          "description": "Lists every Invoice; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "issue_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "total_amount",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Invoice]"
+        },
+        {
+          "description": "Reads one Invoice by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Invoice"
+        }
+      ],
+      "service_name": "InvoiceRepository"
+    },
+    {
+      "methods": [
+        {
+          "description": "Lists every Product; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Product]"
+        },
+        {
+          "description": "Reads one Product by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "ProductNotFoundError"
+          ],
+          "return_type": "models.Product"
+        }
+      ],
+      "service_name": "ProductRepository"
     }
   ]
 }

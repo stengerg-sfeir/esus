@@ -1,72 +1,72 @@
 {
   "invariants": [
     {
-      "text": "Order.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An order can transition from confirmed to cancelled."
     },
     {
-      "text": "Order.state must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An order can transition from confirmed to shipped."
     },
     {
-      "text": "Order.state must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An order can transition from pending to cancelled."
     },
     {
-      "text": "Order.created_at must be a datetime",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An order can transition from pending to confirmed."
     },
     {
-      "text": "Order.created_at must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An order can transition from pending to shipped."
     },
     {
-      "text": "Order.updated_at must be a datetime",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An order can transition from shipped to cancelled."
     },
     {
-      "text": "Order.updated_at must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An order in the cancelled state cannot transition to the shipped state."
     },
     {
-      "text": "An order in the cancelled state cannot transition to the shipped state.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "An order in the shipped state cannot transition to the cancelled state."
     },
     {
-      "text": "An order in the shipped state cannot transition to the cancelled state.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "An order must start in the pending state."
     },
     {
-      "text": "An order must start in the pending state.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "Once an order is shipped, it cannot be moved back to pending or confirmed."
     },
     {
-      "text": "An order can transition from pending to confirmed.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.created_at must be a datetime"
     },
     {
-      "text": "An order can transition from pending to shipped.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.created_at must not be null"
     },
     {
-      "text": "An order can transition from pending to cancelled.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "An order can transition from confirmed to shipped.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.state must be a string"
     },
     {
-      "text": "An order can transition from confirmed to cancelled.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.state must not be null"
     },
     {
-      "text": "An order can transition from shipped to cancelled.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.updated_at must be a datetime"
     },
     {
-      "text": "Once an order is shipped, it cannot be moved back to pending or confirmed.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.updated_at must not be null"
     }
   ]
 }

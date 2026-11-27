@@ -58,7 +58,7 @@ class EmployeeRepository:
         self._store = store
 
 
-    def create(self, name: str = None, email: str = None, age: int = None, salary: int = None) -> Any:
+    def create(self, name: str = None, email: str = None, age: int = None, salary: int = None) -> models.Employee:
         """Creates a new Employee. [crud:create: STANDARD_CRUD]"""
         values = {}
         if name is not None:
@@ -72,69 +72,16 @@ class EmployeeRepository:
         unknown = [k for k in values if k not in ['id', 'name', 'email', 'age', 'salary']]
         if unknown:
             raise ValueError(f"cannot create Employee from {unknown}")
+        value = values.get('age')
+        if value is not None and value <= 0:
+            raise ValueError(f"Employee.age must be > 0, got {value!r}")
         value = values.get('salary')
         if value is not None and value <= 0:
             raise ValueError(f"Employee.salary must be > 0, got {value!r}")
         value = values.get('id')
         if value is not None and value <= 0:
             raise ValueError(f"Employee.id must be > 0, got {value!r}")
-        value = values.get('age')
-        if value is not None and value <= 0:
-            raise ValueError(f"Employee.age must be > 0, got {value!r}")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Employee(**record)
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Employee by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Employee(**record)
-
-    def read_all(self, name: str = None, email: str = None, age: int = None, salary: int = None) -> list[models.Employee]:
-        """Lists every Employee; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if email is not None:
-            criteria.append(('email', 'eq', email))
-        if age is not None:
-            criteria.append(('age', 'eq', age))
-        if salary is not None:
-            criteria.append(('salary', 'eq', salary))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Employee(**r) for r in found]
-
-    def update(self, id: int = None, name: str = None, email: str = None, age: int = None, salary: int = None) -> Any:
-        """Updates an existing Employee. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Employee update matched {len(found)} records")
-        patch = {}
-        if id is not None and 'id' in ['id', 'name', 'email', 'age', 'salary']:
-            patch['id'] = id
-        if name is not None and 'name' in ['id', 'name', 'email', 'age', 'salary']:
-            patch['name'] = name
-        if email is not None and 'email' in ['id', 'name', 'email', 'age', 'salary']:
-            patch['email'] = email
-        if age is not None and 'age' in ['id', 'name', 'email', 'age', 'salary']:
-            patch['age'] = age
-        if salary is not None and 'salary' in ['id', 'name', 'email', 'age', 'salary']:
-            patch['salary'] = salary
-        value = patch.get('salary')
-        if value is not None and value <= 0:
-            raise ValueError(f"Employee.salary must be > 0, got {value!r}")
-        value = patch.get('id')
-        if value is not None and value <= 0:
-            raise ValueError(f"Employee.id must be > 0, got {value!r}")
-        value = patch.get('age')
-        if value is not None and value <= 0:
-            raise ValueError(f"Employee.age must be > 0, got {value!r}")
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Employee(**record)
 
     def delete(self, id: int = None, name: str = None, email: str = None, age: int = None, salary: int = None) -> None:
@@ -156,3 +103,56 @@ class EmployeeRepository:
         for record in found:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
+
+    def read_all(self, name: str = None, email: str = None, age: int = None, salary: int = None) -> list[models.Employee]:
+        """Lists every Employee; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if email is not None:
+            criteria.append(('email', 'eq', email))
+        if age is not None:
+            criteria.append(('age', 'eq', age))
+        if salary is not None:
+            criteria.append(('salary', 'eq', salary))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Employee(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Employee:
+        """Reads one Employee by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Employee(**record)
+
+    def update(self, id: int = None, name: str = None, email: str = None, age: int = None, salary: int = None) -> models.Employee:
+        """Updates an existing Employee. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Employee update matched {len(found)} records")
+        patch = {}
+        if id is not None and 'id' in ['id', 'name', 'email', 'age', 'salary']:
+            patch['id'] = id
+        if name is not None and 'name' in ['id', 'name', 'email', 'age', 'salary']:
+            patch['name'] = name
+        if email is not None and 'email' in ['id', 'name', 'email', 'age', 'salary']:
+            patch['email'] = email
+        if age is not None and 'age' in ['id', 'name', 'email', 'age', 'salary']:
+            patch['age'] = age
+        if salary is not None and 'salary' in ['id', 'name', 'email', 'age', 'salary']:
+            patch['salary'] = salary
+        value = patch.get('age')
+        if value is not None and value <= 0:
+            raise ValueError(f"Employee.age must be > 0, got {value!r}")
+        value = patch.get('salary')
+        if value is not None and value <= 0:
+            raise ValueError(f"Employee.salary must be > 0, got {value!r}")
+        value = patch.get('id')
+        if value is not None and value <= 0:
+            raise ValueError(f"Employee.id must be > 0, got {value!r}")
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.Employee(**record)

@@ -1,109 +1,31 @@
 {
   "persistence_ports": {
-    "repositories": [
+    "entity_mappings": [
+      {
+        "entity": "Document",
+        "indexes": [
+          "owner_user_id"
+        ],
+        "primary_key": "id",
+        "table": "documents"
+      },
       {
         "entity": "User",
-        "interface_name": "UserRepository",
-        "methods": [
-          {
-            "name": "create",
-            "description": "Creates a new User.",
-            "params": [
-              {
-                "name": "password_hash",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              }
-            ],
-            "return_type": "models.User",
-            "raises": []
-          },
-          {
-            "name": "read_one",
-            "description": "Reads one User by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.User",
-            "raises": [
-              "UserNotFoundError"
-            ]
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every User; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "password_hash",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              }
-            ],
-            "return_type": "list[User]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing User.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "password_hash",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              }
-            ],
-            "return_type": "models.User",
-            "raises": [
-              "UserNotFoundError"
-            ]
-          },
-          {
-            "name": "delete",
-            "description": "Deletes an existing User.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "password_hash",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              }
-            ],
-            "return_type": "None",
-            "raises": [
-              "UserNotFoundError"
-            ]
-          }
-        ]
-      },
+        "indexes": [
+          "email"
+        ],
+        "primary_key": "id",
+        "table": "users"
+      }
+    ],
+    "repositories": [
       {
         "entity": "Document",
         "interface_name": "DocumentRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new Document.",
+            "name": "create",
             "params": [
               {
                 "name": "title",
@@ -118,72 +40,12 @@
                 "type": "int"
               }
             ],
-            "return_type": "models.Document",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Document"
           },
           {
-            "name": "read_one",
-            "description": "Reads one Document by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Document",
-            "raises": [
-              "DocumentNotFoundError"
-            ]
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every Document; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "title",
-                "type": "str"
-              },
-              {
-                "name": "content",
-                "type": "str"
-              },
-              {
-                "name": "owner_user_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "list[Document]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Document.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "title",
-                "type": "str"
-              },
-              {
-                "name": "content",
-                "type": "str"
-              },
-              {
-                "name": "owner_user_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Document",
-            "raises": [
-              "DocumentNotFoundError"
-            ]
-          },
-          {
-            "name": "delete",
             "description": "Deletes an existing Document.",
+            "name": "delete",
             "params": [
               {
                 "name": "id",
@@ -202,29 +64,167 @@
                 "type": "int"
               }
             ],
-            "return_type": "None",
             "raises": [
               "DocumentNotFoundError"
-            ]
+            ],
+            "return_type": "None"
+          },
+          {
+            "description": "Lists every Document; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "content",
+                "type": "str"
+              },
+              {
+                "name": "owner_user_id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Document]"
+          },
+          {
+            "description": "Reads one Document by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "DocumentNotFoundError"
+            ],
+            "return_type": "models.Document"
+          },
+          {
+            "description": "Updates an existing Document.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "content",
+                "type": "str"
+              },
+              {
+                "name": "owner_user_id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "DocumentNotFoundError"
+            ],
+            "return_type": "models.Document"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "User",
-        "table": "users",
-        "primary_key": "id",
-        "indexes": [
-          "email"
         ]
       },
       {
-        "entity": "Document",
-        "table": "documents",
-        "primary_key": "id",
-        "indexes": [
-          "owner_user_id"
+        "entity": "User",
+        "interface_name": "UserRepository",
+        "methods": [
+          {
+            "description": "Creates a new User.",
+            "name": "create",
+            "params": [
+              {
+                "name": "password_hash",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.User"
+          },
+          {
+            "description": "Deletes an existing User.",
+            "name": "delete",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "password_hash",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "raises": [
+              "UserNotFoundError"
+            ],
+            "return_type": "None"
+          },
+          {
+            "description": "Lists every User; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "password_hash",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[User]"
+          },
+          {
+            "description": "Reads one User by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "UserNotFoundError"
+            ],
+            "return_type": "models.User"
+          },
+          {
+            "description": "Updates an existing User.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "password_hash",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "raises": [
+              "UserNotFoundError"
+            ],
+            "return_type": "models.User"
+          }
         ]
       }
     ]

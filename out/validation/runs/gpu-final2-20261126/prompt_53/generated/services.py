@@ -45,7 +45,7 @@ class OrderManagementService:
         self._repos = repos
 
 
-    def place_order(self, customer_id: int = None, order_items: Any = None) -> Any:
+    def place_order(self, customer_id: int = None, order_items: Any = None) -> models.Order:
         """Places an order for a customer with specified products and quantities. Validates that all products have sufficient stock. If valid, reserves stock and creates the order. [mechanical order placement]"""
         Customer = self._repos['CustomerRepository'].read_one(id=customer_id)
         if Customer is None:
@@ -67,7 +67,7 @@ class OrderManagementService:
             quantity = item.get('quantity')
             if product_id is None or quantity is None:
                 continue
-            self._repos['OrderItemRepository'].create(quantity=quantity, product_id=product_id, order_id=order.id)
+            self._repos['OrderItemRepository'].create(quantity=quantity, order_id=order.id, product_id=product_id)
             product = self._repos['ProductRepository'].read_one(id=product_id)
             self._repos['ProductRepository'].update(id=product_id, stock_quantity=product.stock_quantity - quantity)
         return order

@@ -31,15 +31,6 @@ class Task:
 
 
 @dataclass
-class TeamMember:
-    id: int = None
-    name: str = None
-    email: str = None
-    role: Optional[str] = None
-    created_at: datetime.datetime = None
-
-
-@dataclass
 class TaskAssignment:
     id: int = None
     task_id: int = None
@@ -47,3 +38,12 @@ class TaskAssignment:
     responsibility_type: Optional[str] = None
     assigned_at: datetime.datetime = None
     updated_at: datetime.datetime = None
+
+
+@dataclass
+class TeamMember:
+    id: int = None
+    name: str = None
+    email: str = None
+    role: Optional[str] = None
+    created_at: datetime.datetime = None

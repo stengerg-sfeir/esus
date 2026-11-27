@@ -1,76 +1,76 @@
 {
   "invariants": [
     {
-      "text": "Project.project_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A project can only be deleted if it exists and is not already marked as deleted."
     },
     {
-      "text": "Project.name must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A project must have a unique name across all projects in the system."
     },
     {
-      "text": "Project.name must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A project must remain in the database when deleted, but its is_deleted field must be set to true."
     },
     {
-      "text": "Project.description must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A project's description field may be updated or left unchanged, but must not be null during creation or update."
     },
     {
-      "text": "Project.status must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A project's status must be updated only if the project is not marked as deleted."
     },
     {
-      "text": "Project.status must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Only projects with a non-null name can be created or updated."
     },
     {
-      "text": "Project.is_deleted must be a boolean",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Project listing operations must not return projects where is_deleted is true."
     },
     {
-      "text": "Project.is_deleted must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Project.description must be a string"
     },
     {
-      "text": "A project's status must be updated only if the project is not marked as deleted.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Project.is_deleted must be a boolean"
     },
     {
-      "text": "A project must remain in the database when deleted, but its is_deleted field must be set to true.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Project.is_deleted must not be null"
     },
     {
-      "text": "Project listing operations must not return projects where is_deleted is true.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Project.name must be a string"
     },
     {
-      "text": "The status field of a project must be one of the valid status values defined in the system.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Project.name must not be null"
     },
     {
-      "text": "A project can only be deleted if it exists and is not already marked as deleted.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Project.project_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "When a project is created, its is_deleted field must be set to false by default.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Project.status must be a string"
     },
     {
-      "text": "Only projects with a non-null name can be created or updated.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Project.status must not be null"
     },
     {
-      "text": "The project status cannot be changed to 'deleted' directly; deletion must be handled via the is_deleted field.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The project status cannot be changed to 'deleted' directly; deletion must be handled via the is_deleted field."
     },
     {
-      "text": "A project's description field may be updated or left unchanged, but must not be null during creation or update.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The status field of a project must be one of the valid status values defined in the system."
     },
     {
-      "text": "A project must have a unique name across all projects in the system.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When a project is created, its is_deleted field must be set to false by default."
     }
   ]
 }

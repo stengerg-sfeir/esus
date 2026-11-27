@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Customer', 'Product', 'Order', 'OrderItem']
-REPOSITORIES = ['CustomerRepository', 'ProductRepository', 'OrderRepository', 'OrderItemRepository']
+MODELS = ['Customer', 'Order', 'OrderItem', 'Product']
+REPOSITORIES = ['CustomerRepository', 'OrderItemRepository', 'OrderRepository', 'ProductRepository']
 SERVICES = ['OrderManagementService']
 
 
@@ -189,13 +189,6 @@ def build_parser():
     p_Order_add.add_argument('--customer-id', type=int, required=True, dest='customer_id')
     p_Order_add.add_argument('--order-date', type=str, required=True, dest='order_date')
     p_Order_add.set_defaults(_binding=('Order', 'add'))
-    p_Product = sub.add_parser('Product')
-    sub_Product = p_Product.add_subparsers(dest='subcommand')
-    p_Product_update = sub_Product.add_parser('update')
-    p_Product_update.add_argument('--id', type=int, required=True, dest='id')
-    p_Product_update.add_argument('--name', type=str, required=False, dest='name')
-    p_Product_update.add_argument('--stock-quantity', type=int, required=False, dest='stock_quantity')
-    p_Product_update.set_defaults(_binding=('Product', 'update'))
     p_OrderItem = sub.add_parser('OrderItem')
     sub_OrderItem = p_OrderItem.add_subparsers(dest='subcommand')
     p_OrderItem_add = sub_OrderItem.add_parser('add')
@@ -203,6 +196,13 @@ def build_parser():
     p_OrderItem_add.add_argument('--product-id', type=int, required=False, dest='product_id')
     p_OrderItem_add.add_argument('--quantity', type=int, required=False, dest='quantity')
     p_OrderItem_add.set_defaults(_binding=('OrderItem', 'add'))
+    p_Product = sub.add_parser('Product')
+    sub_Product = p_Product.add_subparsers(dest='subcommand')
+    p_Product_update = sub_Product.add_parser('update')
+    p_Product_update.add_argument('--id', type=int, required=True, dest='id')
+    p_Product_update.add_argument('--name', type=str, required=False, dest='name')
+    p_Product_update.add_argument('--stock-quantity', type=int, required=False, dest='stock_quantity')
+    p_Product_update.set_defaults(_binding=('Product', 'update'))
     return parser
 
 

@@ -19,22 +19,29 @@ class MalformedCSVError(ValueError):
 
 def read_csv_to_dict(file_path: str) -> List[Dict[str, Any]]:
     """
-    Read a CSV file and return a list of dictionaries with headers as keys.
+    Read a CSV file and return a list of dictionaries with column names from the header.
     """
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             reader = csv.DictReader(file)
+            # If no header is found, raise MalformedCSVError
+            if not reader.fieldnames:
+                raise MalformedCSVError("CSV file has no header row.")
             return [row for row in reader]
     except FileNotFoundError:
         raise MissingFileError(f"File not found: {file_path}")
     except PermissionError:
-        raise MissingFileError(f"Permission denied: {file_path}")
+        raise MissingFileError(f"Permission denied accessing file: {file_path}")
+    except csv.Error as e:
+        raise MalformedCSVError(f"Malformed CSV data: {str(e)}")
     except Exception as e:
-        # Catch any other unexpected file or I/O errors
-        raise MalformedCSVError(f"Error reading file: {str(e)}")
+        raise MalformedCSVError(f"Unexpected error reading CSV: {str(e)}")
 
 
 def main() -> None:
+    """
+    Main function to handle CLI arguments and process CSV to JSON conversion.
+    """
     # Parse command line arguments
     if len(sys.argv) < 2:
         print("error: missing input file path", file=sys.stderr)
@@ -45,24 +52,28 @@ def main() -> None:
 
     try:
         data = read_csv_to_dict(input_path)
+        if not data:
+            # Empty file or invalid CSV
+            print("[]", file=sys.stdout if output_path is None else open(output_path, 'w', encoding='utf-8'))
+            return
+
+        # Convert to JSON and write to output
+        json_output = json.dumps(data, indent=None)
+        if output_path is None:
+            print(json_output)
+        else:
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(json_output)
+
     except MissingFileError as e:
         print(f"error: {e}", file=sys.stderr)
         sys.exit(1)
     except MalformedCSVError as e:
         print(f"error: {e}", file=sys.stderr)
         sys.exit(1)
-
-    # Output to file or stdout
-    if output_path:
-        try:
-            with open(output_path, 'w', encoding='utf-8') as file:
-                json.dump(data, file, indent=2)
-        except Exception as e:
-            print(f"error: failed to write output file: {e}", file=sys.stderr)
-            sys.exit(1)
-    else:
-        # Print to stdout
-        print(json.dumps(data, indent=2))
+    except Exception as e:
+        print(f"error: unexpected error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

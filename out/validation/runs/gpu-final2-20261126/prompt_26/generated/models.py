@@ -20,13 +20,6 @@ class Book:
 
 
 @dataclass
-class Member:
-    id: int = None
-    name: str = None
-    email: str = None
-
-
-@dataclass
 class Loan:
     id: int = None
     book_id: int = None
@@ -34,3 +27,10 @@ class Loan:
     loan_date: datetime.datetime = None
     due_date: datetime.datetime = None
     closed: bool = None
+
+
+@dataclass
+class Member:
+    id: int = None
+    name: str = None
+    email: str = None

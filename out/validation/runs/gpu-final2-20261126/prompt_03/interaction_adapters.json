@@ -2,94 +2,94 @@
   "interaction_adapters": [
     {
       "action_name": "add_task",
-      "target_service": "TaskRepository",
+      "input_fields": [
+        {
+          "field_name": "description",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "description",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "is_completed",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "is_completed",
+          "transform": "DIRECT"
+        }
+      ],
       "target_method": "create",
-      "input_fields": [
-        {
-          "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "is_completed",
-          "target_param": "is_completed",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "list_tasks",
-      "target_service": "TaskRepository",
-      "target_method": "read_all",
-      "input_fields": [
-        {
-          "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "is_completed",
-          "target_param": "is_completed",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
+      "target_service": "TaskRepository"
     },
     {
       "action_name": "delete_task",
-      "target_service": "TaskRepository",
-      "target_method": "delete",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Task",
-          "required": true
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "description",
+          "transform": "DIRECT"
         }
-      ]
+      ],
+      "target_method": "delete",
+      "target_service": "TaskRepository"
     },
     {
-      "action_name": "taskupdate",
-      "target_service": "TaskRepository",
-      "target_method": "update",
+      "action_name": "list_tasks",
       "input_fields": [
         {
-          "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Task",
-          "required": true
-        },
-        {
           "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "description",
+          "transform": "DIRECT"
         },
         {
           "field_name": "is_completed",
-          "target_param": "is_completed",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "is_completed",
+          "transform": "DIRECT"
         }
-      ]
+      ],
+      "target_method": "read_all",
+      "target_service": "TaskRepository"
+    },
+    {
+      "action_name": "taskupdate",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "lookup_entity": "Task",
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "description",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "description",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "is_completed",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "is_completed",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "TaskRepository"
     }
   ]
 }

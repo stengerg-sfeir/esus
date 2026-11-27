@@ -1,65 +1,65 @@
 {
   "data_models": [
     {
-      "name": "Product",
       "fields": [
         {
-          "name": "id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
+          "foreign_key": null,
           "name": "name",
-          "type": "string",
-          "primary_key": false,
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "category",
-          "type": "string",
           "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "price",
-          "type": "decimal",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "stock_quantity",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "sku",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
           "status": "explicit",
-          "source": "requirements"
+          "type": "string",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "category",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "price",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "decimal",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "stock_quantity",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "sku",
+          "nullable": false,
+          "primary_key": false,
+          "source": "requirements",
+          "status": "explicit",
+          "type": "string",
+          "unique": false
         }
-      ]
+      ],
+      "name": "Product"
     }
   ]
 }

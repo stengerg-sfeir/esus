@@ -2,38 +2,38 @@
   "interaction_adapters": [
     {
       "action_name": "orderadd",
-      "target_service": "OrderRepository",
-      "target_method": "create",
       "input_fields": [
         {
           "field_name": "status",
-          "target_param": "status",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "status",
+          "transform": "DIRECT"
         }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "OrderRepository"
     },
     {
       "action_name": "orderupdate",
-      "target_service": "OrderRepository",
-      "target_method": "update",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Order",
-          "required": true
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "status",
-          "target_param": "status",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "status",
+          "transform": "DIRECT"
         }
-      ]
+      ],
+      "target_method": "update",
+      "target_service": "OrderRepository"
     }
   ]
 }

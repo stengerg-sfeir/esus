@@ -1,29 +1,29 @@
 {
   "errors": [
     {
-      "name": "InsufficientStockError",
+      "base": "KeyError",
+      "description": "Raised when attempting to place an order for a customer that does not exist in the system.",
+      "name": "CustomerNotFoundError"
+    },
+    {
       "base": "ValueError",
-      "description": "Raised when a product in an order has insufficient stock to fulfill the requested quantity."
+      "description": "Raised when a product in an order has insufficient stock to fulfill the requested quantity.",
+      "name": "InsufficientStockError"
     },
     {
-      "name": "CustomerNotFoundError",
-      "base": "KeyError",
-      "description": "Raised when attempting to place an order for a customer that does not exist in the system."
-    },
-    {
-      "name": "ProductNotFoundError",
-      "base": "KeyError",
-      "description": "Raised when attempting to reference a product in an order that does not exist in the system."
-    },
-    {
-      "name": "OrderNotFoundError",
       "base": "LookupError",
-      "description": "Raised when attempting to retrieve an order that does not exist in the system."
+      "description": "Raised when attempting to retrieve an order that does not exist in the system.",
+      "name": "OrderNotFoundError"
     },
     {
-      "name": "ProductStockQuantityError",
+      "base": "KeyError",
+      "description": "Raised when attempting to reference a product in an order that does not exist in the system.",
+      "name": "ProductNotFoundError"
+    },
+    {
       "base": "ValueError",
-      "description": "Raised when a product's stock quantity is not a non-negative integer."
+      "description": "Raised when a product's stock quantity is not a non-negative integer.",
+      "name": "ProductStockQuantityError"
     }
   ]
 }

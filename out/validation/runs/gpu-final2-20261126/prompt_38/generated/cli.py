@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['User', 'Document']
-REPOSITORIES = ['UserRepository', 'DocumentRepository']
+MODELS = ['Document', 'User']
+REPOSITORIES = ['DocumentRepository', 'UserRepository']
 SERVICES = []
 
 
@@ -225,21 +225,6 @@ def build_parser():
     parser.add_argument('--db', default=None,
                         help=('SQLite file for record storage (default: ' + DEFAULT_DB + ' in the working directory; use :memory: to stay in memory)'))
     sub = parser.add_subparsers(dest='command')
-    p_User = sub.add_parser('User')
-    sub_User = p_User.add_subparsers(dest='subcommand')
-    p_User_add = sub_User.add_parser('add')
-    p_User_add.add_argument('--email', type=str, required=True, dest='email')
-    p_User_add.add_argument('--password-hash', type=str, required=True, dest='password_hash')
-    p_User_add.set_defaults(_binding=('User', 'add'))
-    p_User_update = sub_User.add_parser('update')
-    p_User_update.add_argument('--user-id', type=int, required=True, dest='user_id')
-    p_User_update.add_argument('--email', type=str, required=True, dest='email')
-    p_User_update.add_argument('--password-hash', type=str, required=True, dest='password_hash')
-    p_User_update.set_defaults(_binding=('User', 'update'))
-    p_User_delete = sub_User.add_parser('delete')
-    p_User_delete.add_argument('--user-id', type=int, required=True, dest='user_id')
-    p_User_delete.add_argument('--password-hash', type=str, required=False, dest='password_hash')
-    p_User_delete.set_defaults(_binding=('User', 'delete'))
     p_Document = sub.add_parser('Document')
     sub_Document = p_Document.add_subparsers(dest='subcommand')
     p_Document_add = sub_Document.add_parser('add')
@@ -247,17 +232,32 @@ def build_parser():
     p_Document_add.add_argument('--content', type=str, required=True, dest='content')
     p_Document_add.add_argument('--owner-user-id', type=int, required=True, dest='owner_user_id')
     p_Document_add.set_defaults(_binding=('Document', 'add'))
+    p_Document_delete = sub_Document.add_parser('delete')
+    p_Document_delete.add_argument('--document-id', type=int, required=True, dest='document_id')
+    p_Document_delete.add_argument('--title', type=str, required=False, dest='title')
+    p_Document_delete.add_argument('--content', type=str, required=False, dest='content')
+    p_Document_delete.set_defaults(_binding=('Document', 'delete'))
     p_Document_update = sub_Document.add_parser('update')
     p_Document_update.add_argument('--document-id', type=int, required=True, dest='document_id')
     p_Document_update.add_argument('--title', type=str, required=True, dest='title')
     p_Document_update.add_argument('--content', type=str, required=True, dest='content')
     p_Document_update.add_argument('--owner-user-id', type=int, required=True, dest='owner_user_id')
     p_Document_update.set_defaults(_binding=('Document', 'update'))
-    p_Document_delete = sub_Document.add_parser('delete')
-    p_Document_delete.add_argument('--document-id', type=int, required=True, dest='document_id')
-    p_Document_delete.add_argument('--title', type=str, required=False, dest='title')
-    p_Document_delete.add_argument('--content', type=str, required=False, dest='content')
-    p_Document_delete.set_defaults(_binding=('Document', 'delete'))
+    p_User = sub.add_parser('User')
+    sub_User = p_User.add_subparsers(dest='subcommand')
+    p_User_add = sub_User.add_parser('add')
+    p_User_add.add_argument('--email', type=str, required=True, dest='email')
+    p_User_add.add_argument('--password-hash', type=str, required=True, dest='password_hash')
+    p_User_add.set_defaults(_binding=('User', 'add'))
+    p_User_delete = sub_User.add_parser('delete')
+    p_User_delete.add_argument('--user-id', type=int, required=True, dest='user_id')
+    p_User_delete.add_argument('--password-hash', type=str, required=False, dest='password_hash')
+    p_User_delete.set_defaults(_binding=('User', 'delete'))
+    p_User_update = sub_User.add_parser('update')
+    p_User_update.add_argument('--user-id', type=int, required=True, dest='user_id')
+    p_User_update.add_argument('--email', type=str, required=True, dest='email')
+    p_User_update.add_argument('--password-hash', type=str, required=True, dest='password_hash')
+    p_User_update.set_defaults(_binding=('User', 'update'))
     return parser
 
 

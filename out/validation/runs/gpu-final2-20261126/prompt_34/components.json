@@ -1,259 +1,5 @@
 {
   "components": {
-    "facade": {
-      "type": "cli",
-      "technology": "argparse",
-      "invocation": {
-        "positional": [
-          {
-            "name": "order_id",
-            "type": "str",
-            "required": true
-          },
-          {
-            "name": "product_id",
-            "type": "str",
-            "required": true
-          },
-          {
-            "name": "quantity",
-            "type": "int",
-            "required": true
-          },
-          {
-            "name": "unit_price",
-            "type": "float",
-            "required": true
-          }
-        ],
-        "options": [
-          {
-            "name": "--force",
-            "short": "-f",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--validation",
-            "short": "-v",
-            "type": "bool",
-            "required": false,
-            "default": null
-          }
-        ],
-        "commands": [
-          {
-            "name": "Order",
-            "options": [],
-            "subcommands": [
-              {
-                "name": "add",
-                "options": [
-                  {
-                    "name": "--created-at",
-                    "short": null,
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--updated-at",
-                    "short": null,
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "update",
-                "options": [
-                  {
-                    "name": "--order-id",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--created-at",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--updated-at",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "delete",
-                "options": [
-                  {
-                    "name": "--order-id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "name": "OrderLine",
-            "options": [],
-            "subcommands": [
-              {
-                "name": "add",
-                "options": [
-                  {
-                    "name": "--order-id",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--product-id",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--quantity",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--unit-price",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--total-price",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "update",
-                "options": [
-                  {
-                    "name": "--order-line-id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--order-id",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--product-id",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--quantity",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--unit-price",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--total-price",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "delete",
-                "options": [
-                  {
-                    "name": "--order-line-id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--order-id",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--product-id",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--quantity",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--unit-price",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--total-price",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "persistence": {
-      "required": true,
-      "technology": "sqlite"
-    },
-    "external_access": [],
     "crud_services": [
       {
         "entity": "Order",
@@ -275,6 +21,260 @@
           "delete"
         ]
       }
-    ]
+    ],
+    "external_access": [],
+    "facade": {
+      "invocation": {
+        "commands": [
+          {
+            "name": "Order",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--created-at",
+                    "required": true,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--updated-at",
+                    "required": true,
+                    "short": null,
+                    "type": "str"
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--order-id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--order-id",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--created-at",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--updated-at",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "OrderLine",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--order-id",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--product-id",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--quantity",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--unit-price",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--total-price",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--order-line-id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--order-id",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--product-id",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--quantity",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--unit-price",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--total-price",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--order-line-id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--order-id",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--product-id",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--quantity",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--unit-price",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--total-price",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "options": [
+          {
+            "default": null,
+            "name": "--force",
+            "required": false,
+            "short": "-f",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--validation",
+            "required": false,
+            "short": "-v",
+            "type": "bool"
+          }
+        ],
+        "positional": [
+          {
+            "name": "order_id",
+            "required": true,
+            "type": "str"
+          },
+          {
+            "name": "product_id",
+            "required": true,
+            "type": "str"
+          },
+          {
+            "name": "quantity",
+            "required": true,
+            "type": "int"
+          },
+          {
+            "name": "unit_price",
+            "required": true,
+            "type": "float"
+          }
+        ]
+      },
+      "technology": "argparse",
+      "type": "cli"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    }
   }
 }

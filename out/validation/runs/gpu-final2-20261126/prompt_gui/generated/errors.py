@@ -4,8 +4,8 @@
 
 from __future__ import annotations
 
-class NegativeStockError(ValueError):
-    """Raised when an attempt is made to set a wine's stock quantity to a negative value."""
+class DuplicateWineNameError(LookupError):
+    """Raised when trying to add a wine with a name that already exists in the system."""
 
 
 class InvalidPricingException(ValueError):
@@ -16,8 +16,8 @@ class LocationOverCapacityException(ValueError):
     """Raised when attempting to assign a wine bottle to a storage location that would exceed its defined maximum bottle capacity."""
 
 
-class DuplicateWineNameError(LookupError):
-    """Raised when trying to add a wine with a name that already exists in the system."""
+class NegativeStockError(ValueError):
+    """Raised when an attempt is made to set a wine's stock quantity to a negative value."""
 
 
 class StorageLocationNotFoundError(KeyError):

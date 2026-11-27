@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Book', 'Member', 'BorrowRecord']
-REPOSITORIES = ['BookRepository', 'MemberRepository', 'BorrowRecordRepository']
+MODELS = ['Book', 'BorrowRecord', 'Member']
+REPOSITORIES = ['BookRepository', 'BorrowRecordRepository', 'MemberRepository']
 SERVICES = ['BorrowService']
 
 
@@ -206,28 +206,6 @@ def build_parser():
     parser.add_argument('--db', default=None,
                         help=('SQLite file for record storage (default: ' + DEFAULT_DB + ' in the working directory; use :memory: to stay in memory)'))
     sub = parser.add_subparsers(dest='command')
-    p_BorrowRecord = sub.add_parser('BorrowRecord')
-    sub_BorrowRecord = p_BorrowRecord.add_subparsers(dest='subcommand')
-    p_BorrowRecord_add = sub_BorrowRecord.add_parser('add')
-    p_BorrowRecord_add.add_argument('--book-id', type=int, required=True, dest='book_id')
-    p_BorrowRecord_add.add_argument('--member-id', type=int, required=True, dest='member_id')
-    p_BorrowRecord_add.add_argument('--borrow-date', type=str, required=True, dest='borrow_date')
-    p_BorrowRecord_add.add_argument('--return-date', type=str, required=True, dest='return_date')
-    p_BorrowRecord_add.set_defaults(_binding=('BorrowRecord', 'add'))
-    p_BorrowRecord_update = sub_BorrowRecord.add_parser('update')
-    p_BorrowRecord_update.add_argument('--borrow-id', type=int, required=True, dest='borrow_id')
-    p_BorrowRecord_update.add_argument('--book-id', type=int, required=False, dest='book_id')
-    p_BorrowRecord_update.add_argument('--member-id', type=int, required=False, dest='member_id')
-    p_BorrowRecord_update.add_argument('--borrow-date', type=str, required=False, dest='borrow_date')
-    p_BorrowRecord_update.add_argument('--return-date', type=str, required=False, dest='return_date')
-    p_BorrowRecord_update.set_defaults(_binding=('BorrowRecord', 'update'))
-    p_BorrowRecord_delete = sub_BorrowRecord.add_parser('delete')
-    p_BorrowRecord_delete.add_argument('--borrow-id', type=int, required=True, dest='borrow_id')
-    p_BorrowRecord_delete.add_argument('--book-id', type=int, required=False, dest='book_id')
-    p_BorrowRecord_delete.add_argument('--member-id', type=int, required=False, dest='member_id')
-    p_BorrowRecord_delete.add_argument('--borrow-date', type=str, required=False, dest='borrow_date')
-    p_BorrowRecord_delete.add_argument('--return-date', type=str, required=False, dest='return_date')
-    p_BorrowRecord_delete.set_defaults(_binding=('BorrowRecord', 'delete'))
     p_Book = sub.add_parser('Book')
     sub_Book = p_Book.add_subparsers(dest='subcommand')
     p_Book_update = sub_Book.add_parser('update')
@@ -238,6 +216,28 @@ def build_parser():
     p_Book_update.add_argument('--available-status', action='store_true', dest='available_status')
     p_Book_update.add_argument('--borrow-status', type=str, required=False, dest='borrow_status')
     p_Book_update.set_defaults(_binding=('Book', 'update'))
+    p_BorrowRecord = sub.add_parser('BorrowRecord')
+    sub_BorrowRecord = p_BorrowRecord.add_subparsers(dest='subcommand')
+    p_BorrowRecord_add = sub_BorrowRecord.add_parser('add')
+    p_BorrowRecord_add.add_argument('--book-id', type=int, required=True, dest='book_id')
+    p_BorrowRecord_add.add_argument('--member-id', type=int, required=True, dest='member_id')
+    p_BorrowRecord_add.add_argument('--borrow-date', type=str, required=True, dest='borrow_date')
+    p_BorrowRecord_add.add_argument('--return-date', type=str, required=True, dest='return_date')
+    p_BorrowRecord_add.set_defaults(_binding=('BorrowRecord', 'add'))
+    p_BorrowRecord_delete = sub_BorrowRecord.add_parser('delete')
+    p_BorrowRecord_delete.add_argument('--borrow-id', type=int, required=True, dest='borrow_id')
+    p_BorrowRecord_delete.add_argument('--book-id', type=int, required=False, dest='book_id')
+    p_BorrowRecord_delete.add_argument('--member-id', type=int, required=False, dest='member_id')
+    p_BorrowRecord_delete.add_argument('--borrow-date', type=str, required=False, dest='borrow_date')
+    p_BorrowRecord_delete.add_argument('--return-date', type=str, required=False, dest='return_date')
+    p_BorrowRecord_delete.set_defaults(_binding=('BorrowRecord', 'delete'))
+    p_BorrowRecord_update = sub_BorrowRecord.add_parser('update')
+    p_BorrowRecord_update.add_argument('--borrow-id', type=int, required=True, dest='borrow_id')
+    p_BorrowRecord_update.add_argument('--book-id', type=int, required=False, dest='book_id')
+    p_BorrowRecord_update.add_argument('--member-id', type=int, required=False, dest='member_id')
+    p_BorrowRecord_update.add_argument('--borrow-date', type=str, required=False, dest='borrow_date')
+    p_BorrowRecord_update.add_argument('--return-date', type=str, required=False, dest='return_date')
+    p_BorrowRecord_update.set_defaults(_binding=('BorrowRecord', 'update'))
     return parser
 
 

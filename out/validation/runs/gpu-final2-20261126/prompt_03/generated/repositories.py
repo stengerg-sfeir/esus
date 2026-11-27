@@ -58,7 +58,7 @@ class TaskRepository:
         self._store = store
 
 
-    def create(self, description: str = None, is_completed: bool = None) -> Any:
+    def create(self, description: str = None, is_completed: bool = None) -> models.Task:
         """Creates a new Task. [crud:create: STANDARD_CRUD]"""
         values = {}
         if description is not None:
@@ -71,34 +71,6 @@ class TaskRepository:
         if values.get('is_completed') is None:
             values['is_completed'] = False
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Task(**record)
-
-    def read_all(self, description: str = None, is_completed: bool = None) -> list[models.Task]:
-        """Lists every Task; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if description is not None:
-            criteria.append(('description', 'eq', description))
-        if is_completed is not None:
-            criteria.append(('is_completed', 'eq', is_completed))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Task(**r) for r in found]
-
-    def update(self, id: int = None, description: str = None, is_completed: bool = None) -> Any:
-        """Updates an existing Task. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Task update matched {len(found)} records")
-        patch = {}
-        if id is not None and 'id' in ['id', 'description', 'is_completed']:
-            patch['id'] = id
-        if description is not None and 'description' in ['id', 'description', 'is_completed']:
-            patch['description'] = description
-        if is_completed is not None and 'is_completed' in ['id', 'description', 'is_completed']:
-            patch['is_completed'] = is_completed
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Task(**record)
 
     def delete(self, id: int = None, description: str = None, is_completed: bool = None) -> None:
@@ -117,10 +89,38 @@ class TaskRepository:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
 
-    def read_one(self, id: int = None) -> Any:
+    def read_all(self, description: str = None, is_completed: bool = None) -> list[models.Task]:
+        """Lists every Task; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if description is not None:
+            criteria.append(('description', 'eq', description))
+        if is_completed is not None:
+            criteria.append(('is_completed', 'eq', is_completed))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Task(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Task:
         """Reads one Task by its key. [crud:read_one: READ_ONE_BY_ID]"""
         found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
         if not found:
             return None
         record = found[0]
+        return models.Task(**record)
+
+    def update(self, id: int = None, description: str = None, is_completed: bool = None) -> models.Task:
+        """Updates an existing Task. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Task update matched {len(found)} records")
+        patch = {}
+        if id is not None and 'id' in ['id', 'description', 'is_completed']:
+            patch['id'] = id
+        if description is not None and 'description' in ['id', 'description', 'is_completed']:
+            patch['description'] = description
+        if is_completed is not None and 'is_completed' in ['id', 'description', 'is_completed']:
+            patch['is_completed'] = is_completed
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Task(**record)

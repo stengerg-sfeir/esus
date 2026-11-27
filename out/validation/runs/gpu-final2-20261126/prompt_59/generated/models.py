@@ -19,11 +19,11 @@ class Customer:
 
 
 @dataclass
-class Product:
-    product_id: int = None
+class Discount:
+    discount_id: int = None
     name: str = None
-    price: Decimal = None
-    stock_quantity: int = None
+    value: Decimal = None
+    applies_to: str = None
 
 
 @dataclass
@@ -45,11 +45,11 @@ class OrderLine:
 
 
 @dataclass
-class Discount:
-    discount_id: int = None
+class Product:
+    product_id: int = None
     name: str = None
-    value: Decimal = None
-    applies_to: str = None
+    price: Decimal = None
+    stock_quantity: int = None
 
 
 @dataclass

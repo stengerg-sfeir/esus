@@ -58,8 +58,26 @@ class ProductRepository:
         self._store = store
 
 
-    def create(self, name: str = None, stock_quantity: int = None, price: int = None) -> Any:
+    def create(self, name: str = None, stock_quantity: int = None, price: int = None) -> models.Product:
         """Creates a new Product. [crud:create: STANDARD_CRUD]"""
+        values = {}
+        if name is not None:
+            values['name'] = name
+        if stock_quantity is not None:
+            values['stock_quantity'] = stock_quantity
+        if price is not None:
+            values['price'] = price
+        unknown = [k for k in values if k not in ['id', 'name', 'stock_quantity', 'price']]
+        if unknown:
+            raise ValueError(f"cannot create Product from {unknown}")
+        value = values.get('stock_quantity')
+        if value is not None and value < 0:
+            raise ValueError(f"Product.stock_quantity must be >= 0, got {value!r}")
+        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
+        return models.Product(**record)
+
+    def createProduct(self, name: str = None, stock_quantity: int = None, price: float = None) -> models.Product:
+        """Creates a new product with the specified name, stock quantity, and price. Ensures that the product is added to the inventory with valid initial values. [crud:create: STANDARD_CRUD]"""
         values = {}
         if name is not None:
             values['name'] = name
@@ -88,7 +106,7 @@ class ProductRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Product(**r) for r in found]
 
-    def read_one(self, id: int = None) -> Any:
+    def read_one(self, id: int = None) -> models.Product:
         """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
         found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
         if not found:
@@ -96,7 +114,21 @@ class ProductRepository:
         record = found[0]
         return models.Product(**record)
 
-    def update(self, id: int = None, name: str = None, stock_quantity: int = None, price: int = None) -> Any:
+    def readAllProducts(self) -> List[models.Product]:
+        """Retrieves all products from the inventory, including their name, stock quantity, and price. Used for displaying the full product catalog. [crud:read_all: READ_ALL]"""
+        criteria = []
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Product(**r) for r in found]
+
+    def readProductById(self, id: int = None) -> models.Product:
+        """Retrieves a product by its unique ID. Ensures the product exists in the inventory and returns its details. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Product(**record)
+
+    def update(self, id: int = None, name: str = None, stock_quantity: int = None, price: int = None) -> models.Product:
         """Updates an existing Product. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if id is not None:
@@ -119,39 +151,7 @@ class ProductRepository:
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Product(**record)
 
-    def createProduct(self, name: str = None, stock_quantity: int = None, price: float = None) -> Any:
-        """Creates a new product with the specified name, stock quantity, and price. Ensures that the product is added to the inventory with valid initial values. [crud:create: STANDARD_CRUD]"""
-        values = {}
-        if name is not None:
-            values['name'] = name
-        if stock_quantity is not None:
-            values['stock_quantity'] = stock_quantity
-        if price is not None:
-            values['price'] = price
-        unknown = [k for k in values if k not in ['id', 'name', 'stock_quantity', 'price']]
-        if unknown:
-            raise ValueError(f"cannot create Product from {unknown}")
-        value = values.get('stock_quantity')
-        if value is not None and value < 0:
-            raise ValueError(f"Product.stock_quantity must be >= 0, got {value!r}")
-        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Product(**record)
-
-    def readAllProducts(self) -> List[models.Product]:
-        """Retrieves all products from the inventory, including their name, stock quantity, and price. Used for displaying the full product catalog. [crud:read_all: READ_ALL]"""
-        criteria = []
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Product(**r) for r in found]
-
-    def readProductById(self, id: int = None) -> Any:
-        """Retrieves a product by its unique ID. Ensures the product exists in the inventory and returns its details. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Product(**record)
-
-    def updateProductStock(self, id: int = None, new_stock_quantity: int = None) -> Any:
+    def updateProductStock(self, id: int = None, new_stock_quantity: int = None) -> models.Product:
         """Updates the stock quantity of a product by ID. Validates that the new stock quantity is non-negative and updates the inventory accordingly. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if id is not None:
@@ -179,7 +179,7 @@ class SaleRepository:
         self._store = store
 
 
-    def create(self, product_id: int = None, quantity: int = None, sale_date: Any = None, user_id: str = None) -> Any:
+    def create(self, product_id: int = None, quantity: int = None, sale_date: Any = None, user_id: str = None) -> models.Sale:
         """Creates a new Sale. [crud:create: STANDARD_CRUD]"""
         values = {}
         if product_id is not None:
@@ -199,15 +199,7 @@ class SaleRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("product_id", "Product", "id", None)])
         return models.Sale(**record)
 
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Sale by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Sale(**record)
-
-    def createSale(self, product_id: int = None, quantity: int = None, sale_date: datetime.datetime = None, user_id: int = None) -> Any:
+    def createSale(self, product_id: int = None, quantity: int = None, sale_date: datetime.datetime = None, user_id: int = None) -> models.Sale:
         """Records a sale of a product by updating the product's stock quantity to reflect the sold amount. Ensures that the product has sufficient stock before allowing the sale to proceed. [crud:create: STANDARD_CRUD]"""
         values = {}
         if product_id is not None:
@@ -227,7 +219,15 @@ class SaleRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("product_id", "Product", "id", None)])
         return models.Sale(**record)
 
-    def readSaleById(self, id: int = None) -> Any:
+    def read_one(self, id: int = None) -> models.Sale:
+        """Reads one Sale by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Sale(**record)
+
+    def readSaleById(self, id: int = None) -> models.Sale:
         """Retrieves a sale record by its unique ID. Used to view transaction details such as product, quantity, date, and user. [crud:read_one: READ_ONE_BY_ID]"""
         found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
         if not found:

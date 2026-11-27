@@ -55,24 +55,8 @@ class LibraryService:
             raise errors.BookNotFoundError(f'Book with id {book_id} not found')
         if book.available_copies <= 0:
             raise errors.InvalidBookCopiesError(f'Book with id {book_id} has no available copies')
-        loan = self._repos['LoanRepository'].create(book_id=book.id, member_id=member.id, loan_date=datetime.date.today(), due_date=datetime.date.today() + datetime.timedelta(days=14))
-        book.available_copies = book.available_copies - 1
-        self._repos['BookRepository'].update(id=book.id, available_copies=book.available_copies)
-
-    def return_book(self, loan_id: int = None) -> None:
-        """Returns a loan by setting the return_date, updating the loan status to 'returned', and incrementing the book's available_copies. If the loan is already returned, raises AlreadyReturnedLoanError. [llm-written by server — review]"""
-        loan = self._repos['LoanRepository'].read_one(loan_id)
-        if loan is None:
-            raise errors.LoanNotFoundError(f'Loan with id {loan_id} not found')
-        if loan.status == 'returned':
-            raise errors.AlreadyReturnedLoanError(f'Loan with id {loan_id} is already returned')
-        loan.return_date = datetime.date.today()
-        loan.status = 'returned'
-        self._repos['LoanRepository'].update(id=loan.id, return_date=loan.return_date, status=loan.status)
-        book = self._repos['BookRepository'].read_one(loan.book_id)
-        if book is None:
-            raise errors.BookNotFoundError(f'Book with id {loan.book_id} not found')
-        book.available_copies = book.available_copies + 1
+        loan = self._repos['LoanRepository'].create(member_id=member.id, book_id=book.id, loan_date=datetime.date.today(), due_date=datetime.date.today() + datetime.timedelta(days=14))
+        book.available_copies -= 1
         self._repos['BookRepository'].update(id=book.id, available_copies=book.available_copies)
 
     def get_overdue_loans(self) -> list[models.Loan]:
@@ -96,6 +80,22 @@ class LibraryService:
             raise errors.MemberNotFoundError(f'Member with id {member_id} not found')
         member.is_active = not member.is_active
         self._repos['MemberRepository'].update(id=member.id, is_active=member.is_active)
+
+    def return_book(self, loan_id: int = None) -> None:
+        """Returns a loan by setting the return_date, updating the loan status to 'returned', and incrementing the book's available_copies. If the loan is already returned, raises AlreadyReturnedLoanError. [llm-written by server — review]"""
+        loan = self._repos['LoanRepository'].read_one(loan_id)
+        if loan is None:
+            raise errors.LoanNotFoundError(f'Loan with id {loan_id} not found')
+        if loan.status == 'returned':
+            raise errors.AlreadyReturnedLoanError(f'Loan with id {loan_id} is already returned')
+        loan.return_date = datetime.date.today()
+        loan.status = 'returned'
+        self._repos['LoanRepository'].update(id=loan.id, return_date=loan.return_date, status=loan.status)
+        book = self._repos['BookRepository'].read_one(loan.book_id)
+        if book is None:
+            raise errors.BookNotFoundError(f'Book with id {loan.book_id} not found')
+        book.available_copies += 1
+        self._repos['BookRepository'].update(id=book.id, available_copies=book.available_copies)
 
     def search_books(self, query: str = None) -> list[models.Book]:
         """Performs case-insensitive substring matching across book title, author name, and ISBN. Returns books that match the query. If no match is found, returns an empty list. [delegates to the repository search]"""

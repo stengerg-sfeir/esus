@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Wine', 'StorageLocation']
-REPOSITORIES = ['WineRepository', 'StorageLocationRepository']
+MODELS = ['StorageLocation', 'Wine']
+REPOSITORIES = ['StorageLocationRepository', 'WineRepository']
 SERVICES = []
 
 

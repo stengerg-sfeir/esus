@@ -1,11 +1,286 @@
 {
   "service_contracts": [
     {
-      "service_name": "LibraryService",
       "methods": [
         {
-          "name": "borrow_book",
+          "description": "Creates a new Author.",
+          "name": "create",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "birth_year",
+              "type": "int"
+            },
+            {
+              "name": "biography",
+              "type": "str"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Author"
+        },
+        {
+          "description": "Deletes an existing Author.",
+          "name": "delete",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "birth_year",
+              "type": "int"
+            },
+            {
+              "name": "biography",
+              "type": "str"
+            }
+          ],
+          "raises": [
+            "AuthorNotFoundError"
+          ],
+          "return_type": "None"
+        },
+        {
+          "description": "Returns all books authored by the given author ID. If no such author exists, returns an empty list.",
+          "name": "find_books_by_author",
+          "params": [
+            {
+              "name": "author_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Book]"
+        },
+        {
+          "description": "Lists every Author; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "birth_year",
+              "type": "int"
+            },
+            {
+              "name": "biography",
+              "type": "str"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Author]"
+        },
+        {
+          "description": "Reads one Author by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "AuthorNotFoundError"
+          ],
+          "return_type": "models.Author"
+        },
+        {
+          "description": "Updates an existing Author.",
+          "name": "update",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "birth_year",
+              "type": "int"
+            },
+            {
+              "name": "biography",
+              "type": "str"
+            }
+          ],
+          "raises": [
+            "AuthorNotFoundError"
+          ],
+          "return_type": "models.Author"
+        }
+      ],
+      "service_name": "AuthorRepository"
+    },
+    {
+      "methods": [
+        {
+          "description": "Creates a new Book.",
+          "name": "create",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "isbn",
+              "type": "str"
+            },
+            {
+              "name": "published_year",
+              "type": "int"
+            },
+            {
+              "name": "available_copies",
+              "type": "int"
+            },
+            {
+              "name": "author_id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Book"
+        },
+        {
+          "description": "Deletes an existing Book.",
+          "name": "delete",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "isbn",
+              "type": "str"
+            },
+            {
+              "name": "published_year",
+              "type": "int"
+            },
+            {
+              "name": "available_copies",
+              "type": "int"
+            },
+            {
+              "name": "author_id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "BookNotFoundError"
+          ],
+          "return_type": "None"
+        },
+        {
+          "description": "Lists every Book; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "isbn",
+              "type": "str"
+            },
+            {
+              "name": "published_year",
+              "type": "int"
+            },
+            {
+              "name": "available_copies",
+              "type": "int"
+            },
+            {
+              "name": "author_id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Book]"
+        },
+        {
+          "description": "Reads one Book by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "BookNotFoundError"
+          ],
+          "return_type": "models.Book"
+        },
+        {
+          "description": "Searches for books using case-insensitive substring matching on title, author name (via author_id), or ISBN. Returns all matching books, each only once, even if multiple fields match. Returns empty list if ISBN is not found.",
+          "name": "search_by_title_or_author_or_isbn",
+          "params": [
+            {
+              "name": "query",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Book]"
+        },
+        {
+          "description": "Updates an existing Book.",
+          "name": "update",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "isbn",
+              "type": "str"
+            },
+            {
+              "name": "published_year",
+              "type": "int"
+            },
+            {
+              "name": "available_copies",
+              "type": "int"
+            },
+            {
+              "name": "author_id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "BookNotFoundError"
+          ],
+          "return_type": "models.Book"
+        }
+      ],
+      "service_name": "BookRepository"
+    },
+    {
+      "methods": [
+        {
           "description": "Borrows a book for a member by checking availability, creating a loan, and decrementing available copies. All operations are performed in a single transaction.",
+          "name": "borrow_book",
           "params": [
             {
               "name": "member_id",
@@ -16,7 +291,6 @@
               "type": "int"
             }
           ],
-          "return_type": "None",
           "raises": [
             "BookNotFoundError",
             "MemberNotFoundError",
@@ -24,491 +298,67 @@
             "InvalidLoanStatusError",
             "InvalidBookIdError",
             "InvalidMemberIdError"
-          ]
+          ],
+          "return_type": "None"
         },
         {
-          "name": "return_book",
+          "description": "Returns all loans that are overdue, defined as loans where due_date is earlier than today and return_date is null.",
+          "name": "get_overdue_loans",
+          "params": [],
+          "raises": [],
+          "return_type": "list[Loan]"
+        },
+        {
+          "description": "Toggles the active status of a member. If the member is active, sets is_active to False; if inactive, sets it to True.",
+          "name": "renew_membership",
+          "params": [
+            {
+              "name": "member_id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "MemberNotFoundError",
+            "InvalidMemberIdError"
+          ],
+          "return_type": "None"
+        },
+        {
           "description": "Returns a loan by setting the return_date, updating the loan status to 'returned', and incrementing the book's available_copies. If the loan is already returned, raises AlreadyReturnedLoanError.",
+          "name": "return_book",
           "params": [
             {
               "name": "loan_id",
               "type": "int"
             }
           ],
-          "return_type": "None",
           "raises": [
             "AlreadyReturnedLoanError",
             "LoanNotFoundError",
             "InvalidLoanStatusError"
-          ]
-        },
-        {
-          "name": "get_overdue_loans",
-          "description": "Returns all loans that are overdue, defined as loans where due_date is earlier than today and return_date is null.",
-          "params": [],
-          "return_type": "list[Loan]",
-          "raises": []
-        },
-        {
-          "name": "renew_membership",
-          "description": "Toggles the active status of a member. If the member is active, sets is_active to False; if inactive, sets it to True.",
-          "params": [
-            {
-              "name": "member_id",
-              "type": "int"
-            }
           ],
-          "return_type": "None",
-          "raises": [
-            "MemberNotFoundError",
-            "InvalidMemberIdError"
-          ]
+          "return_type": "None"
         },
         {
-          "name": "search_books",
           "description": "Performs case-insensitive substring matching across book title, author name, and ISBN. Returns books that match the query. If no match is found, returns an empty list.",
+          "name": "search_books",
           "params": [
             {
               "name": "query",
               "type": "str"
             }
           ],
-          "return_type": "list[Book]",
-          "raises": []
-        }
-      ]
-    },
-    {
-      "service_name": "BookRepository",
-      "methods": [
-        {
-          "name": "create",
-          "description": "Creates a new Book.",
-          "params": [
-            {
-              "name": "title",
-              "type": "str"
-            },
-            {
-              "name": "isbn",
-              "type": "str"
-            },
-            {
-              "name": "published_year",
-              "type": "int"
-            },
-            {
-              "name": "available_copies",
-              "type": "int"
-            },
-            {
-              "name": "author_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Book",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Book by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Book",
-          "raises": [
-            "BookNotFoundError"
-          ]
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Book; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "title",
-              "type": "str"
-            },
-            {
-              "name": "isbn",
-              "type": "str"
-            },
-            {
-              "name": "published_year",
-              "type": "int"
-            },
-            {
-              "name": "available_copies",
-              "type": "int"
-            },
-            {
-              "name": "author_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Book]",
-          "raises": []
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Book.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "title",
-              "type": "str"
-            },
-            {
-              "name": "isbn",
-              "type": "str"
-            },
-            {
-              "name": "published_year",
-              "type": "int"
-            },
-            {
-              "name": "available_copies",
-              "type": "int"
-            },
-            {
-              "name": "author_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Book",
-          "raises": [
-            "BookNotFoundError"
-          ]
-        },
-        {
-          "name": "delete",
-          "description": "Deletes an existing Book.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "title",
-              "type": "str"
-            },
-            {
-              "name": "isbn",
-              "type": "str"
-            },
-            {
-              "name": "published_year",
-              "type": "int"
-            },
-            {
-              "name": "available_copies",
-              "type": "int"
-            },
-            {
-              "name": "author_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "None",
-          "raises": [
-            "BookNotFoundError"
-          ]
-        },
-        {
-          "name": "search_by_title_or_author_or_isbn",
-          "description": "Searches for books using case-insensitive substring matching on title, author name (via author_id), or ISBN. Returns all matching books, each only once, even if multiple fields match. Returns empty list if ISBN is not found.",
-          "params": [
-            {
-              "name": "query",
-              "type": "str"
-            }
-          ],
+          "raises": [],
           "return_type": "list[Book]"
         }
-      ]
+      ],
+      "service_name": "LibraryService"
     },
     {
-      "service_name": "AuthorRepository",
       "methods": [
         {
-          "name": "create",
-          "description": "Creates a new Author.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "birth_year",
-              "type": "int"
-            },
-            {
-              "name": "biography",
-              "type": "str"
-            }
-          ],
-          "return_type": "models.Author",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Author by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Author",
-          "raises": [
-            "AuthorNotFoundError"
-          ]
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Author; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "birth_year",
-              "type": "int"
-            },
-            {
-              "name": "biography",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Author]",
-          "raises": []
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Author.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "birth_year",
-              "type": "int"
-            },
-            {
-              "name": "biography",
-              "type": "str"
-            }
-          ],
-          "return_type": "models.Author",
-          "raises": [
-            "AuthorNotFoundError"
-          ]
-        },
-        {
-          "name": "delete",
-          "description": "Deletes an existing Author.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "birth_year",
-              "type": "int"
-            },
-            {
-              "name": "biography",
-              "type": "str"
-            }
-          ],
-          "return_type": "None",
-          "raises": [
-            "AuthorNotFoundError"
-          ]
-        },
-        {
-          "name": "find_books_by_author",
-          "description": "Returns all books authored by the given author ID. If no such author exists, returns an empty list.",
-          "params": [
-            {
-              "name": "author_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Book]"
-        }
-      ]
-    },
-    {
-      "service_name": "MemberRepository",
-      "methods": [
-        {
-          "name": "create",
-          "description": "Creates a new Member.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            },
-            {
-              "name": "membership_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "is_active",
-              "type": "bool"
-            }
-          ],
-          "return_type": "models.Member",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Member by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Member",
-          "raises": [
-            "MemberNotFoundError"
-          ]
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Member; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            },
-            {
-              "name": "membership_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "is_active",
-              "type": "bool"
-            }
-          ],
-          "return_type": "list[Member]",
-          "raises": []
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Member.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            },
-            {
-              "name": "membership_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "is_active",
-              "type": "bool"
-            }
-          ],
-          "return_type": "models.Member",
-          "raises": [
-            "MemberNotFoundError"
-          ]
-        },
-        {
-          "name": "delete",
-          "description": "Deletes an existing Member.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            },
-            {
-              "name": "membership_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "is_active",
-              "type": "bool"
-            }
-          ],
-          "return_type": "None",
-          "raises": [
-            "MemberNotFoundError"
-          ]
-        },
-        {
-          "name": "find_active_members",
-          "description": "Returns all members who are currently active (is_active = True).",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Member]"
-        },
-        {
-          "name": "find_inactive_members",
-          "description": "Returns all members who are currently inactive (is_active = False).",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Member]"
-        }
-      ]
-    },
-    {
-      "service_name": "LoanRepository",
-      "methods": [
-        {
-          "name": "create",
           "description": "Creates a new Loan.",
+          "name": "create",
           "params": [
             {
               "name": "book_id",
@@ -535,96 +385,12 @@
               "type": "str"
             }
           ],
-          "return_type": "models.Loan",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Loan"
         },
         {
-          "name": "read_one",
-          "description": "Reads one Loan by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Loan",
-          "raises": [
-            "LoanNotFoundError"
-          ]
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Loan; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "book_id",
-              "type": "int"
-            },
-            {
-              "name": "member_id",
-              "type": "int"
-            },
-            {
-              "name": "loan_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "due_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "return_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "status",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Loan]",
-          "raises": []
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Loan.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "book_id",
-              "type": "int"
-            },
-            {
-              "name": "member_id",
-              "type": "int"
-            },
-            {
-              "name": "loan_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "due_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "return_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "status",
-              "type": "str"
-            }
-          ],
-          "return_type": "models.Loan",
-          "raises": [
-            "LoanNotFoundError"
-          ]
-        },
-        {
-          "name": "delete",
           "description": "Deletes an existing Loan.",
+          "name": "delete",
           "params": [
             {
               "name": "id",
@@ -655,14 +421,14 @@
               "type": "str"
             }
           ],
-          "return_type": "None",
           "raises": [
             "LoanNotFoundError"
-          ]
+          ],
+          "return_type": "None"
         },
         {
-          "name": "find_active_loans",
           "description": "Returns all loans with status 'active' (i.e., not returned and not overdue).",
+          "name": "find_active_loans",
           "params": [
             {
               "name": "id",
@@ -672,8 +438,8 @@
           "return_type": "list[Loan]"
         },
         {
-          "name": "find_overdue_loans",
           "description": "Returns loans that are overdue: due_date < today and return_date is None.",
+          "name": "find_overdue_loans",
           "params": [
             {
               "name": "id",
@@ -683,8 +449,19 @@
           "return_type": "list[Loan]"
         },
         {
-          "name": "get_member_loan_history",
+          "description": "Returns all loans involving a specific book, ordered by loan date descending.",
+          "name": "get_book_loan_history",
+          "params": [
+            {
+              "name": "book_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Loan]"
+        },
+        {
           "description": "Returns all loans made by a specific member, ordered by loan date descending.",
+          "name": "get_member_loan_history",
           "params": [
             {
               "name": "member_id",
@@ -694,17 +471,240 @@
           "return_type": "list[Loan]"
         },
         {
-          "name": "get_book_loan_history",
-          "description": "Returns all loans involving a specific book, ordered by loan date descending.",
+          "description": "Lists every Loan; optional fields narrow the result.",
+          "name": "read_all",
           "params": [
             {
               "name": "book_id",
               "type": "int"
+            },
+            {
+              "name": "member_id",
+              "type": "int"
+            },
+            {
+              "name": "loan_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "return_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "status",
+              "type": "str"
             }
           ],
+          "raises": [],
           "return_type": "list[Loan]"
+        },
+        {
+          "description": "Reads one Loan by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "LoanNotFoundError"
+          ],
+          "return_type": "models.Loan"
+        },
+        {
+          "description": "Updates an existing Loan.",
+          "name": "update",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "book_id",
+              "type": "int"
+            },
+            {
+              "name": "member_id",
+              "type": "int"
+            },
+            {
+              "name": "loan_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "return_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "raises": [
+            "LoanNotFoundError"
+          ],
+          "return_type": "models.Loan"
         }
-      ]
+      ],
+      "service_name": "LoanRepository"
+    },
+    {
+      "methods": [
+        {
+          "description": "Creates a new Member.",
+          "name": "create",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "membership_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "is_active",
+              "type": "bool"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Member"
+        },
+        {
+          "description": "Deletes an existing Member.",
+          "name": "delete",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "membership_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "is_active",
+              "type": "bool"
+            }
+          ],
+          "raises": [
+            "MemberNotFoundError"
+          ],
+          "return_type": "None"
+        },
+        {
+          "description": "Returns all members who are currently active (is_active = True).",
+          "name": "find_active_members",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Member]"
+        },
+        {
+          "description": "Returns all members who are currently inactive (is_active = False).",
+          "name": "find_inactive_members",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Member]"
+        },
+        {
+          "description": "Lists every Member; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "membership_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "is_active",
+              "type": "bool"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Member]"
+        },
+        {
+          "description": "Reads one Member by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "MemberNotFoundError"
+          ],
+          "return_type": "models.Member"
+        },
+        {
+          "description": "Updates an existing Member.",
+          "name": "update",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "membership_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "is_active",
+              "type": "bool"
+            }
+          ],
+          "raises": [
+            "MemberNotFoundError"
+          ],
+          "return_type": "models.Member"
+        }
+      ],
+      "service_name": "MemberRepository"
     }
   ]
 }

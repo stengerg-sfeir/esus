@@ -1,149 +1,5 @@
 {
   "components": {
-    "facade": {
-      "type": "cli",
-      "technology": "argparse",
-      "invocation": {
-        "positional": [
-          {
-            "name": "name",
-            "type": "str",
-            "required": true
-          },
-          {
-            "name": "email",
-            "type": "str",
-            "required": true
-          },
-          {
-            "name": "phone",
-            "type": "str",
-            "required": true
-          }
-        ],
-        "options": [
-          {
-            "name": "--create",
-            "short": "-c",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--list",
-            "short": "-l",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--update",
-            "short": "-u",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--delete",
-            "short": "-d",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--id",
-            "short": "-i",
-            "type": "int",
-            "required": false,
-            "default": null
-          }
-        ],
-        "commands": [
-          {
-            "name": "Contact",
-            "options": [],
-            "subcommands": [
-              {
-                "name": "add",
-                "options": [
-                  {
-                    "name": "--name",
-                    "short": null,
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--email",
-                    "short": null,
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--phone",
-                    "short": null,
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "update",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--name",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--email",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--phone",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "delete",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "persistence": {
-      "required": true,
-      "technology": "sqlite"
-    },
-    "external_access": [],
     "crud_services": [
       {
         "entity": "Contact",
@@ -155,6 +11,150 @@
           "read_one"
         ]
       }
-    ]
+    ],
+    "external_access": [],
+    "facade": {
+      "invocation": {
+        "commands": [
+          {
+            "name": "Contact",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": true,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--email",
+                    "required": true,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--phone",
+                    "required": true,
+                    "short": null,
+                    "type": "str"
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--email",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--phone",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "options": [
+          {
+            "default": null,
+            "name": "--create",
+            "required": false,
+            "short": "-c",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--list",
+            "required": false,
+            "short": "-l",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--update",
+            "required": false,
+            "short": "-u",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--delete",
+            "required": false,
+            "short": "-d",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--id",
+            "required": false,
+            "short": "-i",
+            "type": "int"
+          }
+        ],
+        "positional": [
+          {
+            "name": "name",
+            "required": true,
+            "type": "str"
+          },
+          {
+            "name": "email",
+            "required": true,
+            "type": "str"
+          },
+          {
+            "name": "phone",
+            "required": true,
+            "type": "str"
+          }
+        ]
+      },
+      "technology": "argparse",
+      "type": "cli"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    }
   }
 }

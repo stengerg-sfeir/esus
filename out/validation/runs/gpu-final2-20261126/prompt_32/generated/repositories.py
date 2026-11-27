@@ -58,7 +58,7 @@ class OrderRepository:
         self._store = store
 
 
-    def read_one(self, id: int = None) -> Any:
+    def read_one(self, id: int = None) -> models.Order:
         """Reads one Order by its key. [crud:read_one: READ_ONE_BY_ID]"""
         found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
         if not found:
@@ -66,7 +66,7 @@ class OrderRepository:
         record = found[0]
         return models.Order(**record)
 
-    def update(self, id: int = None, state: str = None, created_at: Any = None, updated_at: Any = None) -> Any:
+    def update(self, id: int = None, state: str = None, created_at: Any = None, updated_at: Any = None) -> models.Order:
         """Updates an existing Order. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if id is not None:

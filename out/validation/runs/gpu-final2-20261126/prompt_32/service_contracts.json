@@ -1,66 +1,22 @@
 {
   "service_contracts": [
     {
-      "service_name": "OrderService",
       "methods": [
         {
-          "name": "confirm_order",
-          "description": "Transitions an order from pending to confirmed state. The order must be in pending state; cannot confirm a confirmed, shipped, or cancelled order.",
-          "params": [
-            {
-              "name": "order_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "None",
-          "raises": [
-            "OrderStateException"
-          ]
-        },
-        {
-          "name": "ship_order",
-          "description": "Transitions an order from confirmed to shipped state. The order must be in confirmed state; cannot ship a pending, cancelled, or shipped order.",
-          "params": [
-            {
-              "name": "order_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "None",
-          "raises": [
-            "OrderStateException"
-          ]
-        },
-        {
-          "name": "cancel_order",
-          "description": "Transitions an order from pending or confirmed to cancelled state. A cancelled order cannot be shipped. The order must be in pending or confirmed state; cannot cancel a shipped order.",
-          "params": [
-            {
-              "name": "order_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "None",
-          "raises": [
-            "OrderStateException"
-          ]
-        },
-        {
-          "name": "read_order_by_id",
           "description": "Reads one Order by its key.",
+          "name": "read_one",
           "params": [
             {
               "name": "id",
               "type": "int"
             }
           ],
-          "return_type": "Order | None",
           "raises": [],
-          "mechanical": true
+          "return_type": "models.Order"
         },
         {
-          "name": "update_order",
           "description": "Updates an existing Order.",
+          "name": "update",
           "params": [
             {
               "name": "id",
@@ -79,30 +35,73 @@
               "type": "datetime.datetime"
             }
           ],
-          "return_type": "None",
           "raises": [],
-          "mechanical": true
+          "return_type": "models.Order"
         }
-      ]
+      ],
+      "service_name": "OrderRepository"
     },
     {
-      "service_name": "OrderRepository",
       "methods": [
         {
-          "name": "read_one",
+          "description": "Transitions an order from pending or confirmed to cancelled state. A cancelled order cannot be shipped. The order must be in pending or confirmed state; cannot cancel a shipped order.",
+          "name": "cancel_order",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "OrderStateException"
+          ],
+          "return_type": "None"
+        },
+        {
+          "description": "Transitions an order from pending to confirmed state. The order must be in pending state; cannot confirm a confirmed, shipped, or cancelled order.",
+          "name": "confirm_order",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "OrderStateException"
+          ],
+          "return_type": "None"
+        },
+        {
           "description": "Reads one Order by its key.",
+          "mechanical": true,
+          "name": "read_order_by_id",
           "params": [
             {
               "name": "id",
               "type": "int"
             }
           ],
-          "return_type": "models.Order",
-          "raises": []
+          "raises": [],
+          "return_type": "Order | None"
         },
         {
-          "name": "update",
+          "description": "Transitions an order from confirmed to shipped state. The order must be in confirmed state; cannot ship a pending, cancelled, or shipped order.",
+          "name": "ship_order",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "OrderStateException"
+          ],
+          "return_type": "None"
+        },
+        {
           "description": "Updates an existing Order.",
+          "mechanical": true,
+          "name": "update_order",
           "params": [
             {
               "name": "id",
@@ -121,10 +120,11 @@
               "type": "datetime.datetime"
             }
           ],
-          "return_type": "models.Order",
-          "raises": []
+          "raises": [],
+          "return_type": "None"
         }
-      ]
+      ],
+      "service_name": "OrderService"
     }
   ]
 }

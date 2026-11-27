@@ -58,7 +58,15 @@ class OrderRepository:
         self._store = store
 
 
-    def create(self, status: str = None) -> Any:
+    def confirm_order(self, id: int = None) -> None:
+        """Confirms a Order. [mechanical named state update]"""
+        record = self._store.get('Order', 'id', id)
+        if record is None:
+            return None
+        self._store.update('Order', 'id', record.get('id'), {'status': 'confirmed'})
+        return None
+
+    def create(self, status: str = None) -> models.Order:
         """Creates a new Order. [crud:create: STANDARD_CRUD]"""
         values = {}
         if status is not None:
@@ -71,7 +79,15 @@ class OrderRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
         return models.Order(**record)
 
-    def read_one(self, id: int = None) -> Any:
+    def read_all(self, status: str = None) -> list[models.Order]:
+        """Lists every Order; optional fields narrow the result. [mechanical contained-name filter]"""
+        criteria = []
+        if status is not None:
+            criteria.append(('status', 'eq', status))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Order(**row) for row in found], models.Order)
+
+    def read_one(self, id: int = None) -> models.Order:
         """Reads one Order by its key. [crud:read_one: READ_ONE_BY_ID]"""
         found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
         if not found:
@@ -79,15 +95,7 @@ class OrderRepository:
         record = found[0]
         return models.Order(**record)
 
-    def read_all(self, status: str = None) -> list[models.Order]:
-        """Lists every Order; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if status is not None:
-            criteria.append(('status', 'eq', status))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Order(**r) for r in found]
-
-    def update(self, id: int = None, status: str = None) -> Any:
+    def update(self, id: int = None, status: str = None) -> models.Order:
         """Updates an existing Order. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if id is not None:
@@ -102,11 +110,3 @@ class OrderRepository:
             patch['status'] = status
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Order(**record)
-
-    def confirm_order(self, id: int = None) -> None:
-        """Confirms a Order. [mechanical named state update]"""
-        record = self._store.get('Order', 'id', id)
-        if record is None:
-            return None
-        self._store.update('Order', 'id', record.get('id'), {'status': 'confirmed'})
-        return None

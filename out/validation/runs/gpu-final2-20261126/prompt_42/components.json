@@ -1,47 +1,5 @@
 {
   "components": {
-    "facade": {
-      "type": "cli",
-      "technology": "argparse",
-      "invocation": {
-        "positional": [
-          {
-            "name": "customer_id",
-            "type": "int",
-            "required": true
-          }
-        ],
-        "options": [
-          {
-            "name": "--output",
-            "short": "-o",
-            "type": "str",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--help",
-            "short": "-h",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--version",
-            "short": "-v",
-            "type": "bool",
-            "required": false,
-            "default": null
-          }
-        ],
-        "commands": []
-      }
-    },
-    "persistence": {
-      "required": true,
-      "technology": "sqlite"
-    },
-    "external_access": [],
     "crud_services": [
       {
         "entity": "Customer",
@@ -57,6 +15,48 @@
           "read_one"
         ]
       }
-    ]
+    ],
+    "external_access": [],
+    "facade": {
+      "invocation": {
+        "commands": [],
+        "options": [
+          {
+            "default": null,
+            "name": "--output",
+            "required": false,
+            "short": "-o",
+            "type": "str"
+          },
+          {
+            "default": null,
+            "name": "--help",
+            "required": false,
+            "short": "-h",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--version",
+            "required": false,
+            "short": "-v",
+            "type": "bool"
+          }
+        ],
+        "positional": [
+          {
+            "name": "customer_id",
+            "required": true,
+            "type": "int"
+          }
+        ]
+      },
+      "technology": "argparse",
+      "type": "cli"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    }
   }
 }

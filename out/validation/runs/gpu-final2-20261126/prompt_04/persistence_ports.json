@@ -1,151 +1,151 @@
 {
   "persistence_ports": {
+    "entity_mappings": [
+      {
+        "entity": "Task",
+        "indexes": [
+          "created_at",
+          "updated_at"
+        ],
+        "primary_key": "id",
+        "table": "tasks"
+      }
+    ],
     "repositories": [
       {
         "entity": "Task",
         "interface_name": "TaskRepository",
         "methods": [
           {
-            "name": "create",
-            "description": "Creates a new Task.",
-            "params": [
-              {
-                "name": "description",
-                "type": "str"
-              },
-              {
-                "name": "is_complete",
-                "type": "bool"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.Task",
-            "raises": []
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every Task; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "description",
-                "type": "str"
-              },
-              {
-                "name": "is_complete",
-                "type": "bool"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "list[Task]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Task.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "description",
-                "type": "str"
-              },
-              {
-                "name": "is_complete",
-                "type": "bool"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.Task",
-            "raises": []
-          },
-          {
-            "name": "delete",
-            "description": "Deletes an existing Task.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "description",
-                "type": "str"
-              },
-              {
-                "name": "is_complete",
-                "type": "bool"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "None",
-            "raises": []
-          },
-          {
-            "name": "read_one",
-            "description": "Reads one Task by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Task",
-            "raises": []
-          },
-          {
-            "name": "complete_task",
             "description": "Completes a Task.",
+            "name": "complete_task",
             "params": [
               {
                 "name": "id",
                 "type": "int"
               }
             ],
-            "return_type": "None",
-            "raises": [],
             "provenance": "prose_state_action",
+            "raises": [],
+            "return_type": "None",
             "review_required": true
+          },
+          {
+            "description": "Creates a new Task.",
+            "name": "create",
+            "params": [
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "is_complete",
+                "type": "bool"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Task"
+          },
+          {
+            "description": "Deletes an existing Task.",
+            "name": "delete",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "is_complete",
+                "type": "bool"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "None"
+          },
+          {
+            "description": "Lists every Task; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "is_complete",
+                "type": "bool"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Task]"
+          },
+          {
+            "description": "Reads one Task by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Task"
+          },
+          {
+            "description": "Updates an existing Task.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "is_complete",
+                "type": "bool"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Task"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Task",
-        "table": "tasks",
-        "primary_key": "id",
-        "indexes": [
-          "created_at",
-          "updated_at"
         ]
       }
     ]

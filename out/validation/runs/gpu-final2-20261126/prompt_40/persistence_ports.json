@@ -1,49 +1,73 @@
 {
   "persistence_ports": {
+    "entity_mappings": [
+      {
+        "entity": "Order",
+        "indexes": [
+          "status"
+        ],
+        "primary_key": "id",
+        "table": "orders"
+      }
+    ],
     "repositories": [
       {
         "entity": "Order",
         "interface_name": "OrderRepository",
         "methods": [
           {
-            "name": "create",
-            "description": "Creates a new Order.",
-            "params": [
-              {
-                "name": "status",
-                "type": "str"
-              }
-            ],
-            "return_type": "models.Order",
-            "raises": []
-          },
-          {
-            "name": "read_one",
-            "description": "Reads one Order by its key.",
+            "description": "Confirms a Order.",
+            "name": "confirm_order",
             "params": [
               {
                 "name": "id",
                 "type": "int"
               }
             ],
-            "return_type": "models.Order",
-            "raises": []
+            "provenance": "prose_state_action",
+            "raises": [],
+            "return_type": "None",
+            "review_required": true
           },
           {
-            "name": "read_all",
-            "description": "Lists every Order; optional fields narrow the result.",
+            "description": "Creates a new Order.",
+            "name": "create",
             "params": [
               {
                 "name": "status",
                 "type": "str"
               }
             ],
-            "return_type": "list[Order]",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Order"
           },
           {
-            "name": "update",
+            "description": "Lists every Order; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "status",
+                "type": "str"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Order]"
+          },
+          {
+            "description": "Reads one Order by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Order"
+          },
+          {
             "description": "Updates an existing Order.",
+            "name": "update",
             "params": [
               {
                 "name": "id",
@@ -54,33 +78,9 @@
                 "type": "str"
               }
             ],
-            "return_type": "models.Order",
-            "raises": []
-          },
-          {
-            "name": "confirm_order",
-            "description": "Confirms a Order.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "None",
             "raises": [],
-            "provenance": "prose_state_action",
-            "review_required": true
+            "return_type": "models.Order"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Order",
-        "table": "orders",
-        "primary_key": "id",
-        "indexes": [
-          "status"
         ]
       }
     ]

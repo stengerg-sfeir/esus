@@ -1,11 +1,10 @@
 {
   "service_contracts": [
     {
-      "service_name": "TaskRepository",
       "methods": [
         {
-          "name": "create",
           "description": "Creates a new Task.",
+          "name": "create",
           "params": [
             {
               "name": "description",
@@ -16,48 +15,12 @@
               "type": "bool"
             }
           ],
-          "return_type": "models.Task",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Task"
         },
         {
-          "name": "read_all",
-          "description": "Lists every Task; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "description",
-              "type": "str"
-            },
-            {
-              "name": "is_completed",
-              "type": "bool"
-            }
-          ],
-          "return_type": "list[Task]",
-          "raises": []
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Task.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "description",
-              "type": "str"
-            },
-            {
-              "name": "is_completed",
-              "type": "bool"
-            }
-          ],
-          "return_type": "models.Task",
-          "raises": []
-        },
-        {
-          "name": "delete",
           "description": "Deletes an existing Task.",
+          "name": "delete",
           "params": [
             {
               "name": "id",
@@ -72,22 +35,59 @@
               "type": "bool"
             }
           ],
-          "return_type": "None",
-          "raises": []
+          "raises": [],
+          "return_type": "None"
         },
         {
-          "name": "read_one",
+          "description": "Lists every Task; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "is_completed",
+              "type": "bool"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Task]"
+        },
+        {
           "description": "Reads one Task by its key.",
+          "name": "read_one",
           "params": [
             {
               "name": "id",
               "type": "int"
             }
           ],
-          "return_type": "models.Task",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Task"
+        },
+        {
+          "description": "Updates an existing Task.",
+          "name": "update",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "is_completed",
+              "type": "bool"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Task"
         }
-      ]
+      ],
+      "service_name": "TaskRepository"
     }
   ]
 }

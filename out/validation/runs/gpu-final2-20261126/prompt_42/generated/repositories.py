@@ -58,14 +58,6 @@ class CustomerRepository:
         self._store = store
 
 
-    def read_one(self, customer_id: int = None) -> Any:
-        """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', customer_id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Customer(**record)
-
     def read_all(self, email: str = None, name: str = None) -> list[models.Customer]:
         """Lists every Customer; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
         criteria = []
@@ -76,6 +68,14 @@ class CustomerRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Customer(**r) for r in found]
 
+    def read_one(self, customer_id: int = None) -> models.Customer:
+        """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', customer_id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Customer(**record)
+
 
 class PurchaseRepository:
     ENTITY = "Purchase"
@@ -84,6 +84,31 @@ class PurchaseRepository:
     def __init__(self, store):
         self._store = store
 
+
+    def find_customer_purchases(self, customer_id: int = None) -> list[models.Purchase]:
+        """Find customer purchases. [mechanical contained-name filter]"""
+        criteria = []
+        if customer_id is not None:
+            criteria.append(('customer_id', 'eq', customer_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Purchase(**row) for row in found], models.Purchase)
+
+    def get_purchases_by_customer_id(self, customer_id: int = None) -> list[models.Purchase]:
+        """Lists the Purchase records belonging to one Customer. [mechanical contained-name filter]"""
+        criteria = []
+        if customer_id is not None:
+            criteria.append(('customer_id', 'eq', customer_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Purchase(**row) for row in found], models.Purchase)
+
+    def get_total_spent_by_customer(self, customer_id: int = None) -> float:
+        """Calculate and return the total amount spent by a customer across all their purchases. [AGGREGATE_BY_FK_AND_DATE via answered slots: fk_field=customer_id, date_field=purchase_date, target_field=amount, aggregate_func=SUM]"""
+        total = 0
+        for record in self._store.select(self.ENTITY, []):
+            if customer_id is not None and record.get('customer_id') != customer_id:
+                continue
+            total += record.get('amount') or 0
+        return total
 
     def read_all(self, customer_id: int = None, purchase_date: Any = None, amount: int = None) -> list[models.Purchase]:
         """Lists every Purchase; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
@@ -97,35 +122,10 @@ class PurchaseRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Purchase(**r) for r in found]
 
-    def read_one(self, purchase_id: int = None) -> Any:
+    def read_one(self, purchase_id: int = None) -> models.Purchase:
         """Reads one Purchase by its key. [crud:read_one: READ_ONE_BY_ID]"""
         found = self._store.select(self.ENTITY, [(self.PK, 'eq', purchase_id)])
         if not found:
             return None
         record = found[0]
         return models.Purchase(**record)
-
-    def get_purchases_by_customer_id(self, customer_id: int = None) -> list[models.Purchase]:
-        """Lists the Purchase records belonging to one Customer. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
-        criteria = []
-        if customer_id is not None:
-            criteria.append(('customer_id', 'eq', customer_id))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Purchase(**r) for r in found]
-
-    def get_total_spent_by_customer(self, customer_id: int = None) -> float:
-        """Calculate and return the total amount spent by a customer across all their purchases. [AGGREGATE_BY_FK_AND_DATE via answered slots: fk_field=customer_id, date_field=purchase_date, target_field=amount, aggregate_func=SUM]"""
-        total = 0
-        for record in self._store.select(self.ENTITY, []):
-            if customer_id is not None and record.get('customer_id') != customer_id:
-                continue
-            total += record.get('amount') or 0
-        return total
-
-    def find_customer_purchases(self, customer_id: int = None) -> list[models.Purchase]:
-        """Find customer purchases. [crud:filter: name-only: step F never saw this method]"""
-        criteria = []
-        if customer_id is not None:
-            criteria.append(('customer_id', 'eq', customer_id))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Purchase(**r) for r in found]

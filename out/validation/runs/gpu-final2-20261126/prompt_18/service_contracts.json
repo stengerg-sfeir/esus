@@ -1,11 +1,10 @@
 {
   "service_contracts": [
     {
-      "service_name": "ContactRepository",
       "methods": [
         {
-          "name": "create",
           "description": "Creates a new Contact.",
+          "name": "create",
           "params": [
             {
               "name": "first_name",
@@ -36,100 +35,12 @@
               "type": "datetime.datetime"
             }
           ],
-          "return_type": "models.Contact",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Contact"
         },
         {
-          "name": "read_one",
-          "description": "Reads one Contact by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Contact",
-          "raises": []
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Contact; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "first_name",
-              "type": "str"
-            },
-            {
-              "name": "last_name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            },
-            {
-              "name": "phone",
-              "type": "str"
-            },
-            {
-              "name": "address",
-              "type": "str"
-            },
-            {
-              "name": "created_at",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "updated_at",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "list[Contact]",
-          "raises": []
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Contact.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "first_name",
-              "type": "str"
-            },
-            {
-              "name": "last_name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            },
-            {
-              "name": "phone",
-              "type": "str"
-            },
-            {
-              "name": "address",
-              "type": "str"
-            },
-            {
-              "name": "created_at",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "updated_at",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "models.Contact",
-          "raises": []
-        },
-        {
-          "name": "delete",
           "description": "Deletes an existing Contact.",
+          "name": "delete",
           "params": [
             {
               "name": "id",
@@ -164,43 +75,132 @@
               "type": "datetime.datetime"
             }
           ],
-          "return_type": "None",
-          "raises": []
+          "raises": [],
+          "return_type": "None"
+        },
+        {
+          "description": "Lists every Contact; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "first_name",
+              "type": "str"
+            },
+            {
+              "name": "last_name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            },
+            {
+              "name": "address",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Contact]"
+        },
+        {
+          "description": "Reads one Contact by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Contact"
+        },
+        {
+          "description": "Updates an existing Contact.",
+          "name": "update",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "first_name",
+              "type": "str"
+            },
+            {
+              "name": "last_name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            },
+            {
+              "name": "address",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Contact"
         }
-      ]
+      ],
+      "service_name": "ContactRepository"
     },
     {
-      "service_name": "ContactService",
       "methods": [
         {
-          "name": "import_contacts_from_csv",
-          "description": "Import contacts from csv.",
+          "description": "Export contacts to csv.",
+          "name": "export_contacts_to_csv",
           "params": [
             {
               "name": "file_path",
               "type": "str"
             }
           ],
-          "return_type": "int",
-          "raises": [],
           "provenance": "capability_adapter",
+          "raises": [],
+          "return_type": "None",
           "review_required": true
         },
         {
-          "name": "export_contacts_to_csv",
-          "description": "Export contacts to csv.",
+          "description": "Import contacts from csv.",
+          "name": "import_contacts_from_csv",
           "params": [
             {
               "name": "file_path",
               "type": "str"
             }
           ],
-          "return_type": "None",
-          "raises": [],
           "provenance": "capability_adapter",
+          "raises": [],
+          "return_type": "int",
           "review_required": true
         }
-      ]
+      ],
+      "service_name": "ContactService"
     }
   ]
 }

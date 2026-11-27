@@ -19,16 +19,16 @@ class Order:
 
 
 @dataclass
-class Product:
-    product_id: int = None
-    name: str = None
-    description: Optional[str] = None
-
-
-@dataclass
 class OrderItem:
     order_item_id: int = None
     order_id: int = None
     product_id: int = None
     quantity: int = None
     unit_price: Decimal = None
+
+
+@dataclass
+class Product:
+    product_id: int = None
+    name: str = None
+    description: Optional[str] = None

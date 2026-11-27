@@ -12,6 +12,14 @@ from typing import Any, Dict, List, Literal, Optional
 
 
 @dataclass
+class AuditLog:
+    log_id: int = None
+    operation: str = None
+    customer_id: int = None
+    timestamp: datetime.datetime = None
+
+
+@dataclass
 class Customer:
     id: int = None
     name: str = None
@@ -19,11 +27,3 @@ class Customer:
     phone: Optional[str] = None
     created_at: datetime.datetime = None
     updated_at: datetime.datetime = None
-
-
-@dataclass
-class AuditLog:
-    log_id: int = None
-    operation: str = None
-    customer_id: int = None
-    timestamp: datetime.datetime = None

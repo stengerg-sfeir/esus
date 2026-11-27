@@ -58,11 +58,6 @@ class CustomerRepository:
         self._store = store
 
 
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, id, error=errors.CustomerNotFoundError)
-        return models.Customer(**record)
-
     def read_all(self, name: str = None, email: str = None) -> list[models.Customer]:
         """Lists every Customer; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
         criteria = []
@@ -73,70 +68,10 @@ class CustomerRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Customer(**r) for r in found]
 
-
-class ProductRepository:
-    ENTITY = "Product"
-    PK = "id"
-
-    def __init__(self, store):
-        self._store = store
-
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, id, error=errors.ProductNotFoundError)
-        return models.Product(**record)
-
-    def read_all(self, name: str = None, price: int = None) -> list[models.Product]:
-        """Lists every Product; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if price is not None:
-            criteria.append(('price', 'eq', price))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Product(**r) for r in found]
-
-
-class InvoiceRepository:
-    ENTITY = "Invoice"
-    PK = "id"
-
-    def __init__(self, store):
-        self._store = store
-
-
-    def create(self, customer_id: int = None, issue_date: Any = None, total_amount: int = None) -> Any:
-        """Creates a new Invoice. [crud:create: STANDARD_CRUD]"""
-        values = {}
-        if customer_id is not None:
-            values['customer_id'] = customer_id
-        if issue_date is not None:
-            values['issue_date'] = issue_date
-        if total_amount is not None:
-            values['total_amount'] = total_amount
-        unknown = [k for k in values if k not in ['id', 'customer_id', 'issue_date', 'total_amount']]
-        if unknown:
-            raise ValueError(f"cannot create Invoice from {unknown}")
-        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("customer_id", "Customer", "id", errors.CustomerNotFoundError)])
-        return models.Invoice(**record)
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Invoice by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, id, error=errors.InvoiceLineNotFoundError)
-        return models.Invoice(**record)
-
-    def read_all(self, customer_id: int = None, issue_date: Any = None, total_amount: int = None) -> list[models.Invoice]:
-        """Lists every Invoice; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if customer_id is not None:
-            criteria.append(('customer_id', 'eq', customer_id))
-        if issue_date is not None:
-            criteria.append(('issue_date', 'eq', issue_date))
-        if total_amount is not None:
-            criteria.append(('total_amount', 'eq', total_amount))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Invoice(**r) for r in found]
+    def read_one(self, id: int = None) -> models.Customer:
+        """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, id, error=errors.CustomerNotFoundError)
+        return models.Customer(**record)
 
 
 class InvoiceLineRepository:
@@ -147,7 +82,7 @@ class InvoiceLineRepository:
         self._store = store
 
 
-    def create(self, invoice_id: int = None, product_id: int = None, quantity: int = None) -> Any:
+    def create(self, invoice_id: int = None, product_id: int = None, quantity: int = None) -> models.InvoiceLine:
         """Creates a new InvoiceLine. [crud:create: STANDARD_CRUD]"""
         values = {}
         if invoice_id is not None:
@@ -165,7 +100,72 @@ class InvoiceLineRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("invoice_id", "Invoice", "id", errors.InvoiceLineNotFoundError), ("product_id", "Product", "id", errors.ProductNotFoundError)])
         return models.InvoiceLine(**record)
 
-    def read_one(self, line_id: int = None) -> Any:
+    def read_one(self, line_id: int = None) -> models.InvoiceLine:
         """Reads one InvoiceLine by its key. [crud:read_one: READ_ONE_BY_ID]"""
         record = self._store.get(self.ENTITY, self.PK, line_id, error=errors.InvoiceLineNotFoundError)
         return models.InvoiceLine(**record)
+
+
+class InvoiceRepository:
+    ENTITY = "Invoice"
+    PK = "id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def create(self, customer_id: int = None, issue_date: Any = None, total_amount: int = None) -> models.Invoice:
+        """Creates a new Invoice. [crud:create: STANDARD_CRUD]"""
+        values = {}
+        if customer_id is not None:
+            values['customer_id'] = customer_id
+        if issue_date is not None:
+            values['issue_date'] = issue_date
+        if total_amount is not None:
+            values['total_amount'] = total_amount
+        unknown = [k for k in values if k not in ['id', 'customer_id', 'issue_date', 'total_amount']]
+        if unknown:
+            raise ValueError(f"cannot create Invoice from {unknown}")
+        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("customer_id", "Customer", "id", errors.CustomerNotFoundError)])
+        return models.Invoice(**record)
+
+    def read_all(self, customer_id: int = None, issue_date: Any = None, total_amount: int = None) -> list[models.Invoice]:
+        """Lists every Invoice; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if customer_id is not None:
+            criteria.append(('customer_id', 'eq', customer_id))
+        if issue_date is not None:
+            criteria.append(('issue_date', 'eq', issue_date))
+        if total_amount is not None:
+            criteria.append(('total_amount', 'eq', total_amount))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Invoice(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Invoice:
+        """Reads one Invoice by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, id, error=errors.InvoiceLineNotFoundError)
+        return models.Invoice(**record)
+
+
+class ProductRepository:
+    ENTITY = "Product"
+    PK = "id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def read_all(self, name: str = None, price: int = None) -> list[models.Product]:
+        """Lists every Product; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if price is not None:
+            criteria.append(('price', 'eq', price))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Product(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Product:
+        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, id, error=errors.ProductNotFoundError)
+        return models.Product(**record)

@@ -21,22 +21,6 @@
       }
     },
     {
-      "name": "cli:Customer update",
-      "when": {
-        "cli_variants": [
-          [
-            "Customer",
-            "update",
-            "--id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Customer delete",
       "when": {
         "cli_variants": [
@@ -49,6 +33,22 @@
           [
             "Customer",
             "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer update",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "update",
             "--id",
             "1"
           ]

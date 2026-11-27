@@ -1,216 +1,5 @@
 {
   "components": {
-    "facade": {
-      "type": "cli",
-      "technology": "argparse",
-      "invocation": {
-        "positional": [
-          {
-            "name": "product",
-            "type": "str",
-            "required": true
-          }
-        ],
-        "options": [
-          {
-            "name": "--name",
-            "short": "-n",
-            "type": "str",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--category",
-            "short": "-c",
-            "type": "str",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--price",
-            "short": "-p",
-            "type": "float",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--stock",
-            "short": "-s",
-            "type": "int",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--skus",
-            "short": "-k",
-            "type": "list",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--category-filter",
-            "short": "-f",
-            "type": "str",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--low-stock",
-            "short": "-l",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--help",
-            "short": "-h",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--version",
-            "short": "-v",
-            "type": "bool",
-            "required": false,
-            "default": null
-          }
-        ],
-        "commands": [
-          {
-            "name": "Product",
-            "options": [],
-            "subcommands": [
-              {
-                "name": "add",
-                "options": [
-                  {
-                    "name": "--sku",
-                    "short": null,
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--category-id",
-                    "short": null,
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--price",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--stock-quantity",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--name",
-                    "short": null,
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "update",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--name",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--category-id",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--price",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--stock-quantity",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "delete",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--name",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--category",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--price",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--stock-quantity",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "persistence": {
-      "required": true,
-      "technology": "sqlite"
-    },
-    "external_access": [],
     "crud_services": [
       {
         "entity": "Product",
@@ -222,6 +11,217 @@
           "delete"
         ]
       }
-    ]
+    ],
+    "external_access": [],
+    "facade": {
+      "invocation": {
+        "commands": [
+          {
+            "name": "Product",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--sku",
+                    "required": true,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--category-id",
+                    "required": true,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--price",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--stock-quantity",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": true,
+                    "short": null,
+                    "type": "str"
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--category",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--price",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--stock-quantity",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--category-id",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--price",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--stock-quantity",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "options": [
+          {
+            "default": null,
+            "name": "--name",
+            "required": false,
+            "short": "-n",
+            "type": "str"
+          },
+          {
+            "default": null,
+            "name": "--category",
+            "required": false,
+            "short": "-c",
+            "type": "str"
+          },
+          {
+            "default": null,
+            "name": "--price",
+            "required": false,
+            "short": "-p",
+            "type": "float"
+          },
+          {
+            "default": null,
+            "name": "--stock",
+            "required": false,
+            "short": "-s",
+            "type": "int"
+          },
+          {
+            "default": null,
+            "name": "--skus",
+            "required": false,
+            "short": "-k",
+            "type": "list"
+          },
+          {
+            "default": null,
+            "name": "--category-filter",
+            "required": false,
+            "short": "-f",
+            "type": "str"
+          },
+          {
+            "default": null,
+            "name": "--low-stock",
+            "required": false,
+            "short": "-l",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--help",
+            "required": false,
+            "short": "-h",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--version",
+            "required": false,
+            "short": "-v",
+            "type": "bool"
+          }
+        ],
+        "positional": [
+          {
+            "name": "product",
+            "required": true,
+            "type": "str"
+          }
+        ]
+      },
+      "technology": "argparse",
+      "type": "cli"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    }
   }
 }

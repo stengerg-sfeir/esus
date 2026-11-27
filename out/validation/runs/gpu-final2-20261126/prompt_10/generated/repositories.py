@@ -58,7 +58,7 @@ class NoteRepository:
         self._store = store
 
 
-    def create(self, title: str = None, content: str = None, creation_date: Any = None) -> Any:
+    def create(self, title: str = None, content: str = None, creation_date: Any = None) -> models.Note:
         """Creates a new Note. [crud:create: STANDARD_CRUD]"""
         values = {}
         if title is not None:
@@ -71,38 +71,6 @@ class NoteRepository:
         if unknown:
             raise ValueError(f"cannot create Note from {unknown}")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Note(**record)
-
-    def read_all(self, title: str = None, content: str = None, creation_date: Any = None) -> list[models.Note]:
-        """Lists every Note; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if title is not None:
-            criteria.append(('title', 'eq', title))
-        if content is not None:
-            criteria.append(('content', 'eq', content))
-        if creation_date is not None:
-            criteria.append(('creation_date', 'eq', creation_date))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Note(**r) for r in found]
-
-    def update(self, id: int = None, title: str = None, content: str = None, creation_date: Any = None) -> Any:
-        """Updates an existing Note. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Note update matched {len(found)} records")
-        patch = {}
-        if id is not None and 'id' in ['id', 'title', 'content', 'creation_date']:
-            patch['id'] = id
-        if title is not None and 'title' in ['id', 'title', 'content', 'creation_date']:
-            patch['title'] = title
-        if content is not None and 'content' in ['id', 'title', 'content', 'creation_date']:
-            patch['content'] = content
-        if creation_date is not None and 'creation_date' in ['id', 'title', 'content', 'creation_date']:
-            patch['creation_date'] = creation_date
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Note(**record)
 
     def delete(self, id: int = None, title: str = None, content: str = None, creation_date: Any = None) -> None:
@@ -123,10 +91,42 @@ class NoteRepository:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
 
-    def read_one(self, id: int = None) -> Any:
+    def read_all(self, title: str = None, content: str = None, creation_date: Any = None) -> list[models.Note]:
+        """Lists every Note; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if title is not None:
+            criteria.append(('title', 'eq', title))
+        if content is not None:
+            criteria.append(('content', 'eq', content))
+        if creation_date is not None:
+            criteria.append(('creation_date', 'eq', creation_date))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Note(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Note:
         """Reads one Note by its key. [crud:read_one: READ_ONE_BY_ID]"""
         found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
         if not found:
             return None
         record = found[0]
+        return models.Note(**record)
+
+    def update(self, id: int = None, title: str = None, content: str = None, creation_date: Any = None) -> models.Note:
+        """Updates an existing Note. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Note update matched {len(found)} records")
+        patch = {}
+        if id is not None and 'id' in ['id', 'title', 'content', 'creation_date']:
+            patch['id'] = id
+        if title is not None and 'title' in ['id', 'title', 'content', 'creation_date']:
+            patch['title'] = title
+        if content is not None and 'content' in ['id', 'title', 'content', 'creation_date']:
+            patch['content'] = content
+        if creation_date is not None and 'creation_date' in ['id', 'title', 'content', 'creation_date']:
+            patch['creation_date'] = creation_date
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Note(**record)

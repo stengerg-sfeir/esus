@@ -58,7 +58,7 @@ class BookRepository:
         self._store = store
 
 
-    def create(self, title: str = None, author: str = None, availability_status: bool = None) -> Any:
+    def create(self, title: str = None, author: str = None, availability_status: bool = None) -> models.Book:
         """Creates a new Book. [crud:create: STANDARD_CRUD]"""
         values = {}
         if title is not None:
@@ -73,43 +73,6 @@ class BookRepository:
         if values.get('availability_status') is None:
             values['availability_status'] = False
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Book(**record)
-
-    def read_all(self, title: str = None, author: str = None, availability_status: bool = None) -> list[models.Book]:
-        """Lists every Book; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if title is not None:
-            criteria.append(('title', 'eq', title))
-        if author is not None:
-            criteria.append(('author', 'eq', author))
-        if availability_status is not None:
-            criteria.append(('availability_status', 'eq', availability_status))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Book(**r) for r in found]
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Book by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, id, error=errors.BookNotFoundError)
-        return models.Book(**record)
-
-    def update(self, id: int = None, title: str = None, author: str = None, availability_status: bool = None) -> Any:
-        """Updates an existing Book. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise errors.BookNotFoundError(f"Book update matched {len(found)} records")
-        patch = {}
-        if id is not None and 'id' in ['id', 'title', 'author', 'availability_status']:
-            patch['id'] = id
-        if title is not None and 'title' in ['id', 'title', 'author', 'availability_status']:
-            patch['title'] = title
-        if author is not None and 'author' in ['id', 'title', 'author', 'availability_status']:
-            patch['author'] = author
-        if availability_status is not None and 'availability_status' in ['id', 'title', 'author', 'availability_status']:
-            patch['availability_status'] = availability_status
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.BookNotFoundError)
         return models.Book(**record)
 
     def delete(self, id: int = None, title: str = None, author: str = None, availability_status: bool = None) -> None:
@@ -130,86 +93,42 @@ class BookRepository:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
 
-
-class MemberRepository:
-    ENTITY = "Member"
-    PK = "id"
-
-    def __init__(self, store):
-        self._store = store
-
-
-    def create(self, name: str = None, contact_details: str = None, membership_status: bool = None) -> Any:
-        """Creates a new Member. [crud:create: STANDARD_CRUD]"""
-        values = {}
-        if name is not None:
-            values['name'] = name
-        if contact_details is not None:
-            values['contact_details'] = contact_details
-        if membership_status is not None:
-            values['membership_status'] = membership_status
-        unknown = [k for k in values if k not in ['id', 'name', 'contact_details', 'membership_status']]
-        if unknown:
-            raise ValueError(f"cannot create Member from {unknown}")
-        if values.get('membership_status') is None:
-            values['membership_status'] = False
-        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Member(**record)
-
-    def read_all(self, name: str = None, contact_details: str = None, membership_status: bool = None) -> list[models.Member]:
-        """Lists every Member; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+    def read_all(self, title: str = None, author: str = None, availability_status: bool = None) -> list[models.Book]:
+        """Lists every Book; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
         criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if contact_details is not None:
-            criteria.append(('contact_details', 'eq', contact_details))
-        if membership_status is not None:
-            criteria.append(('membership_status', 'eq', membership_status))
+        if title is not None:
+            criteria.append(('title', 'eq', title))
+        if author is not None:
+            criteria.append(('author', 'eq', author))
+        if availability_status is not None:
+            criteria.append(('availability_status', 'eq', availability_status))
         found = self._store.select(self.ENTITY, criteria)
-        return [models.Member(**r) for r in found]
+        return [models.Book(**r) for r in found]
 
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Member by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, id, error=errors.MemberNotFoundError)
-        return models.Member(**record)
+    def read_one(self, id: int = None) -> models.Book:
+        """Reads one Book by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, id, error=errors.BookNotFoundError)
+        return models.Book(**record)
 
-    def update(self, id: int = None, name: str = None, contact_details: str = None, membership_status: bool = None) -> Any:
-        """Updates an existing Member. [crud:update: STANDARD_CRUD]"""
+    def update(self, id: int = None, title: str = None, author: str = None, availability_status: bool = None) -> models.Book:
+        """Updates an existing Book. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if id is not None:
             criteria.append(('id', 'eq', id))
         found = self._store.select(self.ENTITY, criteria)
         if len(found) != 1:
-            raise errors.MemberNotFoundError(f"Member update matched {len(found)} records")
+            raise errors.BookNotFoundError(f"Book update matched {len(found)} records")
         patch = {}
-        if id is not None and 'id' in ['id', 'name', 'contact_details', 'membership_status']:
+        if id is not None and 'id' in ['id', 'title', 'author', 'availability_status']:
             patch['id'] = id
-        if name is not None and 'name' in ['id', 'name', 'contact_details', 'membership_status']:
-            patch['name'] = name
-        if contact_details is not None and 'contact_details' in ['id', 'name', 'contact_details', 'membership_status']:
-            patch['contact_details'] = contact_details
-        if membership_status is not None and 'membership_status' in ['id', 'name', 'contact_details', 'membership_status']:
-            patch['membership_status'] = membership_status
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.MemberNotFoundError)
-        return models.Member(**record)
-
-    def delete(self, id: int = None, name: str = None, contact_details: str = None, membership_status: bool = None) -> None:
-        """Deletes an existing Member. [crud:delete: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if contact_details is not None:
-            criteria.append(('contact_details', 'eq', contact_details))
-        if membership_status is not None:
-            criteria.append(('membership_status', 'eq', membership_status))
-        found = self._store.select(self.ENTITY, criteria)
-        if not found:
-            raise errors.MemberNotFoundError(f"Member delete matched no records")
-        for record in found:
-            self._store.delete(self.ENTITY, self.PK, record[self.PK])
-        return None
+        if title is not None and 'title' in ['id', 'title', 'author', 'availability_status']:
+            patch['title'] = title
+        if author is not None and 'author' in ['id', 'title', 'author', 'availability_status']:
+            patch['author'] = author
+        if availability_status is not None and 'availability_status' in ['id', 'title', 'author', 'availability_status']:
+            patch['availability_status'] = availability_status
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.BookNotFoundError)
+        return models.Book(**record)
 
 
 class LoanRepository:
@@ -220,7 +139,7 @@ class LoanRepository:
         self._store = store
 
 
-    def create(self, member_id: int = None, book_id: int = None, loan_date: Any = None, return_date: Any = None) -> Any:
+    def create(self, member_id: int = None, book_id: int = None, loan_date: Any = None, return_date: Any = None) -> models.Loan:
         """Creates a new Loan. [crud:create: STANDARD_CRUD]"""
         values = {}
         if member_id is not None:
@@ -235,47 +154,6 @@ class LoanRepository:
         if unknown:
             raise ValueError(f"cannot create Loan from {unknown}")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("member_id", "Member", "id", errors.MemberNotFoundError), ("book_id", "Book", "id", errors.BookNotFoundError)])
-        return models.Loan(**record)
-
-    def read_all(self, member_id: int = None, book_id: int = None, loan_date: Any = None, return_date: Any = None) -> list[models.Loan]:
-        """Lists every Loan; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if member_id is not None:
-            criteria.append(('member_id', 'eq', member_id))
-        if book_id is not None:
-            criteria.append(('book_id', 'eq', book_id))
-        if loan_date is not None:
-            criteria.append(('loan_date', 'eq', loan_date))
-        if return_date is not None:
-            criteria.append(('return_date', 'eq', return_date))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Loan(**r) for r in found]
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Loan by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, id, error=errors.LoanNotFoundError)
-        return models.Loan(**record)
-
-    def update(self, id: int = None, member_id: int = None, book_id: int = None, loan_date: Any = None, return_date: Any = None) -> Any:
-        """Updates an existing Loan. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise errors.LoanNotFoundError(f"Loan update matched {len(found)} records")
-        patch = {}
-        if id is not None and 'id' in ['id', 'member_id', 'book_id', 'loan_date', 'return_date']:
-            patch['id'] = id
-        if member_id is not None and 'member_id' in ['id', 'member_id', 'book_id', 'loan_date', 'return_date']:
-            patch['member_id'] = member_id
-        if book_id is not None and 'book_id' in ['id', 'member_id', 'book_id', 'loan_date', 'return_date']:
-            patch['book_id'] = book_id
-        if loan_date is not None and 'loan_date' in ['id', 'member_id', 'book_id', 'loan_date', 'return_date']:
-            patch['loan_date'] = loan_date
-        if return_date is not None and 'return_date' in ['id', 'member_id', 'book_id', 'loan_date', 'return_date']:
-            patch['return_date'] = return_date
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.LoanNotFoundError)
         return models.Loan(**record)
 
     def delete(self, id: int = None, member_id: int = None, book_id: int = None, loan_date: Any = None, return_date: Any = None) -> None:
@@ -299,17 +177,139 @@ class LoanRepository:
         return None
 
     def findLoansByBookId(self, bookId: int = None) -> list[models.Loan]:
-        """Returns all loans associated with a specific book ID, useful for tracking which members have borrowed a particular book. [crud:filter: FILTER_BY_FIELD]"""
+        """Returns all loans associated with a specific book ID, useful for tracking which members have borrowed a particular book. [mechanical contained-name filter]"""
         criteria = []
         if bookId is not None:
             criteria.append(('book_id', 'eq', bookId))
         found = self._store.select(self.ENTITY, criteria)
-        return [models.Loan(**r) for r in found]
+        return _model_list([models.Loan(**row) for row in found], models.Loan)
 
     def findLoansByMemberId(self, memberId: int = None) -> list[models.Loan]:
-        """Returns all loans made by a specific member ID, allowing the system to track borrowing history per member. [crud:filter: FILTER_BY_FIELD]"""
+        """Returns all loans made by a specific member ID, allowing the system to track borrowing history per member. [mechanical contained-name filter]"""
         criteria = []
         if memberId is not None:
             criteria.append(('member_id', 'eq', memberId))
         found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Loan(**row) for row in found], models.Loan)
+
+    def read_all(self, member_id: int = None, book_id: int = None, loan_date: Any = None, return_date: Any = None) -> list[models.Loan]:
+        """Lists every Loan; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if member_id is not None:
+            criteria.append(('member_id', 'eq', member_id))
+        if book_id is not None:
+            criteria.append(('book_id', 'eq', book_id))
+        if loan_date is not None:
+            criteria.append(('loan_date', 'eq', loan_date))
+        if return_date is not None:
+            criteria.append(('return_date', 'eq', return_date))
+        found = self._store.select(self.ENTITY, criteria)
         return [models.Loan(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Loan:
+        """Reads one Loan by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, id, error=errors.LoanNotFoundError)
+        return models.Loan(**record)
+
+    def update(self, id: int = None, member_id: int = None, book_id: int = None, loan_date: Any = None, return_date: Any = None) -> models.Loan:
+        """Updates an existing Loan. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise errors.LoanNotFoundError(f"Loan update matched {len(found)} records")
+        patch = {}
+        if id is not None and 'id' in ['id', 'member_id', 'book_id', 'loan_date', 'return_date']:
+            patch['id'] = id
+        if member_id is not None and 'member_id' in ['id', 'member_id', 'book_id', 'loan_date', 'return_date']:
+            patch['member_id'] = member_id
+        if book_id is not None and 'book_id' in ['id', 'member_id', 'book_id', 'loan_date', 'return_date']:
+            patch['book_id'] = book_id
+        if loan_date is not None and 'loan_date' in ['id', 'member_id', 'book_id', 'loan_date', 'return_date']:
+            patch['loan_date'] = loan_date
+        if return_date is not None and 'return_date' in ['id', 'member_id', 'book_id', 'loan_date', 'return_date']:
+            patch['return_date'] = return_date
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.LoanNotFoundError)
+        return models.Loan(**record)
+
+
+class MemberRepository:
+    ENTITY = "Member"
+    PK = "id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def create(self, name: str = None, contact_details: str = None, membership_status: bool = None) -> models.Member:
+        """Creates a new Member. [crud:create: STANDARD_CRUD]"""
+        values = {}
+        if name is not None:
+            values['name'] = name
+        if contact_details is not None:
+            values['contact_details'] = contact_details
+        if membership_status is not None:
+            values['membership_status'] = membership_status
+        unknown = [k for k in values if k not in ['id', 'name', 'contact_details', 'membership_status']]
+        if unknown:
+            raise ValueError(f"cannot create Member from {unknown}")
+        if values.get('membership_status') is None:
+            values['membership_status'] = False
+        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
+        return models.Member(**record)
+
+    def delete(self, id: int = None, name: str = None, contact_details: str = None, membership_status: bool = None) -> None:
+        """Deletes an existing Member. [crud:delete: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if contact_details is not None:
+            criteria.append(('contact_details', 'eq', contact_details))
+        if membership_status is not None:
+            criteria.append(('membership_status', 'eq', membership_status))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            raise errors.MemberNotFoundError(f"Member delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
+
+    def read_all(self, name: str = None, contact_details: str = None, membership_status: bool = None) -> list[models.Member]:
+        """Lists every Member; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if contact_details is not None:
+            criteria.append(('contact_details', 'eq', contact_details))
+        if membership_status is not None:
+            criteria.append(('membership_status', 'eq', membership_status))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Member(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Member:
+        """Reads one Member by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, id, error=errors.MemberNotFoundError)
+        return models.Member(**record)
+
+    def update(self, id: int = None, name: str = None, contact_details: str = None, membership_status: bool = None) -> models.Member:
+        """Updates an existing Member. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise errors.MemberNotFoundError(f"Member update matched {len(found)} records")
+        patch = {}
+        if id is not None and 'id' in ['id', 'name', 'contact_details', 'membership_status']:
+            patch['id'] = id
+        if name is not None and 'name' in ['id', 'name', 'contact_details', 'membership_status']:
+            patch['name'] = name
+        if contact_details is not None and 'contact_details' in ['id', 'name', 'contact_details', 'membership_status']:
+            patch['contact_details'] = contact_details
+        if membership_status is not None and 'membership_status' in ['id', 'name', 'contact_details', 'membership_status']:
+            patch['membership_status'] = membership_status
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.MemberNotFoundError)
+        return models.Member(**record)

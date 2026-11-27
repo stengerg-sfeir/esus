@@ -1,244 +1,244 @@
 {
   "service_contracts": [
     {
-      "service_name": "ProjectRepository",
       "methods": [
         {
-          "name": "read_all",
-          "description": "Lists every Project; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "description",
-              "type": "str"
-            },
-            {
-              "name": "created_at",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "updated_at",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "list[Project]",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Project by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Project",
-          "raises": []
-        }
-      ]
-    },
-    {
-      "service_name": "TaskRepository",
-      "methods": [
-        {
-          "name": "read_all",
-          "description": "Lists every Task; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "title",
-              "type": "str"
-            },
-            {
-              "name": "description",
-              "type": "str"
-            },
-            {
-              "name": "project_id",
-              "type": "int"
-            },
-            {
-              "name": "priority",
-              "type": "str"
-            },
-            {
-              "name": "status",
-              "type": "str"
-            },
-            {
-              "name": "due_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "created_at",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "updated_at",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "list[Task]",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Task by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Task",
-          "raises": []
-        },
-        {
-          "name": "create",
-          "description": "Creates a new Task.",
-          "params": [
-            {
-              "name": "title",
-              "type": "str"
-            },
-            {
-              "name": "description",
-              "type": "str"
-            },
-            {
-              "name": "project_id",
-              "type": "int"
-            },
-            {
-              "name": "priority",
-              "type": "str"
-            },
-            {
-              "name": "status",
-              "type": "str"
-            },
-            {
-              "name": "due_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "created_at",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "updated_at",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "models.Task",
-          "raises": []
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Task.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "title",
-              "type": "str"
-            },
-            {
-              "name": "description",
-              "type": "str"
-            },
-            {
-              "name": "project_id",
-              "type": "int"
-            },
-            {
-              "name": "priority",
-              "type": "str"
-            },
-            {
-              "name": "status",
-              "type": "str"
-            },
-            {
-              "name": "due_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "created_at",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "updated_at",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "models.Task",
-          "raises": []
-        }
-      ]
-    },
-    {
-      "service_name": "StatusRepository",
-      "methods": [
-        {
-          "name": "read_all",
-          "description": "Lists every Status; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Status]",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Status by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Status",
-          "raises": []
-        }
-      ]
-    },
-    {
-      "service_name": "PriorityRepository",
-      "methods": [
-        {
-          "name": "read_all",
           "description": "Lists every Priority; optional fields narrow the result.",
+          "name": "read_all",
           "params": [
             {
               "name": "name",
               "type": "str"
             }
           ],
-          "return_type": "list[Priority]",
-          "raises": []
+          "raises": [],
+          "return_type": "list[Priority]"
         },
         {
-          "name": "read_one",
           "description": "Reads one Priority by its key.",
+          "name": "read_one",
           "params": [
             {
               "name": "id",
               "type": "int"
             }
           ],
-          "return_type": "models.Priority",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Priority"
         }
-      ]
+      ],
+      "service_name": "PriorityRepository"
+    },
+    {
+      "methods": [
+        {
+          "description": "Lists every Project; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Project]"
+        },
+        {
+          "description": "Reads one Project by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Project"
+        }
+      ],
+      "service_name": "ProjectRepository"
+    },
+    {
+      "methods": [
+        {
+          "description": "Lists every Status; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Status]"
+        },
+        {
+          "description": "Reads one Status by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Status"
+        }
+      ],
+      "service_name": "StatusRepository"
+    },
+    {
+      "methods": [
+        {
+          "description": "Creates a new Task.",
+          "name": "create",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "project_id",
+              "type": "int"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Task"
+        },
+        {
+          "description": "Lists every Task; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "project_id",
+              "type": "int"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Task]"
+        },
+        {
+          "description": "Reads one Task by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Task"
+        },
+        {
+          "description": "Updates an existing Task.",
+          "name": "update",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "project_id",
+              "type": "int"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Task"
+        }
+      ],
+      "service_name": "TaskRepository"
     }
   ]
 }

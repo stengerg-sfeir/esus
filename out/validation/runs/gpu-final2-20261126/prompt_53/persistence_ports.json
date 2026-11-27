@@ -1,27 +1,47 @@
 {
   "persistence_ports": {
+    "entity_mappings": [
+      {
+        "entity": "Customer",
+        "indexes": [
+          "email"
+        ],
+        "primary_key": "id",
+        "table": "customers"
+      },
+      {
+        "entity": "Order",
+        "indexes": [
+          "customer_id",
+          "order_date"
+        ],
+        "primary_key": "id",
+        "table": "orders"
+      },
+      {
+        "entity": "OrderItem",
+        "indexes": [
+          "order_id",
+          "product_id"
+        ],
+        "primary_key": "id",
+        "table": "order_items"
+      },
+      {
+        "entity": "Product",
+        "indexes": [],
+        "primary_key": "id",
+        "table": "products"
+      }
+    ],
     "repositories": [
       {
         "entity": "Customer",
         "interface_name": "CustomerRepository",
         "methods": [
           {
-            "name": "read_one",
-            "description": "Reads one Customer by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Customer",
-            "raises": [
-              "CustomerNotFoundError"
-            ]
-          },
-          {
-            "name": "read_all",
             "description": "Lists every Customer; optional fields narrow the result.",
+            "name": "read_all",
             "params": [
               {
                 "name": "name",
@@ -32,118 +52,22 @@
                 "type": "str"
               }
             ],
-            "return_type": "list[Customer]",
-            "raises": []
-          }
-        ]
-      },
-      {
-        "entity": "Product",
-        "interface_name": "ProductRepository",
-        "methods": [
+            "raises": [],
+            "return_type": "list[Customer]"
+          },
           {
+            "description": "Reads one Customer by its key.",
             "name": "read_one",
-            "description": "Reads one Product by its key.",
             "params": [
               {
                 "name": "id",
                 "type": "int"
               }
             ],
-            "return_type": "models.Product",
             "raises": [
-              "ProductNotFoundError"
-            ]
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every Product; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              }
+              "CustomerNotFoundError"
             ],
-            "return_type": "list[Product]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Product.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Product",
-            "raises": [
-              "ProductNotFoundError"
-            ]
-          }
-        ]
-      },
-      {
-        "entity": "Order",
-        "interface_name": "OrderRepository",
-        "methods": [
-          {
-            "name": "create",
-            "description": "Creates a new Order.",
-            "params": [
-              {
-                "name": "customer_id",
-                "type": "int"
-              },
-              {
-                "name": "order_date",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.Order",
-            "raises": []
-          },
-          {
-            "name": "read_one",
-            "description": "Reads one Order by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Order",
-            "raises": [
-              "OrderNotFoundError"
-            ]
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every Order; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "customer_id",
-                "type": "int"
-              },
-              {
-                "name": "order_date",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "list[Order]",
-            "raises": []
+            "return_type": "models.Customer"
           }
         ]
       },
@@ -152,8 +76,8 @@
         "interface_name": "OrderItemRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new OrderItem.",
+            "name": "create",
             "params": [
               {
                 "name": "order_id",
@@ -168,55 +92,131 @@
                 "type": "int"
               }
             ],
-            "return_type": "models.OrderItem",
-            "raises": []
+            "raises": [],
+            "return_type": "models.OrderItem"
           },
           {
-            "name": "read_one",
             "description": "Reads one OrderItem by its key.",
+            "name": "read_one",
             "params": [
               {
                 "name": "id",
                 "type": "int"
               }
             ],
-            "return_type": "models.OrderItem",
-            "raises": []
+            "raises": [],
+            "return_type": "models.OrderItem"
           }
         ]
-      }
-    ],
-    "entity_mappings": [
+      },
       {
-        "entity": "Customer",
-        "table": "customers",
-        "primary_key": "id",
-        "indexes": [
-          "email"
+        "entity": "Order",
+        "interface_name": "OrderRepository",
+        "methods": [
+          {
+            "description": "Creates a new Order.",
+            "name": "create",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "order_date",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Order"
+          },
+          {
+            "description": "Lists every Order; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "order_date",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Order]"
+          },
+          {
+            "description": "Reads one Order by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "OrderNotFoundError"
+            ],
+            "return_type": "models.Order"
+          }
         ]
       },
       {
         "entity": "Product",
-        "table": "products",
-        "primary_key": "id",
-        "indexes": []
-      },
-      {
-        "entity": "Order",
-        "table": "orders",
-        "primary_key": "id",
-        "indexes": [
-          "customer_id",
-          "order_date"
-        ]
-      },
-      {
-        "entity": "OrderItem",
-        "table": "order_items",
-        "primary_key": "id",
-        "indexes": [
-          "order_id",
-          "product_id"
+        "interface_name": "ProductRepository",
+        "methods": [
+          {
+            "description": "Lists every Product; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Product]"
+          },
+          {
+            "description": "Reads one Product by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "ProductNotFoundError"
+            ],
+            "return_type": "models.Product"
+          },
+          {
+            "description": "Updates an existing Product.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "ProductNotFoundError"
+            ],
+            "return_type": "models.Product"
+          }
         ]
       }
     ]

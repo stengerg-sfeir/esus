@@ -1,54 +1,54 @@
 {
   "errors": [
     {
-      "name": "AlreadyReturnedLoanError",
       "base": "RuntimeError",
-      "description": "Raised when an attempt is made to return a loan that is already marked as returned."
+      "description": "Raised when an attempt is made to return a loan that is already marked as returned.",
+      "name": "AlreadyReturnedLoanError"
     },
     {
-      "name": "BookNotFoundError",
       "base": "LookupError",
-      "description": "Raised when a book is not found during lookup by ID, title, author, or ISBN."
+      "description": "Raised when an author is not found during lookup by ID or name.",
+      "name": "AuthorNotFoundError"
     },
     {
-      "name": "AuthorNotFoundError",
       "base": "LookupError",
-      "description": "Raised when an author is not found during lookup by ID or name."
+      "description": "Raised when a book is not found during lookup by ID, title, author, or ISBN.",
+      "name": "BookNotFoundError"
     },
     {
-      "name": "MemberNotFoundError",
+      "base": "ValueError",
+      "description": "Raised when a book's available_copies is set to a negative value.",
+      "name": "InvalidBookCopiesError"
+    },
+    {
+      "base": "ValueError",
+      "description": "Raised when a book ID is not a valid integer or does not exist in the system.",
+      "name": "InvalidBookIdError"
+    },
+    {
+      "base": "ValueError",
+      "description": "Raised when a loan status is set to an invalid value such as 'invalid' or 'unknown'.",
+      "name": "InvalidLoanStatusError"
+    },
+    {
+      "base": "ValueError",
+      "description": "Raised when a member ID is not a valid integer or does not exist in the system.",
+      "name": "InvalidMemberIdError"
+    },
+    {
       "base": "LookupError",
-      "description": "Raised when a member is not found during lookup by ID or email."
+      "description": "Raised when a loan is not found during lookup by ID or member/book reference.",
+      "name": "LoanNotFoundError"
     },
     {
-      "name": "LoanNotFoundError",
       "base": "LookupError",
-      "description": "Raised when a loan is not found during lookup by ID or member/book reference."
+      "description": "Raised when a member is not found during lookup by ID or email.",
+      "name": "MemberNotFoundError"
     },
     {
-      "name": "InvalidBookCopiesError",
       "base": "ValueError",
-      "description": "Raised when a book's available_copies is set to a negative value."
-    },
-    {
-      "name": "InvalidLoanStatusError",
-      "base": "ValueError",
-      "description": "Raised when a loan status is set to an invalid value such as 'invalid' or 'unknown'."
-    },
-    {
-      "name": "InvalidMemberIdError",
-      "base": "ValueError",
-      "description": "Raised when a member ID is not a valid integer or does not exist in the system."
-    },
-    {
-      "name": "InvalidBookIdError",
-      "base": "ValueError",
-      "description": "Raised when a book ID is not a valid integer or does not exist in the system."
-    },
-    {
-      "name": "MissingRequiredFieldError",
-      "base": "ValueError",
-      "description": "Raised when a required field (e.g., title, isbn, member_id, book_id) is missing in a command or request."
+      "description": "Raised when a required field (e.g., title, isbn, member_id, book_id) is missing in a command or request.",
+      "name": "MissingRequiredFieldError"
     }
   ]
 }

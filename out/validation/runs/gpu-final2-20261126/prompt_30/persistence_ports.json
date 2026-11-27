@@ -1,25 +1,35 @@
 {
   "persistence_ports": {
+    "entity_mappings": [
+      {
+        "entity": "Task",
+        "indexes": [
+          "status"
+        ],
+        "primary_key": "id",
+        "table": "tasks"
+      }
+    ],
     "repositories": [
       {
         "entity": "Task",
         "interface_name": "TaskRepository",
         "methods": [
           {
-            "name": "read_one",
             "description": "Reads one Task by its key.",
+            "name": "read_one",
             "params": [
               {
                 "name": "id",
                 "type": "int"
               }
             ],
-            "return_type": "models.Task",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Task"
           },
           {
-            "name": "update",
             "description": "Updates an existing Task.",
+            "name": "update",
             "params": [
               {
                 "name": "id",
@@ -30,19 +40,9 @@
                 "type": "str"
               }
             ],
-            "return_type": "models.Task",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Task"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Task",
-        "table": "tasks",
-        "primary_key": "id",
-        "indexes": [
-          "status"
         ]
       }
     ]

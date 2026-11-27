@@ -1,147 +1,10 @@
 {
   "service_contracts": [
     {
-      "service_name": "ProductRepository",
       "methods": [
         {
-          "name": "create",
-          "description": "Creates a new Product.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "description",
-              "type": "str"
-            },
-            {
-              "name": "price",
-              "type": "int"
-            },
-            {
-              "name": "stock_quantity",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Product",
-          "raises": []
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Product; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "description",
-              "type": "str"
-            },
-            {
-              "name": "price",
-              "type": "int"
-            },
-            {
-              "name": "stock_quantity",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Product]",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Product by its key.",
-          "params": [
-            {
-              "name": "product_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Product",
-          "raises": []
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Product.",
-          "params": [
-            {
-              "name": "product_id",
-              "type": "int"
-            },
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "description",
-              "type": "str"
-            },
-            {
-              "name": "price",
-              "type": "int"
-            },
-            {
-              "name": "stock_quantity",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Product",
-          "raises": []
-        },
-        {
-          "name": "delete",
-          "description": "Deletes an existing Product.",
-          "params": [
-            {
-              "name": "product_id",
-              "type": "int"
-            },
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "description",
-              "type": "str"
-            },
-            {
-              "name": "price",
-              "type": "int"
-            },
-            {
-              "name": "stock_quantity",
-              "type": "int"
-            }
-          ],
-          "return_type": "None",
-          "raises": []
-        },
-        {
-          "name": "get_products_by_price_range",
-          "description": "Retrieves all products within a specified price range, inclusive of both endpoints.",
-          "params": [
-            {
-              "name": "min_price",
-              "type": "float"
-            },
-            {
-              "name": "max_price",
-              "type": "float"
-            }
-          ],
-          "return_type": "List[Product]"
-        }
-      ]
-    },
-    {
-      "service_name": "CustomerRepository",
-      "methods": [
-        {
-          "name": "create",
           "description": "Creates a new Customer.",
+          "name": "create",
           "params": [
             {
               "name": "name",
@@ -156,68 +19,12 @@
               "type": "str"
             }
           ],
-          "return_type": "models.Customer",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Customer"
         },
         {
-          "name": "read_all",
-          "description": "Lists every Customer; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            },
-            {
-              "name": "phone",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Customer]",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Customer by its key.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Customer",
-          "raises": []
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Customer.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            },
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            },
-            {
-              "name": "phone",
-              "type": "str"
-            }
-          ],
-          "return_type": "models.Customer",
-          "raises": []
-        },
-        {
-          "name": "delete",
           "description": "Deletes an existing Customer.",
+          "name": "delete",
           "params": [
             {
               "name": "customer_id",
@@ -236,12 +43,12 @@
               "type": "str"
             }
           ],
-          "return_type": "None",
-          "raises": []
+          "raises": [],
+          "return_type": "None"
         },
         {
-          "name": "get_customer_by_email",
           "description": "Finds a customer record using their email address as the unique identifier.",
+          "name": "get_customer_by_email",
           "params": [
             {
               "name": "email",
@@ -251,8 +58,8 @@
           "return_type": "Optional[Customer]"
         },
         {
-          "name": "get_customers_by_phone_range",
           "description": "Returns customers whose phone numbers fall within a specified range, useful for filtering by area code or number pattern.",
+          "name": "get_customers_by_phone_range",
           "params": [
             {
               "name": "min_phone",
@@ -264,43 +71,207 @@
             }
           ],
           "return_type": "List[Customer]"
+        },
+        {
+          "description": "Lists every Customer; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Customer]"
+        },
+        {
+          "description": "Reads one Customer by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Customer"
+        },
+        {
+          "description": "Updates an existing Customer.",
+          "name": "update",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Customer"
         }
-      ]
+      ],
+      "service_name": "CustomerRepository"
     },
     {
-      "service_name": "SaleRepository",
       "methods": [
         {
+          "description": "Creates a new Product.",
           "name": "create",
-          "description": "Creates a new Sale.",
           "params": [
             {
-              "name": "customer_id",
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "price",
               "type": "int"
             },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Product"
+        },
+        {
+          "description": "Deletes an existing Product.",
+          "name": "delete",
+          "params": [
             {
               "name": "product_id",
               "type": "int"
             },
             {
-              "name": "quantity",
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "price",
               "type": "int"
             },
             {
-              "name": "sale_date",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "total_price",
+              "name": "stock_quantity",
               "type": "int"
             }
           ],
-          "return_type": "models.Sale",
-          "raises": []
+          "raises": [],
+          "return_type": "None"
         },
         {
+          "description": "Retrieves all products within a specified price range, inclusive of both endpoints.",
+          "name": "get_products_by_price_range",
+          "params": [
+            {
+              "name": "min_price",
+              "type": "float"
+            },
+            {
+              "name": "max_price",
+              "type": "float"
+            }
+          ],
+          "return_type": "List[Product]"
+        },
+        {
+          "description": "Lists every Product; optional fields narrow the result.",
           "name": "read_all",
-          "description": "Lists every Sale; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Product]"
+        },
+        {
+          "description": "Reads one Product by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Product"
+        },
+        {
+          "description": "Updates an existing Product.",
+          "name": "update",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Product"
+        }
+      ],
+      "service_name": "ProductRepository"
+    },
+    {
+      "methods": [
+        {
+          "description": "Creates a new Sale.",
+          "name": "create",
           "params": [
             {
               "name": "customer_id",
@@ -323,36 +294,24 @@
               "type": "int"
             }
           ],
-          "return_type": "list[Sale]",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Sale"
         },
         {
-          "name": "read_one",
-          "description": "Reads one Sale by its key.",
-          "params": [
-            {
-              "name": "sale_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Sale",
-          "raises": []
-        },
-        {
-          "name": "get_sales_by_customer_id",
           "description": "Lists the Sale records belonging to one Customer.",
+          "name": "get_sales_by_customer_id",
           "params": [
             {
               "name": "customer_id",
               "type": "int"
             }
           ],
-          "return_type": "list[Sale]",
-          "raises": []
+          "raises": [],
+          "return_type": "list[Sale]"
         },
         {
-          "name": "get_sales_by_date_range",
           "description": "Retrieves all sales records that occurred within a specified date range, inclusive of both endpoints.",
+          "name": "get_sales_by_date_range",
           "params": [
             {
               "name": "start_date",
@@ -366,8 +325,8 @@
           "return_type": "List[Sale]"
         },
         {
-          "name": "get_total_revenue_by_product",
           "description": "Calculates and returns the total revenue generated from sales of each product, grouped by product ID.",
+          "name": "get_total_revenue_by_product",
           "params": [
             {
               "name": "sale_id",
@@ -375,8 +334,49 @@
             }
           ],
           "return_type": "Dict[str, float]"
+        },
+        {
+          "description": "Lists every Sale; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "sale_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "total_price",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Sale]"
+        },
+        {
+          "description": "Reads one Sale by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "sale_id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Sale"
         }
-      ]
+      ],
+      "service_name": "SaleRepository"
     }
   ]
 }

@@ -1,161 +1,11 @@
 {
   "components": {
-    "facade": {
-      "type": "cli",
-      "technology": "argparse",
-      "invocation": {
-        "positional": [
-          {
-            "name": "customer_id",
-            "type": "int",
-            "required": true
-          },
-          {
-            "name": "product_id",
-            "type": "int",
-            "required": true
-          },
-          {
-            "name": "quantity",
-            "type": "int",
-            "required": true
-          }
-        ],
-        "options": [
-          {
-            "name": "--output",
-            "short": "-o",
-            "type": "str",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--help",
-            "short": "-h",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--version",
-            "short": "-v",
-            "type": "bool",
-            "required": false,
-            "default": null
-          }
-        ],
-        "commands": [
-          {
-            "name": "Order",
-            "options": [],
-            "subcommands": [
-              {
-                "name": "add",
-                "options": [
-                  {
-                    "name": "--customer-id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--order-date",
-                    "short": null,
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "name": "Product",
-            "options": [],
-            "subcommands": [
-              {
-                "name": "update",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--name",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--stock-quantity",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "name": "OrderItem",
-            "options": [],
-            "subcommands": [
-              {
-                "name": "add",
-                "options": [
-                  {
-                    "name": "--order-id",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--product-id",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--quantity",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "persistence": {
-      "required": true,
-      "technology": "sqlite"
-    },
-    "external_access": [],
     "crud_services": [
       {
         "entity": "Customer",
         "operations": [
           "read_one",
           "read_all"
-        ]
-      },
-      {
-        "entity": "Product",
-        "operations": [
-          "read_one",
-          "read_all",
-          "update"
         ]
       },
       {
@@ -172,7 +22,157 @@
           "create",
           "read_one"
         ]
+      },
+      {
+        "entity": "Product",
+        "operations": [
+          "read_one",
+          "read_all",
+          "update"
+        ]
       }
-    ]
+    ],
+    "external_access": [],
+    "facade": {
+      "invocation": {
+        "commands": [
+          {
+            "name": "Order",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--customer-id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--order-date",
+                    "required": true,
+                    "short": null,
+                    "type": "str"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "OrderItem",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--order-id",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--product-id",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--quantity",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Product",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--stock-quantity",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "options": [
+          {
+            "default": null,
+            "name": "--output",
+            "required": false,
+            "short": "-o",
+            "type": "str"
+          },
+          {
+            "default": null,
+            "name": "--help",
+            "required": false,
+            "short": "-h",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--version",
+            "required": false,
+            "short": "-v",
+            "type": "bool"
+          }
+        ],
+        "positional": [
+          {
+            "name": "customer_id",
+            "required": true,
+            "type": "int"
+          },
+          {
+            "name": "product_id",
+            "required": true,
+            "type": "int"
+          },
+          {
+            "name": "quantity",
+            "required": true,
+            "type": "int"
+          }
+        ]
+      },
+      "technology": "argparse",
+      "type": "cli"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    }
   }
 }

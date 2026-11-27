@@ -1,68 +1,68 @@
 {
   "invariants": [
     {
-      "text": "Event.event_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A registration for an event is only allowed if the current registration count is less than the event capacity."
     },
     {
-      "text": "Event.title must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Event.capacity must be an integer"
     },
     {
-      "text": "Event.title must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Event.capacity must not be null"
     },
     {
-      "text": "Event.date must be a datetime",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Event.current_registration_count must be an integer"
     },
     {
-      "text": "Event.date must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Event.current_registration_count must not be null"
     },
     {
-      "text": "Event.capacity must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Event.date must be a datetime"
     },
     {
-      "text": "Event.capacity must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Event.date must not be null"
     },
     {
-      "text": "Event.current_registration_count must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Event.event_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Event.current_registration_count must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Event.title must be a string"
     },
     {
-      "text": "Registration.registration_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Event.title must not be null"
     },
     {
-      "text": "Registration.event_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Registration.event_id must be an integer"
     },
     {
-      "text": "Registration.event_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Registration.event_id must not be null"
     },
     {
-      "text": "Registration.event_id must reference an existing Event.event_id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Registration.event_id must reference an existing Event.event_id"
     },
     {
-      "text": "Registration.user_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Registration.registration_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Registration.user_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Registration.user_id must be an integer"
     },
     {
-      "text": "A registration for an event is only allowed if the current registration count is less than the event capacity.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Registration.user_id must not be null"
     }
   ]
 }

@@ -50,6 +50,89 @@ def _model_list(records, model_cls):
 
 
 
+class CategoryRepository:
+    ENTITY = "Category"
+    PK = "category_id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def create(self, name: str = None, created_at: Any = None, updated_at: Any = None) -> models.Category:
+        """Creates a new Category. [crud:create: STANDARD_CRUD]"""
+        values = {}
+        if name is not None:
+            values['name'] = name
+        if created_at is not None:
+            values['created_at'] = created_at
+        if updated_at is not None:
+            values['updated_at'] = updated_at
+        unknown = [k for k in values if k not in ['category_id', 'name', 'created_at', 'updated_at']]
+        if unknown:
+            raise ValueError(f"cannot create Category from {unknown}")
+        if values.get('created_at') is None:
+            values['created_at'] = datetime.datetime.now()
+        if values.get('updated_at') is None:
+            values['updated_at'] = datetime.datetime.now()
+        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
+        return models.Category(**record)
+
+    def delete(self, category_id: int = None, name: str = None, created_at: Any = None, updated_at: Any = None) -> None:
+        """Deletes an existing Category. [crud:delete: STANDARD_CRUD]"""
+        criteria = []
+        if category_id is not None:
+            criteria.append(('category_id', 'eq', category_id))
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if created_at is not None:
+            criteria.append(('created_at', 'eq', created_at))
+        if updated_at is not None:
+            criteria.append(('updated_at', 'eq', updated_at))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            raise errors.CategoryNotFoundError(f"Category delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
+
+    def read_all(self, name: str = None, created_at: Any = None, updated_at: Any = None) -> list[models.Category]:
+        """Lists every Category; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if created_at is not None:
+            criteria.append(('created_at', 'eq', created_at))
+        if updated_at is not None:
+            criteria.append(('updated_at', 'eq', updated_at))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Category(**r) for r in found]
+
+    def read_one(self, category_id: int = None) -> models.Category:
+        """Reads one Category by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, category_id, error=errors.CategoryNotFoundError)
+        return models.Category(**record)
+
+    def update(self, category_id: int = None, name: str = None, created_at: Any = None, updated_at: Any = None) -> models.Category:
+        """Updates an existing Category. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if category_id is not None:
+            criteria.append(('category_id', 'eq', category_id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise errors.CategoryNotFoundError(f"Category update matched {len(found)} records")
+        patch = {}
+        if category_id is not None and 'category_id' in ['category_id', 'name', 'created_at', 'updated_at']:
+            patch['category_id'] = category_id
+        if name is not None and 'name' in ['category_id', 'name', 'created_at', 'updated_at']:
+            patch['name'] = name
+        if created_at is not None and 'created_at' in ['category_id', 'name', 'created_at', 'updated_at']:
+            patch['created_at'] = created_at
+        if updated_at is not None and 'updated_at' in ['category_id', 'name', 'created_at', 'updated_at']:
+            patch['updated_at'] = updated_at
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.CategoryNotFoundError)
+        return models.Category(**record)
+
+
 class ProductRepository:
     ENTITY = "Product"
     PK = "product_id"
@@ -58,7 +141,7 @@ class ProductRepository:
         self._store = store
 
 
-    def create(self, name: str = None, category_id: int = None, created_at: Any = None, updated_at: Any = None) -> Any:
+    def create(self, name: str = None, category_id: int = None, created_at: Any = None, updated_at: Any = None) -> models.Product:
         """Creates a new Product. [crud:create: STANDARD_CRUD]"""
         values = {}
         if name is not None:
@@ -77,47 +160,6 @@ class ProductRepository:
         if values.get('updated_at') is None:
             values['updated_at'] = datetime.datetime.now()
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("category_id", "Category", "category_id", errors.CategoryNotFoundError)])
-        return models.Product(**record)
-
-    def read_all(self, name: str = None, category_id: int = None, created_at: Any = None, updated_at: Any = None) -> list[models.Product]:
-        """Lists every Product; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if category_id is not None:
-            criteria.append(('category_id', 'eq', category_id))
-        if created_at is not None:
-            criteria.append(('created_at', 'eq', created_at))
-        if updated_at is not None:
-            criteria.append(('updated_at', 'eq', updated_at))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Product(**r) for r in found]
-
-    def read_one(self, product_id: int = None) -> Any:
-        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, product_id, error=errors.ProductCategoryNotFoundError)
-        return models.Product(**record)
-
-    def update(self, product_id: int = None, name: str = None, category_id: int = None, created_at: Any = None, updated_at: Any = None) -> Any:
-        """Updates an existing Product. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if product_id is not None:
-            criteria.append(('product_id', 'eq', product_id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise errors.ProductCategoryNotFoundError(f"Product update matched {len(found)} records")
-        patch = {}
-        if product_id is not None and 'product_id' in ['product_id', 'name', 'category_id', 'created_at', 'updated_at']:
-            patch['product_id'] = product_id
-        if name is not None and 'name' in ['product_id', 'name', 'category_id', 'created_at', 'updated_at']:
-            patch['name'] = name
-        if category_id is not None and 'category_id' in ['product_id', 'name', 'category_id', 'created_at', 'updated_at']:
-            patch['category_id'] = category_id
-        if created_at is not None and 'created_at' in ['product_id', 'name', 'category_id', 'created_at', 'updated_at']:
-            patch['created_at'] = created_at
-        if updated_at is not None and 'updated_at' in ['product_id', 'name', 'category_id', 'created_at', 'updated_at']:
-            patch['updated_at'] = updated_at
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.ProductCategoryNotFoundError)
         return models.Product(**record)
 
     def delete(self, product_id: int = None, name: str = None, category_id: int = None, created_at: Any = None, updated_at: Any = None) -> None:
@@ -141,92 +183,50 @@ class ProductRepository:
         return None
 
     def get_products_by_category_id(self, category_id: int = None) -> list[models.Product]:
-        """Lists the Product records belonging to one Category. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
+        """Lists the Product records belonging to one Category. [mechanical contained-name filter]"""
         criteria = []
         if category_id is not None:
             criteria.append(('category_id', 'eq', category_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Product(**row) for row in found], models.Product)
+
+    def read_all(self, name: str = None, category_id: int = None, created_at: Any = None, updated_at: Any = None) -> list[models.Product]:
+        """Lists every Product; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if category_id is not None:
+            criteria.append(('category_id', 'eq', category_id))
+        if created_at is not None:
+            criteria.append(('created_at', 'eq', created_at))
+        if updated_at is not None:
+            criteria.append(('updated_at', 'eq', updated_at))
         found = self._store.select(self.ENTITY, criteria)
         return [models.Product(**r) for r in found]
 
+    def read_one(self, product_id: int = None) -> models.Product:
+        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, product_id, error=errors.ProductCategoryNotFoundError)
+        return models.Product(**record)
 
-class CategoryRepository:
-    ENTITY = "Category"
-    PK = "category_id"
-
-    def __init__(self, store):
-        self._store = store
-
-
-    def create(self, name: str = None, created_at: Any = None, updated_at: Any = None) -> Any:
-        """Creates a new Category. [crud:create: STANDARD_CRUD]"""
-        values = {}
-        if name is not None:
-            values['name'] = name
-        if created_at is not None:
-            values['created_at'] = created_at
-        if updated_at is not None:
-            values['updated_at'] = updated_at
-        unknown = [k for k in values if k not in ['category_id', 'name', 'created_at', 'updated_at']]
-        if unknown:
-            raise ValueError(f"cannot create Category from {unknown}")
-        if values.get('created_at') is None:
-            values['created_at'] = datetime.datetime.now()
-        if values.get('updated_at') is None:
-            values['updated_at'] = datetime.datetime.now()
-        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Category(**record)
-
-    def read_all(self, name: str = None, created_at: Any = None, updated_at: Any = None) -> list[models.Category]:
-        """Lists every Category; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+    def update(self, product_id: int = None, name: str = None, category_id: int = None, created_at: Any = None, updated_at: Any = None) -> models.Product:
+        """Updates an existing Product. [crud:update: STANDARD_CRUD]"""
         criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if created_at is not None:
-            criteria.append(('created_at', 'eq', created_at))
-        if updated_at is not None:
-            criteria.append(('updated_at', 'eq', updated_at))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Category(**r) for r in found]
-
-    def read_one(self, category_id: int = None) -> Any:
-        """Reads one Category by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, category_id, error=errors.CategoryNotFoundError)
-        return models.Category(**record)
-
-    def update(self, category_id: int = None, name: str = None, created_at: Any = None, updated_at: Any = None) -> Any:
-        """Updates an existing Category. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if category_id is not None:
-            criteria.append(('category_id', 'eq', category_id))
+        if product_id is not None:
+            criteria.append(('product_id', 'eq', product_id))
         found = self._store.select(self.ENTITY, criteria)
         if len(found) != 1:
-            raise errors.CategoryNotFoundError(f"Category update matched {len(found)} records")
+            raise errors.ProductCategoryNotFoundError(f"Product update matched {len(found)} records")
         patch = {}
-        if category_id is not None and 'category_id' in ['category_id', 'name', 'created_at', 'updated_at']:
-            patch['category_id'] = category_id
-        if name is not None and 'name' in ['category_id', 'name', 'created_at', 'updated_at']:
+        if product_id is not None and 'product_id' in ['product_id', 'name', 'category_id', 'created_at', 'updated_at']:
+            patch['product_id'] = product_id
+        if name is not None and 'name' in ['product_id', 'name', 'category_id', 'created_at', 'updated_at']:
             patch['name'] = name
-        if created_at is not None and 'created_at' in ['category_id', 'name', 'created_at', 'updated_at']:
+        if category_id is not None and 'category_id' in ['product_id', 'name', 'category_id', 'created_at', 'updated_at']:
+            patch['category_id'] = category_id
+        if created_at is not None and 'created_at' in ['product_id', 'name', 'category_id', 'created_at', 'updated_at']:
             patch['created_at'] = created_at
-        if updated_at is not None and 'updated_at' in ['category_id', 'name', 'created_at', 'updated_at']:
+        if updated_at is not None and 'updated_at' in ['product_id', 'name', 'category_id', 'created_at', 'updated_at']:
             patch['updated_at'] = updated_at
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.CategoryNotFoundError)
-        return models.Category(**record)
-
-    def delete(self, category_id: int = None, name: str = None, created_at: Any = None, updated_at: Any = None) -> None:
-        """Deletes an existing Category. [crud:delete: STANDARD_CRUD]"""
-        criteria = []
-        if category_id is not None:
-            criteria.append(('category_id', 'eq', category_id))
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if created_at is not None:
-            criteria.append(('created_at', 'eq', created_at))
-        if updated_at is not None:
-            criteria.append(('updated_at', 'eq', updated_at))
-        found = self._store.select(self.ENTITY, criteria)
-        if not found:
-            raise errors.CategoryNotFoundError(f"Category delete matched no records")
-        for record in found:
-            self._store.delete(self.ENTITY, self.PK, record[self.PK])
-        return None
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.ProductCategoryNotFoundError)
+        return models.Product(**record)

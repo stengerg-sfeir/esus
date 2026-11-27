@@ -2,164 +2,164 @@
   "interaction_adapters": [
     {
       "action_name": "create_customer",
-      "target_service": "CustomerRepository",
-      "target_method": "create",
       "input_fields": [
         {
           "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "name",
+          "transform": "DIRECT"
         },
         {
           "field_name": "email",
+          "lookup_entity": null,
+          "required": true,
           "target_param": "email",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
+          "transform": "DIRECT"
         }
-      ]
-    },
-    {
-      "action_name": "create_room",
-      "target_service": "RoomRepository",
+      ],
       "target_method": "create",
-      "input_fields": [
-        {
-          "field_name": "room_number",
-          "target_param": "room_number",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "capacity",
-          "target_param": "capacity",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
+      "target_service": "CustomerRepository"
     },
     {
       "action_name": "create_reservation",
-      "target_service": "ReservationRepository",
-      "target_method": "create",
       "input_fields": [
         {
           "field_name": "customer_id",
-          "target_param": "customer_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Customer",
-          "required": true
+          "required": true,
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "room_id",
-          "target_param": "room_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Room",
-          "required": true
+          "required": true,
+          "target_param": "room_id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "start_time",
-          "target_param": "start_time",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "start_time",
+          "transform": "ISO_DATE"
         },
         {
           "field_name": "end_time",
-          "target_param": "end_time",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "end_time",
+          "transform": "ISO_DATE"
         }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "ReservationRepository"
     },
     {
-      "action_name": "update_reservation",
-      "target_service": "ReservationRepository",
-      "target_method": "update",
+      "action_name": "create_room",
       "input_fields": [
         {
-          "field_name": "reservation_id",
-          "target_param": "reservation_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Reservation",
-          "required": true
-        },
-        {
-          "field_name": "customer_id",
-          "target_param": "customer_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Customer",
-          "required": true
-        },
-        {
-          "field_name": "room_id",
-          "target_param": "room_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Room",
-          "required": true
-        },
-        {
-          "field_name": "start_time",
-          "target_param": "start_time",
-          "transform": "ISO_DATE",
+          "field_name": "room_number",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "room_number",
+          "transform": "DIRECT"
         },
         {
-          "field_name": "end_time",
-          "target_param": "end_time",
-          "transform": "ISO_DATE",
+          "field_name": "capacity",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "capacity",
+          "transform": "DIRECT"
         }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "RoomRepository"
     },
     {
       "action_name": "delete_reservation",
-      "target_service": "ReservationRepository",
-      "target_method": "delete",
       "input_fields": [
         {
           "field_name": "reservation_id",
-          "target_param": "reservation_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Reservation",
-          "required": true
+          "required": true,
+          "target_param": "reservation_id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "customer_id",
-          "target_param": "customer_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Customer",
-          "required": false
+          "required": false,
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "room_id",
-          "target_param": "room_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Room",
-          "required": false
+          "required": false,
+          "target_param": "room_id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "start_time",
-          "target_param": "start_time",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "start_time",
+          "transform": "ISO_DATE"
         },
         {
           "field_name": "end_time",
-          "target_param": "end_time",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "end_time",
+          "transform": "ISO_DATE"
         }
-      ]
+      ],
+      "target_method": "delete",
+      "target_service": "ReservationRepository"
+    },
+    {
+      "action_name": "update_reservation",
+      "input_fields": [
+        {
+          "field_name": "reservation_id",
+          "lookup_entity": "Reservation",
+          "required": true,
+          "target_param": "reservation_id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "customer_id",
+          "lookup_entity": "Customer",
+          "required": true,
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "room_id",
+          "lookup_entity": "Room",
+          "required": true,
+          "target_param": "room_id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "start_time",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "start_time",
+          "transform": "ISO_DATE"
+        },
+        {
+          "field_name": "end_time",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "end_time",
+          "transform": "ISO_DATE"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "ReservationRepository"
     }
   ]
 }

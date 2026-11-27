@@ -2,80 +2,80 @@
   "interaction_adapters": [
     {
       "action_name": "create_customer",
-      "target_service": "CustomerRepository",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "email",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "email",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "phone_number",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "phone_number",
+          "transform": "DIRECT"
+        }
+      ],
       "target_method": "create",
-      "input_fields": [
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "phone_number",
-          "target_param": "phone_number",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "update_customer",
-      "target_service": "CustomerRepository",
-      "target_method": "update",
-      "input_fields": [
-        {
-          "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Customer",
-          "required": true
-        },
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "phone_number",
-          "target_param": "phone_number",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
+      "target_service": "CustomerRepository"
     },
     {
       "action_name": "delete_customer",
-      "target_service": "CustomerRepository",
-      "target_method": "delete",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Customer",
-          "required": true
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
         }
-      ]
+      ],
+      "target_method": "delete",
+      "target_service": "CustomerRepository"
+    },
+    {
+      "action_name": "update_customer",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "lookup_entity": "Customer",
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "name",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "email",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "email",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "phone_number",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "phone_number",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "CustomerRepository"
     }
   ]
 }

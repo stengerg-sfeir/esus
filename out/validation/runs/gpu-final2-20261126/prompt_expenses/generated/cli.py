@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Category', 'Expense', 'Budget']
-REPOSITORIES = ['CategoryRepository', 'ExpenseRepository', 'BudgetRepository']
+MODELS = ['Budget', 'Category', 'Expense']
+REPOSITORIES = ['BudgetRepository', 'CategoryRepository', 'ExpenseRepository']
 SERVICES = ['ExpenseService']
 
 

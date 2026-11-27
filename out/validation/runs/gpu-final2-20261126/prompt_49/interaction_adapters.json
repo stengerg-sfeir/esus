@@ -2,17 +2,17 @@
   "interaction_adapters": [
     {
       "action_name": "list_employees_by_department_name",
-      "target_service": "DepartmentRepository",
-      "target_method": "find_department_by_name",
       "input_fields": [
         {
           "field_name": "department_name",
-          "target_param": "department_name",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "department_name",
+          "transform": "DIRECT"
         }
-      ]
+      ],
+      "target_method": "find_department_by_name",
+      "target_service": "DepartmentRepository"
     }
   ]
 }

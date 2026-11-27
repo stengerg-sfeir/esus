@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Employee', 'Department']
-REPOSITORIES = ['EmployeeRepository', 'DepartmentRepository']
+MODELS = ['Department', 'Employee']
+REPOSITORIES = ['DepartmentRepository', 'EmployeeRepository']
 SERVICES = []
 
 

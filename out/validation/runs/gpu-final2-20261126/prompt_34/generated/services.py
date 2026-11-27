@@ -45,7 +45,7 @@ class OrderService:
         self._repos = repos
 
 
-    def create_order_with_lines(self, order_data: OrderCreationData = None) -> Any:
+    def create_order_with_lines(self, order_data: OrderCreationData = None) -> models.Order:
         """Creates an order and all its order lines atomically. If any order line contains invalid data (e.g., negative quantity, invalid product ID), the entire operation fails and neither the order nor any order lines are persisted. [llm-written by generator-contract-dto-fallback — review]"""
         if order_data is None:
             raise ValueError('missing create payload')
@@ -53,12 +53,9 @@ class OrderService:
         kwargs = {key: value for key, value in values.items() if key in ['created_at', 'updated_at']}
         return self._repos['OrderRepository'].create(**kwargs)
 
-    def read_order_by_id(self, order_id: int = None) -> models.Order | None:
-        """Reads one Order by its key. [mechanical standard read]"""
-        try:
-            return self._repos['OrderRepository'].read_one(order_id)
-        except errors.OrderLineNotFoundError:
-            return None
+    def delete_order(self, order_id: int = None) -> None:
+        """Deletes an existing Order. [mechanical CRUD wrapper]"""
+        self._repos['OrderRepository'].delete(order_id=order_id)
 
     def read_all_orders(self) -> list[models.Order]:
         """Lists every Order. [composes OrderRepository.read_all over READ_ALL]"""
@@ -72,10 +69,13 @@ class OrderService:
                 out.append(record)
         return out
 
+    def read_order_by_id(self, order_id: int = None) -> models.Order | None:
+        """Reads one Order by its key. [mechanical standard read]"""
+        try:
+            return self._repos['OrderRepository'].read_one(order_id)
+        except errors.OrderLineNotFoundError:
+            return None
+
     def update_order(self, order_id: int = None, created_at: Any = None, updated_at: Any = None) -> None:
         """Updates an existing Order. [mechanical CRUD wrapper]"""
         self._repos['OrderRepository'].update(order_id=order_id, created_at=created_at, updated_at=updated_at)
-
-    def delete_order(self, order_id: int = None) -> None:
-        """Deletes an existing Order. [mechanical CRUD wrapper]"""
-        self._repos['OrderRepository'].delete(order_id=order_id)

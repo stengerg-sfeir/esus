@@ -1,13 +1,23 @@
 {
   "persistence_ports": {
+    "entity_mappings": [
+      {
+        "entity": "Contact",
+        "indexes": [
+          "email"
+        ],
+        "primary_key": "id",
+        "table": "contacts"
+      }
+    ],
     "repositories": [
       {
         "entity": "Contact",
         "interface_name": "ContactRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new Contact.",
+            "name": "create",
             "params": [
               {
                 "name": "name",
@@ -22,56 +32,12 @@
                 "type": "str"
               }
             ],
-            "return_type": "models.Contact",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Contact"
           },
           {
-            "name": "read_all",
-            "description": "Lists every Contact; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              },
-              {
-                "name": "phone",
-                "type": "str"
-              }
-            ],
-            "return_type": "list[Contact]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Contact.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              },
-              {
-                "name": "phone",
-                "type": "str"
-              }
-            ],
-            "return_type": "models.Contact",
-            "raises": []
-          },
-          {
-            "name": "delete",
             "description": "Deletes an existing Contact.",
+            "name": "delete",
             "params": [
               {
                 "name": "id",
@@ -90,31 +56,65 @@
                 "type": "str"
               }
             ],
-            "return_type": "None",
-            "raises": []
+            "raises": [],
+            "return_type": "None"
           },
           {
-            "name": "read_one",
+            "description": "Lists every Contact; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone",
+                "type": "str"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Contact]"
+          },
+          {
             "description": "Reads one Contact by its key.",
+            "name": "read_one",
             "params": [
               {
                 "name": "id",
                 "type": "int"
               }
             ],
-            "return_type": "models.Contact",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Contact"
+          },
+          {
+            "description": "Updates an existing Contact.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone",
+                "type": "str"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Contact"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Contact",
-        "table": "contacts",
-        "primary_key": "id",
-        "indexes": [
-          "email"
         ]
       }
     ]

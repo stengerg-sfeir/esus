@@ -58,7 +58,7 @@ class CustomerRepository:
         self._store = store
 
 
-    def read_one(self, id: int = None) -> Any:
+    def read_one(self, id: int = None) -> models.Customer:
         """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
         found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
         if not found:
@@ -75,7 +75,7 @@ class ExternalServiceResponseRepository:
         self._store = store
 
 
-    def create(self, customer_id: int = None, additional_info: str = None, status: str = None, error_message: str = None, timestamp: Any = None) -> Any:
+    def create(self, customer_id: int = None, additional_info: str = None, status: str = None, error_message: str = None, timestamp: Any = None) -> models.ExternalServiceResponse:
         """Creates a new ExternalServiceResponse. [crud:create: STANDARD_CRUD]"""
         values = {}
         if customer_id is not None:
@@ -96,14 +96,6 @@ class ExternalServiceResponseRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("customer_id", "Customer", "id", None)])
         return models.ExternalServiceResponse(**record)
 
-    def read_one(self, id: int = None) -> Any:
-        """Reads one ExternalServiceResponse by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.ExternalServiceResponse(**record)
-
     def read_all(self, customer_id: int = None, additional_info: str = None, status: str = None, error_message: str = None, timestamp: Any = None) -> list[models.ExternalServiceResponse]:
         """Lists every ExternalServiceResponse; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
         criteria = []
@@ -119,3 +111,11 @@ class ExternalServiceResponseRepository:
             criteria.append(('timestamp', 'eq', timestamp))
         found = self._store.select(self.ENTITY, criteria)
         return [models.ExternalServiceResponse(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.ExternalServiceResponse:
+        """Reads one ExternalServiceResponse by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.ExternalServiceResponse(**record)

@@ -1,149 +1,149 @@
 {
   "data_models": [
     {
-      "name": "Book",
       "fields": [
         {
-          "name": "id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
+          "foreign_key": null,
           "name": "title",
-          "type": "string",
-          "primary_key": false,
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
         },
         {
+          "foreign_key": null,
           "name": "isbn",
-          "type": "string",
-          "primary_key": false,
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
+          "primary_key": false,
           "status": "explicit",
+          "type": "string",
+          "unique": false,
           "unique_status": "rejected"
         },
         {
+          "foreign_key": null,
           "name": "available",
-          "type": "boolean",
-          "primary_key": false,
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "deduced"
+          "primary_key": false,
+          "status": "deduced",
+          "type": "boolean",
+          "unique": false
         }
-      ]
+      ],
+      "name": "Book"
     },
     {
-      "name": "Member",
       "fields": [
         {
-          "name": "id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "name",
-          "type": "string",
-          "primary_key": false,
+          "foreign_key": {
+            "relationship": "one_to_one",
+            "target_entity": "Book",
+            "target_field": "id"
+          },
+          "name": "book_id",
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
         },
         {
-          "name": "email",
-          "type": "string",
-          "primary_key": false,
+          "foreign_key": {
+            "relationship": "one_to_one",
+            "target_entity": "Member",
+            "target_field": "id"
+          },
+          "name": "member_id",
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
+          "primary_key": false,
           "status": "explicit",
+          "type": "int",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "loan_date",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "datetime",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "due_date",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "datetime",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "closed",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "boolean",
+          "unique": false
+        }
+      ],
+      "name": "Loan"
+    },
+    {
+      "fields": [
+        {
+          "foreign_key": null,
+          "name": "id",
+          "nullable": false,
+          "primary_key": true,
+          "status": "explicit",
+          "type": "int",
+          "unique": true,
+          "unique_status": "explicit"
+        },
+        {
+          "foreign_key": null,
+          "name": "name",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "email",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false,
           "unique_status": "rejected"
         }
-      ]
-    },
-    {
-      "name": "Loan",
-      "fields": [
-        {
-          "name": "id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
-          "foreign_key": null,
-          "status": "explicit",
-          "unique_status": "explicit"
-        },
-        {
-          "name": "book_id",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": {
-            "target_entity": "Book",
-            "target_field": "id",
-            "relationship": "one_to_one"
-          },
-          "status": "explicit"
-        },
-        {
-          "name": "member_id",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": {
-            "target_entity": "Member",
-            "target_field": "id",
-            "relationship": "one_to_one"
-          },
-          "status": "explicit"
-        },
-        {
-          "name": "loan_date",
-          "type": "datetime",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "due_date",
-          "type": "datetime",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "closed",
-          "type": "boolean",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        }
-      ]
+      ],
+      "name": "Member"
     }
   ]
 }

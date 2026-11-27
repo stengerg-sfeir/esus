@@ -1,111 +1,111 @@
 {
   "data_models": [
     {
-      "name": "Customer",
       "fields": [
         {
-          "name": "id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "log_id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "name",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "operation",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
         },
         {
-          "name": "email",
-          "type": "string",
-          "primary_key": false,
+          "foreign_key": {
+            "relationship": "one_to_many",
+            "target_entity": "Customer",
+            "target_field": "id"
+          },
+          "name": "customer_id",
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
+          "primary_key": false,
           "status": "explicit",
+          "type": "int",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "timestamp",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "datetime",
+          "unique": false
+        }
+      ],
+      "name": "AuditLog"
+    },
+    {
+      "fields": [
+        {
+          "foreign_key": null,
+          "name": "id",
+          "nullable": false,
+          "primary_key": true,
+          "status": "explicit",
+          "type": "int",
+          "unique": true,
+          "unique_status": "explicit"
+        },
+        {
+          "foreign_key": null,
+          "name": "name",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "email",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false,
           "unique_status": "rejected"
         },
         {
+          "foreign_key": null,
           "name": "phone",
-          "type": "string",
-          "primary_key": false,
           "nullable": true,
-          "unique": false,
-          "foreign_key": null,
-          "status": "deduced"
-        },
-        {
-          "name": "created_at",
-          "type": "datetime",
           "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "deduced"
-        },
-        {
-          "name": "updated_at",
-          "type": "datetime",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "deduced"
-        }
-      ]
-    },
-    {
-      "name": "AuditLog",
-      "fields": [
-        {
-          "name": "log_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
-          "foreign_key": null,
-          "status": "explicit",
-          "unique_status": "explicit"
-        },
-        {
-          "name": "operation",
+          "status": "deduced",
           "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
+          "unique": false
+        },
+        {
           "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "customer_id",
-          "type": "int",
-          "primary_key": false,
+          "name": "created_at",
           "nullable": false,
-          "unique": false,
-          "foreign_key": {
-            "target_entity": "Customer",
-            "target_field": "id",
-            "relationship": "one_to_many"
-          },
-          "status": "explicit"
-        },
-        {
-          "name": "timestamp",
+          "primary_key": false,
+          "status": "deduced",
           "type": "datetime",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
+          "unique": false
+        },
+        {
           "foreign_key": null,
-          "status": "explicit"
+          "name": "updated_at",
+          "nullable": false,
+          "primary_key": false,
+          "status": "deduced",
+          "type": "datetime",
+          "unique": false
         }
-      ]
+      ],
+      "name": "Customer"
     }
   ]
 }

@@ -18,23 +18,6 @@
       }
     },
     {
-      "name": "cli:Task list",
-      "when": {
-        "cli_variants": [
-          [
-            "Task",
-            "list",
-            "--description",
-            "value1",
-            "--is-completed"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Task delete",
       "when": {
         "cli_variants": [
@@ -58,6 +41,23 @@
             "description": "value1"
           }
         }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task list",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "list",
+            "--description",
+            "value1",
+            "--is-completed"
+          ]
+        ]
       },
       "expect": {
         "exit": 0

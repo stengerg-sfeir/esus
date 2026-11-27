@@ -1,11 +1,10 @@
 {
   "service_contracts": [
     {
-      "service_name": "EventRegistrationService",
       "methods": [
         {
-          "name": "register_for_event",
           "description": "Allows a user to register for an event. If the event is at full capacity, this method raises a RegistrationCapacityExceededError.",
+          "name": "register_for_event",
           "params": [
             {
               "name": "event_id",
@@ -16,22 +15,22 @@
               "type": "int"
             }
           ],
-          "return_type": "void",
           "raises": [
             "EventNotFoundError",
             "RegistrationEventIdNotFoundError",
             "RegistrationUserIdNotFoundError",
             "RegistrationCapacityExceededError"
-          ]
+          ],
+          "return_type": "void"
         }
-      ]
+      ],
+      "service_name": "EventRegistrationService"
     },
     {
-      "service_name": "EventRepository",
       "methods": [
         {
-          "name": "create",
           "description": "Creates a new Event.",
+          "name": "create",
           "params": [
             {
               "name": "title",
@@ -50,80 +49,12 @@
               "type": "int"
             }
           ],
-          "return_type": "models.Event",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Event"
         },
         {
-          "name": "read_all",
-          "description": "Lists every Event; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "title",
-              "type": "str"
-            },
-            {
-              "name": "date",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "capacity",
-              "type": "int"
-            },
-            {
-              "name": "current_registration_count",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Event]",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Event by its key.",
-          "params": [
-            {
-              "name": "event_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Event",
-          "raises": [
-            "EventNotFoundError"
-          ]
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Event.",
-          "params": [
-            {
-              "name": "event_id",
-              "type": "int"
-            },
-            {
-              "name": "title",
-              "type": "str"
-            },
-            {
-              "name": "date",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "capacity",
-              "type": "int"
-            },
-            {
-              "name": "current_registration_count",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Event",
-          "raises": [
-            "EventNotFoundError"
-          ]
-        },
-        {
-          "name": "delete",
           "description": "Deletes an existing Event.",
+          "name": "delete",
           "params": [
             {
               "name": "event_id",
@@ -146,14 +77,14 @@
               "type": "int"
             }
           ],
-          "return_type": "None",
           "raises": [
             "EventNotFoundError"
-          ]
+          ],
+          "return_type": "None"
         },
         {
-          "name": "get_event_by_title",
           "description": "Fetches an event by its title, allowing users to search for events by name.",
+          "name": "get_event_by_title",
           "params": [
             {
               "name": "title",
@@ -163,8 +94,8 @@
           "return_type": "models.Event"
         },
         {
-          "name": "is_event_full",
           "description": "Checks whether an event is full based on current registration count and capacity.",
+          "name": "is_event_full",
           "params": [
             {
               "name": "event_id",
@@ -172,15 +103,83 @@
             }
           ],
           "return_type": "bool"
+        },
+        {
+          "description": "Lists every Event; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "capacity",
+              "type": "int"
+            },
+            {
+              "name": "current_registration_count",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Event]"
+        },
+        {
+          "description": "Reads one Event by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "event_id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "EventNotFoundError"
+          ],
+          "return_type": "models.Event"
+        },
+        {
+          "description": "Updates an existing Event.",
+          "name": "update",
+          "params": [
+            {
+              "name": "event_id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "capacity",
+              "type": "int"
+            },
+            {
+              "name": "current_registration_count",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "EventNotFoundError"
+          ],
+          "return_type": "models.Event"
         }
-      ]
+      ],
+      "service_name": "EventRepository"
     },
     {
-      "service_name": "RegistrationRepository",
       "methods": [
         {
-          "name": "create",
           "description": "Creates a new Registration.",
+          "name": "create",
           "params": [
             {
               "name": "event_id",
@@ -191,12 +190,39 @@
               "type": "int"
             }
           ],
-          "return_type": "models.Registration",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Registration"
         },
         {
-          "name": "read_all",
+          "description": "Fetches a registration record for a specific user attending a specific event.",
+          "name": "get_registration_by_user_and_event",
+          "params": [
+            {
+              "name": "user_id",
+              "type": "int"
+            },
+            {
+              "name": "event_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Registration"
+        },
+        {
+          "description": "Lists the Registration records belonging to one Event.",
+          "name": "get_registrations_by_event_id",
+          "params": [
+            {
+              "name": "event_id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Registration]"
+        },
+        {
           "description": "Lists every Registration; optional fields narrow the result.",
+          "name": "read_all",
           "params": [
             {
               "name": "event_id",
@@ -207,64 +233,38 @@
               "type": "int"
             }
           ],
-          "return_type": "list[Registration]",
-          "raises": []
+          "raises": [],
+          "return_type": "list[Registration]"
         },
         {
-          "name": "read_one",
           "description": "Reads one Registration by its key.",
+          "name": "read_one",
           "params": [
             {
               "name": "registration_id",
               "type": "int"
             }
           ],
-          "return_type": "models.Registration",
-          "raises": []
-        },
-        {
-          "name": "get_registrations_by_event_id",
-          "description": "Lists the Registration records belonging to one Event.",
-          "params": [
-            {
-              "name": "event_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Registration]",
-          "raises": []
-        },
-        {
-          "name": "register_for_event",
-          "description": "Registers a user for an event, only if the event has available capacity.",
-          "params": [
-            {
-              "name": "event_id",
-              "type": "int"
-            },
-            {
-              "name": "user_id",
-              "type": "int"
-            }
-          ],
+          "raises": [],
           "return_type": "models.Registration"
         },
         {
-          "name": "get_registration_by_user_and_event",
-          "description": "Fetches a registration record for a specific user attending a specific event.",
+          "description": "Registers a user for an event, only if the event has available capacity.",
+          "name": "register_for_event",
           "params": [
             {
-              "name": "user_id",
+              "name": "event_id",
               "type": "int"
             },
             {
-              "name": "event_id",
+              "name": "user_id",
               "type": "int"
             }
           ],
           "return_type": "models.Registration"
         }
-      ]
+      ],
+      "service_name": "RegistrationRepository"
     }
   ]
 }

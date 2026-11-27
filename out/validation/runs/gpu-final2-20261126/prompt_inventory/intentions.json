@@ -1,14 +1,14 @@
 {
   "intentions": [
+    "Build a CLI interface using Click with nested command groups for product and category operations, including filtering and reporting",
     "Define and manage category entities with unique names, descriptions, and optional reorder thresholds",
     "Define and manage product entities with unique SKUs, category references, price in cents, stock quantity, and low-active flag",
+    "Develop an InventoryService to encapsulate business logic including product validation, updates, deletions, stock adjustments, and reporting",
+    "Ensure all monetary values are stored as integers (cents) to avoid floating-point inaccuracies",
+    "Ensure SQLite database uses foreign key constraints to maintain data integrity",
     "Implement a CategoryRepository to handle CRUD operations and retrieve products within a category using SQLite with foreign key support",
     "Implement a ProductRepository to handle CRUD operations, filter products by category, identify low-stock items, and compute total stock value per category",
-    "Develop an InventoryService to encapsulate business logic including product validation, updates, deletions, stock adjustments, and reporting",
-    "Build a CLI interface using Click with nested command groups for product and category operations, including filtering and reporting",
-    "Ensure all monetary values are stored as integers (cents) to avoid floating-point inaccuracies",
-    "Use auto-incremented primary keys with optional ID fields in domain models",
     "Implement custom exception classes for CategoryNotFoundError and ProductNotFoundError to improve error handling",
-    "Ensure SQLite database uses foreign key constraints to maintain data integrity"
+    "Use auto-incremented primary keys with optional ID fields in domain models"
   ]
 }

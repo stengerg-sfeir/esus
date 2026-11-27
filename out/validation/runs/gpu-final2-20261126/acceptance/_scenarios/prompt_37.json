@@ -1,28 +1,6 @@
 {
   "scenarios": [
     {
-      "name": "cli:Project delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Project",
-            "delete",
-            "--project-id",
-            "1"
-          ],
-          [
-            "Project",
-            "delete",
-            "--project-id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Project add",
       "when": {
         "cli_variants": [
@@ -37,6 +15,28 @@
             "2024-01-01T00:00:00",
             "--updated-at",
             "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Project delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Project",
+            "delete",
+            "--project-id",
+            "1"
+          ],
+          [
+            "Project",
+            "delete",
+            "--project-id",
+            "1"
           ]
         ]
       },
@@ -63,22 +63,6 @@
             "2024-01-01T00:00:00",
             "--updated-at",
             "2024-01-01T00:00:00"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Task update",
-      "when": {
-        "cli_variants": [
-          [
-            "Task",
-            "update",
-            "--task-id",
-            "1"
           ]
         ]
       },
@@ -125,6 +109,22 @@
             "updated_at": "2024-01-01T00:00:00"
           }
         }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task update",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "update",
+            "--task-id",
+            "1"
+          ]
+        ]
       },
       "expect": {
         "exit": 0

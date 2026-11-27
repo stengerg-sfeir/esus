@@ -25,22 +25,6 @@
       }
     },
     {
-      "name": "cli:Contact update",
-      "when": {
-        "cli_variants": [
-          [
-            "Contact",
-            "update",
-            "--id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Contact delete",
       "when": {
         "cli_variants": [
@@ -63,30 +47,14 @@
       }
     },
     {
-      "name": "cli:Contact import",
+      "name": "cli:Contact update",
       "when": {
         "cli_variants": [
           [
             "Contact",
-            "import",
-            "--file-path",
-            "value1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Contact export",
-      "when": {
-        "cli_variants": [
-          [
-            "Contact",
-            "export",
-            "--file-path",
-            "value1"
+            "update",
+            "--id",
+            "1"
           ]
         ]
       },

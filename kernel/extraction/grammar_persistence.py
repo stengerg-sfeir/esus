@@ -39,7 +39,7 @@ def persistence_ports(vocabulary):
                 json_object(
                     [
                         ("entity", json_literal(entity)),
-                        ("interface_name", "identifier"),
+                        ("interface_name", "repository-name"),
                         ("methods", "method-list"),
                     ]
                 ),
@@ -119,7 +119,7 @@ def repository_methods(vocabulary):
                 json_object(
                     [
                         ("entity", json_literal(entity)),
-                        ("interface_name", "identifier"),
+                        ("interface_name", "repository-name"),
                         ("methods", "method-list"),
                     ]
                 ),

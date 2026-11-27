@@ -1,151 +1,34 @@
 {
   "persistence_ports": {
-    "repositories": [
+    "entity_mappings": [
+      {
+        "entity": "AuditLog",
+        "indexes": [
+          "customer_id",
+          "timestamp"
+        ],
+        "primary_key": "log_id",
+        "table": "audit_logs"
+      },
       {
         "entity": "Customer",
-        "interface_name": "CustomerRepository",
-        "methods": [
-          {
-            "name": "create",
-            "description": "Creates a new Customer.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              },
-              {
-                "name": "phone",
-                "type": "str"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.Customer",
-            "raises": []
-          },
-          {
-            "name": "read_one",
-            "description": "Reads one Customer by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Customer",
-            "raises": []
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every Customer; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              },
-              {
-                "name": "phone",
-                "type": "str"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "list[Customer]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Customer.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              },
-              {
-                "name": "phone",
-                "type": "str"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.Customer",
-            "raises": []
-          },
-          {
-            "name": "delete",
-            "description": "Deletes an existing Customer.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              },
-              {
-                "name": "phone",
-                "type": "str"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "None",
-            "raises": []
-          }
-        ]
-      },
+        "indexes": [
+          "email",
+          "created_at",
+          "updated_at"
+        ],
+        "primary_key": "id",
+        "table": "customers"
+      }
+    ],
+    "repositories": [
       {
         "entity": "AuditLog",
         "interface_name": "AuditLogRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new AuditLog.",
+            "name": "create",
             "params": [
               {
                 "name": "operation",
@@ -160,62 +43,179 @@
                 "type": "datetime.datetime"
               }
             ],
-            "return_type": "models.AuditLog",
-            "raises": []
+            "raises": [],
+            "return_type": "models.AuditLog"
           },
           {
-            "name": "read_one",
+            "description": "Lists every AuditLog; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "operation",
+                "type": "str"
+              },
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "timestamp",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[AuditLog]"
+          },
+          {
             "description": "Reads one AuditLog by its key.",
+            "name": "read_one",
             "params": [
               {
                 "name": "log_id",
                 "type": "int"
               }
             ],
-            "return_type": "models.AuditLog",
-            "raises": []
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every AuditLog; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "operation",
-                "type": "str"
-              },
-              {
-                "name": "customer_id",
-                "type": "int"
-              },
-              {
-                "name": "timestamp",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "list[AuditLog]",
-            "raises": []
+            "raises": [],
+            "return_type": "models.AuditLog"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Customer",
-        "table": "customers",
-        "primary_key": "id",
-        "indexes": [
-          "email",
-          "created_at",
-          "updated_at"
         ]
       },
       {
-        "entity": "AuditLog",
-        "table": "audit_logs",
-        "primary_key": "log_id",
-        "indexes": [
-          "customer_id",
-          "timestamp"
+        "entity": "Customer",
+        "interface_name": "CustomerRepository",
+        "methods": [
+          {
+            "description": "Creates a new Customer.",
+            "name": "create",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Customer"
+          },
+          {
+            "description": "Deletes an existing Customer.",
+            "name": "delete",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "None"
+          },
+          {
+            "description": "Lists every Customer; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Customer]"
+          },
+          {
+            "description": "Reads one Customer by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Customer"
+          },
+          {
+            "description": "Updates an existing Customer.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Customer"
+          }
         ]
       }
     ]

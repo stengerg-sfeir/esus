@@ -1,23 +1,79 @@
 {
   "service_contracts": [
     {
-      "service_name": "CustomerRepository",
       "methods": [
         {
+          "description": "Creates a new Account.",
+          "name": "create",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "balance",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Account"
+        },
+        {
+          "description": "Lists every Account; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "balance",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Account]"
+        },
+        {
+          "description": "Reads one Account by its key.",
           "name": "read_one",
-          "description": "Reads one Customer by its key.",
           "params": [
             {
               "name": "id",
               "type": "int"
             }
           ],
-          "return_type": "models.Customer",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Account"
         },
         {
-          "name": "read_all",
+          "description": "Updates an existing Account.",
+          "name": "update",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "balance",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Account"
+        }
+      ],
+      "service_name": "AccountRepository"
+    },
+    {
+      "methods": [
+        {
           "description": "Lists every Customer; optional fields narrow the result.",
+          "name": "read_all",
           "params": [
             {
               "name": "name",
@@ -28,79 +84,23 @@
               "type": "str"
             }
           ],
-          "return_type": "list[Customer]",
-          "raises": []
-        }
-      ]
-    },
-    {
-      "service_name": "AccountRepository",
-      "methods": [
+          "raises": [],
+          "return_type": "list[Customer]"
+        },
         {
+          "description": "Reads one Customer by its key.",
           "name": "read_one",
-          "description": "Reads one Account by its key.",
           "params": [
             {
               "name": "id",
               "type": "int"
             }
           ],
-          "return_type": "models.Account",
-          "raises": []
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Account; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            },
-            {
-              "name": "balance",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Account]",
-          "raises": []
-        },
-        {
-          "name": "create",
-          "description": "Creates a new Account.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            },
-            {
-              "name": "balance",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Account",
-          "raises": []
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Account.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "customer_id",
-              "type": "int"
-            },
-            {
-              "name": "balance",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Account",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Customer"
         }
-      ]
+      ],
+      "service_name": "CustomerRepository"
     }
   ]
 }

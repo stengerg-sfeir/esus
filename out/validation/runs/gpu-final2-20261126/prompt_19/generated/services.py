@@ -45,14 +45,6 @@ class TaskService:
         self._repos = repos
 
 
-    def import_tasks_from_json(self, file_path: str = None) -> int:
-        """Import tasks from json. [llm-written by generator-import-fallback — review]"""
-        for item in (file_path or []):
-            if not isinstance(item, dict):
-                return False
-            self._repos['TaskRepository'].create(**{name: item.get(name) for name in ['title', 'description', 'due_date', 'status', 'priority']})
-        return True
-
     def export_tasks_to_json(self, file_path: str = None) -> None:
         """Export tasks to json. [mechanical JSON export]"""
         records = self._repos['TaskRepository'].read_all()
@@ -68,3 +60,33 @@ class TaskService:
             })
         with open(file_path, 'w', encoding='utf-8') as handle:
             json.dump(rows, handle, indent=2, default=str)
+
+    def import_tasks_from_json(self, file_path: str = None) -> int:
+        """Import tasks from json. [llm-written by server — review]"""
+        with open(file_path, 'r', encoding='utf-8') as handle:
+            data = json.load(handle)
+        if not isinstance(data, list):
+            raise errors.AppError('Invalid JSON: expected a list of tasks')
+        for task_data in data:
+            if not isinstance(task_data, dict):
+                raise errors.AppError('Invalid task entry: must be an object')
+            title = task_data.get('title')
+            description = task_data.get('description')
+            due_date_str = task_data.get('due_date')
+            status = task_data.get('status')
+            priority = task_data.get('priority')
+            if due_date_str is not None:
+                try:
+                    due_date = _as_date(due_date_str)
+                except ValueError:
+                    raise errors.AppError('Invalid due_date format: must be ISO date string or date object')
+            else:
+                due_date = None
+            valid_status = ['pending', 'in_progress', 'completed']
+            valid_priority = ['low', 'medium', 'high']
+            if status is not None and status not in valid_status:
+                raise errors.AppError(f'Invalid status: {status}. Must be one of {valid_status}')
+            if priority is not None and priority not in valid_priority:
+                raise errors.AppError(f'Invalid priority: {priority}. Must be one of {valid_priority}')
+            new_task = self._repos['TaskRepository'].create(title=title, description=description, due_date=due_date, status=status, priority=priority)
+        return len(data)

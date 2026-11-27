@@ -50,6 +50,123 @@ def _model_list(records, model_cls):
 
 
 
+class BudgetRepository:
+    ENTITY = "Budget"
+    PK = "id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def check_budget_exceeded(self, category_id: int = None, month: str = None) -> bool:
+        """Determines whether a category's budget has been exceeded in a given month [BUDGET_OVERFLOW_GUARD via answered slots: limit_field=amount_limit_cents, target_field=amount_cents, date_field=expense_date, spend_entity=Expense]"""
+        if not (month):
+            raise ValueError("budget check needs a month scope: an empty month matches every record")
+        budgets = self._store.select(self.ENTITY, [])
+        match = [record for record in budgets
+                    if record.get('category_id') == category_id
+                    if record.get('month') == month
+        ]
+        if not match:
+            return False  # no budget record: no limit to exceed
+        limit = match[0].get('amount_limit_cents')
+        spent = 0
+        for record in self._store.select('Expense', []):
+            if record.get('category_id') != category_id:
+                continue
+            if not str(record.get('expense_date') or '').startswith(month):
+                continue
+            spent += record.get('amount_cents') or 0
+        return spent > limit if limit is not None else False
+
+    def create(self, category_id: int = None, month: str = None, amount_limit_cents: int = None) -> models.Budget:
+        """Creates a new Budget. [crud:create: STANDARD_CRUD]"""
+        values = {}
+        if category_id is not None:
+            values['category_id'] = category_id
+        if month is not None:
+            values['month'] = month
+        if amount_limit_cents is not None:
+            values['amount_limit_cents'] = amount_limit_cents
+        unknown = [k for k in values if k not in ['id', 'category_id', 'month', 'amount_limit_cents']]
+        if unknown:
+            raise ValueError(f"cannot create Budget from {unknown}")
+        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("category_id", "Category", "id", errors.CategoryNotFoundError)])
+        return models.Budget(**record)
+
+    def delete(self, id: int = None, category_id: int = None, month: str = None, amount_limit_cents: int = None) -> None:
+        """Deletes an existing Budget. [crud:delete: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        if category_id is not None:
+            criteria.append(('category_id', 'eq', category_id))
+        if month is not None:
+            criteria.append(('month', 'eq', month))
+        if amount_limit_cents is not None:
+            criteria.append(('amount_limit_cents', 'eq', amount_limit_cents))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            raise LookupError(f"Budget delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
+
+    def get_budgets_by_month(self, month: str = None, category_id: int = None) -> List[models.Budget]:
+        """Fetches budgets for a specific month, optionally filtered by category [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
+        criteria = []
+        if month is not None:
+            criteria.append(('month', 'eq', month))
+        if category_id is not None:
+            criteria.append(('category_id', 'eq', category_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Budget(**r) for r in found]
+
+    def read_all(self, category_id: int = None, month: str = None, amount_limit_cents: int = None) -> list[models.Budget]:
+        """Lists every Budget; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if category_id is not None:
+            criteria.append(('category_id', 'eq', category_id))
+        if month is not None:
+            criteria.append(('month', 'eq', month))
+        if amount_limit_cents is not None:
+            criteria.append(('amount_limit_cents', 'eq', amount_limit_cents))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Budget(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Budget:
+        """Reads one Budget by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Budget(**record)
+
+    def update(self, id: int = None, category_id: int = None, month: str = None, amount_limit_cents: int = None) -> models.Budget:
+        """Updates an existing Budget. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        if category_id is not None:
+            criteria.append(('category_id', 'eq', category_id))
+        if month is not None:
+            criteria.append(('month', 'eq', month))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Budget update matched {len(found)} records")
+        patch = {}
+        if id is not None and 'id' in ['id', 'category_id', 'month', 'amount_limit_cents']:
+            patch['id'] = id
+        if category_id is not None and 'category_id' in ['id', 'category_id', 'month', 'amount_limit_cents']:
+            patch['category_id'] = category_id
+        if month is not None and 'month' in ['id', 'category_id', 'month', 'amount_limit_cents']:
+            patch['month'] = month
+        if amount_limit_cents is not None and 'amount_limit_cents' in ['id', 'category_id', 'month', 'amount_limit_cents']:
+            patch['amount_limit_cents'] = amount_limit_cents
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.Budget(**record)
+
+
 class CategoryRepository:
     ENTITY = "Category"
     PK = "id"
@@ -58,7 +175,7 @@ class CategoryRepository:
         self._store = store
 
 
-    def create(self, name: str = None, description: str = None, monthly_budget: int = None, icon: str = None) -> Any:
+    def create(self, name: str = None, description: str = None, monthly_budget: int = None, icon: str = None) -> models.Category:
         """Creates a new Category. [crud:create: STANDARD_CRUD]"""
         values = {}
         if name is not None:
@@ -79,10 +196,25 @@ class CategoryRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
         return models.Category(**record)
 
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Category by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, id, error=errors.CategoryNotFoundError)
-        return models.Category(**record)
+    def delete(self, id: int = None, name: str = None, description: str = None, monthly_budget: int = None, icon: str = None) -> None:
+        """Deletes an existing Category. [crud:delete: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if description is not None:
+            criteria.append(('description', 'eq', description))
+        if monthly_budget is not None:
+            criteria.append(('monthly_budget', 'eq', monthly_budget))
+        if icon is not None:
+            criteria.append(('icon', 'eq', icon))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            raise errors.CategoryNotFoundError(f"Category delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
 
     def read_all(self, name: str = None, description: str = None, monthly_budget: int = None, icon: str = None) -> list[models.Category]:
         """Lists every Category; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
@@ -98,7 +230,12 @@ class CategoryRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Category(**r) for r in found]
 
-    def update(self, id: int = None, name: str = None, description: str = None, monthly_budget: int = None, icon: str = None) -> Any:
+    def read_one(self, id: int = None) -> models.Category:
+        """Reads one Category by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, id, error=errors.CategoryNotFoundError)
+        return models.Category(**record)
+
+    def update(self, id: int = None, name: str = None, description: str = None, monthly_budget: int = None, icon: str = None) -> models.Category:
         """Updates an existing Category. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if id is not None:
@@ -124,26 +261,6 @@ class CategoryRepository:
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.CategoryNotFoundError)
         return models.Category(**record)
 
-    def delete(self, id: int = None, name: str = None, description: str = None, monthly_budget: int = None, icon: str = None) -> None:
-        """Deletes an existing Category. [crud:delete: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if description is not None:
-            criteria.append(('description', 'eq', description))
-        if monthly_budget is not None:
-            criteria.append(('monthly_budget', 'eq', monthly_budget))
-        if icon is not None:
-            criteria.append(('icon', 'eq', icon))
-        found = self._store.select(self.ENTITY, criteria)
-        if not found:
-            raise errors.CategoryNotFoundError(f"Category delete matched no records")
-        for record in found:
-            self._store.delete(self.ENTITY, self.PK, record[self.PK])
-        return None
-
 
 class ExpenseRepository:
     ENTITY = "Expense"
@@ -153,7 +270,33 @@ class ExpenseRepository:
         self._store = store
 
 
-    def create(self, amount_cents: int = None, description: str = None, expense_date: Any = None, category_id: int = None, payment_method: str = None, is_recurring: bool = None) -> Any:
+    def check_budget_exceeded(self, category_id: int = None, month: str = None) -> bool:
+        """Checks if a category has exceeded its monthly budget for a given month [llm-written by server — review]"""
+        budget_criteria = []
+        if category_id is not None:
+            budget_criteria.append(('category_id', 'eq', category_id))
+        if month is not None:
+            budget_criteria.append(('month', 'eq', month))
+        budgets = self._store.select("Budget", budget_criteria)
+        if not budgets:
+            return False
+        budget_limit_cents = budgets[0].get('amount_limit_cents')
+        if budget_limit_cents is None:
+            return False
+        total_spent = 0
+        for record in self._store.select("Expense", []):
+            expense_date_str = str(record.get('expense_date') or '')
+            if not expense_date_str:
+                continue
+            date_str = expense_date_str[:10]
+            if not date_str.startswith(month):
+                continue
+            if record.get('category_id') != category_id:
+                continue
+            total_spent += record.get('amount_cents') or 0
+        return total_spent > budget_limit_cents
+
+    def create(self, amount_cents: int = None, description: str = None, expense_date: Any = None, category_id: int = None, payment_method: str = None, is_recurring: bool = None) -> models.Expense:
         """Creates a new Expense. [crud:create: STANDARD_CRUD]"""
         values = {}
         if amount_cents is not None:
@@ -180,55 +323,6 @@ class ExpenseRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("category_id", "Category", "id", errors.CategoryNotFoundError)])
         return models.Expense(**record)
 
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Expense by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, id, error=errors.ExpenseNotFoundError)
-        return models.Expense(**record)
-
-    def read_all(self, amount_cents: int = None, description: str = None, expense_date: Any = None, category_id: int = None, payment_method: str = None, is_recurring: bool = None) -> list[models.Expense]:
-        """Lists every Expense; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if amount_cents is not None:
-            criteria.append(('amount_cents', 'eq', amount_cents))
-        if description is not None:
-            criteria.append(('description', 'eq', description))
-        if expense_date is not None:
-            criteria.append(('expense_date', 'eq', expense_date))
-        if category_id is not None:
-            criteria.append(('category_id', 'eq', category_id))
-        if payment_method is not None:
-            criteria.append(('payment_method', 'eq', payment_method))
-        if is_recurring is not None:
-            criteria.append(('is_recurring', 'eq', is_recurring))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Expense(**r) for r in found]
-
-    def update(self, id: int = None, amount_cents: int = None, description: str = None, expense_date: Any = None, category_id: int = None, payment_method: str = None, is_recurring: bool = None) -> Any:
-        """Updates an existing Expense. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise errors.ExpenseNotFoundError(f"Expense update matched {len(found)} records")
-        patch = {}
-        if id is not None and 'id' in ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']:
-            patch['id'] = id
-        if amount_cents is not None and 'amount_cents' in ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']:
-            patch['amount_cents'] = amount_cents
-        if description is not None and 'description' in ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']:
-            patch['description'] = description
-        if expense_date is not None and 'expense_date' in ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']:
-            patch['expense_date'] = expense_date
-        if category_id is not None and 'category_id' in ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']:
-            patch['category_id'] = category_id
-        if payment_method is not None and 'payment_method' in ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']:
-            patch['payment_method'] = payment_method
-        if is_recurring is not None and 'is_recurring' in ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']:
-            patch['is_recurring'] = is_recurring
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.ExpenseNotFoundError)
-        return models.Expense(**record)
-
     def delete(self, id: int = None, amount_cents: int = None, description: str = None, expense_date: Any = None, category_id: int = None, payment_method: str = None, is_recurring: bool = None) -> None:
         """Deletes an existing Expense. [crud:delete: STANDARD_CRUD]"""
         criteria = []
@@ -252,6 +346,19 @@ class ExpenseRepository:
         for record in found:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
+
+    def get_category_spending_over_period(self, category_id: int = None, start_date: Any = None, end_date: Any = None) -> int:
+        """Returns aggregated spending for a category over a date range [AGGREGATE_BY_FK_AND_DATE via answered slots: fk_field=category_id, date_field=expense_date, target_field=amount_cents, aggregate_func=SUM]"""
+        total = 0
+        for record in self._store.select(self.ENTITY, []):
+            if category_id is not None and record.get('category_id') != category_id:
+                continue
+            if start_date is not None and str(record.get('expense_date') or '') < str(start_date):
+                continue
+            if end_date is not None and str(record.get('expense_date') or '') > str(end_date):
+                continue
+            total += record.get('amount_cents') or 0
+        return total
 
     def get_expenses_by_date_range(self, start_date: Any = None, end_date: Any = None, category_id: int = None, payment_method: str = None) -> List[models.Expense]:
         """Fetches expenses within a specified date range, optionally filtered by category and payment method [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
@@ -287,157 +394,51 @@ class ExpenseRepository:
             result[key] = result.get(key, 0) + (record.get('amount_cents') or 0)
         return result
 
-    def get_category_spending_over_period(self, category_id: int = None, start_date: Any = None, end_date: Any = None) -> int:
-        """Returns aggregated spending for a category over a date range [AGGREGATE_BY_FK_AND_DATE via answered slots: fk_field=category_id, date_field=expense_date, target_field=amount_cents, aggregate_func=SUM]"""
-        total = 0
-        for record in self._store.select(self.ENTITY, []):
-            if category_id is not None and record.get('category_id') != category_id:
-                continue
-            if start_date is not None and str(record.get('expense_date') or '') < str(start_date):
-                continue
-            if end_date is not None and str(record.get('expense_date') or '') > str(end_date):
-                continue
-            total += record.get('amount_cents') or 0
-        return total
-
-    def check_budget_exceeded(self, category_id: int = None, month: str = None) -> bool:
-        """Checks if a category has exceeded its monthly budget for a given month [llm-written by server — review]"""
-        if not month:
-            raise ValueError("budget check needs a month scope: an empty month matches every record")
-        budgets = self._store.select(self.ENTITY, [])
-        budget_record = None
-        for record in budgets:
-            if record.get('category_id') == category_id and record.get('month') == month:
-                budget_record = record
-                break
-        if not budget_record:
-            return False
-        limit = budget_record.get('amount_limit_cents')
-        if limit is None:
-            return False
-        spent = 0
-        for expense in self._store.select('Expense', []):
-            expense_date_str = str(expense.get('expense_date') or '')
-            if expense.get('category_id') != category_id:
-                continue
-            if not expense_date_str.startswith(month):
-                continue
-            spent += expense.get('amount_cents', 0)
-        return spent > limit
-
-
-class BudgetRepository:
-    ENTITY = "Budget"
-    PK = "id"
-
-    def __init__(self, store):
-        self._store = store
-
-
-    def create(self, category_id: int = None, month: str = None, amount_limit_cents: int = None) -> Any:
-        """Creates a new Budget. [crud:create: STANDARD_CRUD]"""
-        values = {}
-        if category_id is not None:
-            values['category_id'] = category_id
-        if month is not None:
-            values['month'] = month
-        if amount_limit_cents is not None:
-            values['amount_limit_cents'] = amount_limit_cents
-        unknown = [k for k in values if k not in ['id', 'category_id', 'month', 'amount_limit_cents']]
-        if unknown:
-            raise ValueError(f"cannot create Budget from {unknown}")
-        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("category_id", "Category", "id", errors.CategoryNotFoundError)])
-        return models.Budget(**record)
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Budget by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Budget(**record)
-
-    def read_all(self, category_id: int = None, month: str = None, amount_limit_cents: int = None) -> list[models.Budget]:
-        """Lists every Budget; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+    def read_all(self, amount_cents: int = None, description: str = None, expense_date: Any = None, category_id: int = None, payment_method: str = None, is_recurring: bool = None) -> list[models.Expense]:
+        """Lists every Expense; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
         criteria = []
+        if amount_cents is not None:
+            criteria.append(('amount_cents', 'eq', amount_cents))
+        if description is not None:
+            criteria.append(('description', 'eq', description))
+        if expense_date is not None:
+            criteria.append(('expense_date', 'eq', expense_date))
         if category_id is not None:
             criteria.append(('category_id', 'eq', category_id))
-        if month is not None:
-            criteria.append(('month', 'eq', month))
-        if amount_limit_cents is not None:
-            criteria.append(('amount_limit_cents', 'eq', amount_limit_cents))
+        if payment_method is not None:
+            criteria.append(('payment_method', 'eq', payment_method))
+        if is_recurring is not None:
+            criteria.append(('is_recurring', 'eq', is_recurring))
         found = self._store.select(self.ENTITY, criteria)
-        return [models.Budget(**r) for r in found]
+        return [models.Expense(**r) for r in found]
 
-    def update(self, id: int = None, category_id: int = None, month: str = None, amount_limit_cents: int = None) -> Any:
-        """Updates an existing Budget. [crud:update: STANDARD_CRUD]"""
+    def read_one(self, id: int = None) -> models.Expense:
+        """Reads one Expense by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, id, error=errors.ExpenseNotFoundError)
+        return models.Expense(**record)
+
+    def update(self, id: int = None, amount_cents: int = None, description: str = None, expense_date: Any = None, category_id: int = None, payment_method: str = None, is_recurring: bool = None) -> models.Expense:
+        """Updates an existing Expense. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if id is not None:
             criteria.append(('id', 'eq', id))
-        if category_id is not None:
-            criteria.append(('category_id', 'eq', category_id))
-        if month is not None:
-            criteria.append(('month', 'eq', month))
         found = self._store.select(self.ENTITY, criteria)
         if len(found) != 1:
-            raise LookupError(f"Budget update matched {len(found)} records")
+            raise errors.ExpenseNotFoundError(f"Expense update matched {len(found)} records")
         patch = {}
-        if id is not None and 'id' in ['id', 'category_id', 'month', 'amount_limit_cents']:
+        if id is not None and 'id' in ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']:
             patch['id'] = id
-        if category_id is not None and 'category_id' in ['id', 'category_id', 'month', 'amount_limit_cents']:
+        if amount_cents is not None and 'amount_cents' in ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']:
+            patch['amount_cents'] = amount_cents
+        if description is not None and 'description' in ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']:
+            patch['description'] = description
+        if expense_date is not None and 'expense_date' in ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']:
+            patch['expense_date'] = expense_date
+        if category_id is not None and 'category_id' in ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']:
             patch['category_id'] = category_id
-        if month is not None and 'month' in ['id', 'category_id', 'month', 'amount_limit_cents']:
-            patch['month'] = month
-        if amount_limit_cents is not None and 'amount_limit_cents' in ['id', 'category_id', 'month', 'amount_limit_cents']:
-            patch['amount_limit_cents'] = amount_limit_cents
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
-        return models.Budget(**record)
-
-    def delete(self, id: int = None, category_id: int = None, month: str = None, amount_limit_cents: int = None) -> None:
-        """Deletes an existing Budget. [crud:delete: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        if category_id is not None:
-            criteria.append(('category_id', 'eq', category_id))
-        if month is not None:
-            criteria.append(('month', 'eq', month))
-        if amount_limit_cents is not None:
-            criteria.append(('amount_limit_cents', 'eq', amount_limit_cents))
-        found = self._store.select(self.ENTITY, criteria)
-        if not found:
-            raise LookupError(f"Budget delete matched no records")
-        for record in found:
-            self._store.delete(self.ENTITY, self.PK, record[self.PK])
-        return None
-
-    def get_budgets_by_month(self, month: str = None, category_id: int = None) -> List[models.Budget]:
-        """Fetches budgets for a specific month, optionally filtered by category [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
-        criteria = []
-        if month is not None:
-            criteria.append(('month', 'eq', month))
-        if category_id is not None:
-            criteria.append(('category_id', 'eq', category_id))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Budget(**r) for r in found]
-
-    def check_budget_exceeded(self, category_id: int = None, month: str = None) -> bool:
-        """Determines whether a category's budget has been exceeded in a given month [BUDGET_OVERFLOW_GUARD via answered slots: limit_field=amount_limit_cents, target_field=amount_cents, date_field=expense_date, spend_entity=Expense]"""
-        if not (month):
-            raise ValueError("budget check needs a month scope: an empty month matches every record")
-        budgets = self._store.select(self.ENTITY, [])
-        match = [record for record in budgets
-                    if record.get('category_id') == category_id
-                    if record.get('month') == month
-        ]
-        if not match:
-            return False  # no budget record: no limit to exceed
-        limit = match[0].get('amount_limit_cents')
-        spent = 0
-        for record in self._store.select('Expense', []):
-            if record.get('category_id') != category_id:
-                continue
-            if not str(record.get('expense_date') or '').startswith(month):
-                continue
-            spent += record.get('amount_cents') or 0
-        return spent > limit if limit is not None else False
+        if payment_method is not None and 'payment_method' in ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']:
+            patch['payment_method'] = payment_method
+        if is_recurring is not None and 'is_recurring' in ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']:
+            patch['is_recurring'] = is_recurring
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.ExpenseNotFoundError)
+        return models.Expense(**record)

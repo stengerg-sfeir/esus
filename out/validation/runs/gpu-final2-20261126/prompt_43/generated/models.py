@@ -12,12 +12,24 @@ from typing import Any, Dict, List, Literal, Optional
 
 
 @dataclass
+class Priority:
+    id: int = None
+    name: str = None
+
+
+@dataclass
 class Project:
     id: int = None
     name: str = None
     description: Optional[str] = None
     created_at: datetime.datetime = None
     updated_at: datetime.datetime = None
+
+
+@dataclass
+class Status:
+    id: int = None
+    name: str = None
 
 
 @dataclass
@@ -31,15 +43,3 @@ class Task:
     due_date: Optional[datetime.date] = None
     created_at: datetime.datetime = None
     updated_at: datetime.datetime = None
-
-
-@dataclass
-class Status:
-    id: int = None
-    name: str = None
-
-
-@dataclass
-class Priority:
-    id: int = None
-    name: str = None

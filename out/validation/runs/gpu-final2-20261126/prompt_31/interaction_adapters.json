@@ -2,52 +2,52 @@
   "interaction_adapters": [
     {
       "action_name": "accountadd",
-      "target_service": "AccountRepository",
-      "target_method": "create",
       "input_fields": [
         {
           "field_name": "customer_id",
-          "target_param": "customer_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Customer",
-          "required": false
+          "required": false,
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "balance",
-          "target_param": "balance",
-          "transform": "DECIMAL_TO_CENTS",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "balance",
+          "transform": "DECIMAL_TO_CENTS"
         }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "AccountRepository"
     },
     {
       "action_name": "accountupdate",
-      "target_service": "AccountRepository",
-      "target_method": "update",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Account",
-          "required": true
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "customer_id",
-          "target_param": "customer_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Customer",
-          "required": false
+          "required": false,
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "balance",
-          "target_param": "balance",
-          "transform": "DECIMAL_TO_CENTS",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "balance",
+          "transform": "DECIMAL_TO_CENTS"
         }
-      ]
+      ],
+      "target_method": "update",
+      "target_service": "AccountRepository"
     }
   ]
 }

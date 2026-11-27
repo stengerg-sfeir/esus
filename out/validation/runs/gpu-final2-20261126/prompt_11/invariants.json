@@ -1,48 +1,48 @@
 {
   "invariants": [
     {
-      "text": "Book.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.author must be a string"
     },
     {
-      "text": "Book.title must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.author must not be null"
     },
     {
-      "text": "Book.title must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Book.author must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.isbn must be a string"
     },
     {
-      "text": "Book.author must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.isbn must be unique"
     },
     {
-      "text": "Book.isbn must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.isbn must not be null"
     },
     {
-      "text": "Book.isbn must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.publication_year must be an integer"
     },
     {
-      "text": "Book.isbn must be unique",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.publication_year must not be null"
     },
     {
-      "text": "Book.publication_year must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.title must be a string"
     },
     {
-      "text": "Book.publication_year must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.title must not be null"
     },
     {
-      "text": "The ISBN of a book must be unique across all books in the system.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The ISBN of a book must be unique across all books in the system."
     }
   ]
 }

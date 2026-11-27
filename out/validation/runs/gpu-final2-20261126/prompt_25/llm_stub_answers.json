@@ -1,32 +1,32 @@
 [
   {
-    "label": "DepartmentRepository.read_department_by_id",
+    "label": "EmployeeRepository.read_employee_by_id",
     "status": "written",
     "note": "",
-    "answer": "found = self._store.get(self.ENTITY, self.PK, department_id)\n        if found is None:\n            return None\n        return found",
+    "answer": "record = self._store.get(self.ENTITY, self.PK, employee_id)\n        if record is None:\n            return None\n        return record",
     "finish_reason": "stop",
     "tokens": 32,
     "budget": 3584,
     "truncated": false,
-    "seconds": 1.1194736957550049,
-    "decode_seconds": 0.216803,
-    "prompt_tokens": 4106,
+    "seconds": 1.0328783988952637,
+    "decode_seconds": 0.217095,
+    "prompt_tokens": 4116,
     "cached_tokens": 332,
     "context": "exact"
   },
   {
-    "label": "EmployeeRepository.read_employee_by_id",
+    "label": "DepartmentRepository.read_department_by_id",
     "status": "written",
     "note": "",
-    "answer": "found = self._store.get(self.ENTITY, self.PK, employee_id)\n        if found is None:\n            return None\n        return found",
+    "answer": "record = self._store.get(self.ENTITY, self.PK, department_id)\n        if record is None:\n            return None\n        return record",
     "finish_reason": "stop",
     "tokens": 32,
     "budget": 3584,
     "truncated": false,
-    "seconds": 0.28612589836120605,
-    "decode_seconds": 0.215141,
-    "prompt_tokens": 4100,
-    "cached_tokens": 3640,
+    "seconds": 0.393679141998291,
+    "decode_seconds": 0.216066,
+    "prompt_tokens": 4110,
+    "cached_tokens": 2818,
     "context": "exact"
   }
 ]

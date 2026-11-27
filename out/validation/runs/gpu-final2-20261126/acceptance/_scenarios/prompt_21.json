@@ -19,6 +19,20 @@
       }
     },
     {
+      "name": "cli:Customer delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "delete"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
       "name": "cli:Customer update",
       "when": {
         "cli_variants": [
@@ -37,20 +51,6 @@
             "email": "cli1@example.test"
           }
         }
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Customer delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Customer",
-            "delete"
-          ]
-        ]
       },
       "expect": {
         "exit": 0
@@ -77,22 +77,6 @@
       }
     },
     {
-      "name": "cli:Order update",
-      "when": {
-        "cli_variants": [
-          [
-            "Order",
-            "update",
-            "--order-id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Order delete",
       "when": {
         "cli_variants": [
@@ -105,6 +89,22 @@
           [
             "Order",
             "delete",
+            "--order-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order update",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "update",
             "--order-id",
             "1"
           ]

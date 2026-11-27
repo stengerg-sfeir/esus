@@ -1,144 +1,144 @@
 {
   "interaction_adapters": [
     {
-      "action_name": "bookupdate",
-      "target_service": "BookRepository",
-      "target_method": "update",
+      "action_name": "bookadd",
       "input_fields": [
         {
-          "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Book",
-          "required": true
-        },
-        {
           "field_name": "title",
-          "target_param": "title",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "title",
+          "transform": "DIRECT"
         },
         {
           "field_name": "author",
-          "target_param": "author",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "author",
+          "transform": "DIRECT"
         },
         {
           "field_name": "isbn",
-          "target_param": "isbn",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "isbn",
+          "transform": "DIRECT"
         },
         {
           "field_name": "created_at",
-          "target_param": "created_at",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "created_at",
+          "transform": "ISO_DATE"
         },
         {
           "field_name": "updated_at",
-          "target_param": "updated_at",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "updated_at",
+          "transform": "ISO_DATE"
         }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "BookRepository"
     },
     {
       "action_name": "bookdelete",
-      "target_service": "BookRepository",
-      "target_method": "delete",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Book",
-          "required": true
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "title",
-          "target_param": "title",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "title",
+          "transform": "DIRECT"
         },
         {
           "field_name": "author",
-          "target_param": "author",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "author",
+          "transform": "DIRECT"
         },
         {
           "field_name": "isbn",
-          "target_param": "isbn",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "isbn",
+          "transform": "DIRECT"
         },
         {
           "field_name": "created_at",
-          "target_param": "created_at",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "created_at",
+          "transform": "ISO_DATE"
         },
         {
           "field_name": "updated_at",
-          "target_param": "updated_at",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "updated_at",
+          "transform": "ISO_DATE"
         }
-      ]
+      ],
+      "target_method": "delete",
+      "target_service": "BookRepository"
     },
     {
-      "action_name": "bookadd",
-      "target_service": "BookRepository",
-      "target_method": "create",
+      "action_name": "bookupdate",
       "input_fields": [
         {
+          "field_name": "id",
+          "lookup_entity": "Book",
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
+        },
+        {
           "field_name": "title",
-          "target_param": "title",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "title",
+          "transform": "DIRECT"
         },
         {
           "field_name": "author",
-          "target_param": "author",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "author",
+          "transform": "DIRECT"
         },
         {
           "field_name": "isbn",
-          "target_param": "isbn",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "isbn",
+          "transform": "DIRECT"
         },
         {
           "field_name": "created_at",
-          "target_param": "created_at",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "created_at",
+          "transform": "ISO_DATE"
         },
         {
           "field_name": "updated_at",
-          "target_param": "updated_at",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "updated_at",
+          "transform": "ISO_DATE"
         }
-      ]
+      ],
+      "target_method": "update",
+      "target_service": "BookRepository"
     }
   ]
 }

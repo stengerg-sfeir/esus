@@ -1,19 +1,19 @@
 {
   "errors": [
     {
-      "name": "CustomerNotFoundError",
       "base": "LookupError",
-      "description": "Raised when a customer is referenced in a reservation but no customer with the given customer_id exists."
+      "description": "Raised when a customer is referenced in a reservation but no customer with the given customer_id exists.",
+      "name": "CustomerNotFoundError"
     },
     {
-      "name": "RoomNotFoundError",
-      "base": "LookupError",
-      "description": "Raised when a room is referenced in a reservation but no room with the given room_id exists."
-    },
-    {
-      "name": "ReservationOverlapError",
       "base": "ValueError",
-      "description": "Raised when a new reservation overlaps with an existing reservation in the same room."
+      "description": "Raised when a new reservation overlaps with an existing reservation in the same room.",
+      "name": "ReservationOverlapError"
+    },
+    {
+      "base": "LookupError",
+      "description": "Raised when a room is referenced in a reservation but no room with the given room_id exists.",
+      "name": "RoomNotFoundError"
     }
   ]
 }

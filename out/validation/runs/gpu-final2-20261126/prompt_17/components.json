@@ -1,53 +1,17 @@
 {
   "components": {
+    "crud_services": [
+      {
+        "entity": "Product",
+        "operations": [
+          "read_all",
+          "read_one"
+        ]
+      }
+    ],
+    "external_access": [],
     "facade": {
-      "type": "cli",
-      "technology": "argparse",
       "invocation": {
-        "positional": [
-          {
-            "name": "query",
-            "type": "str",
-            "required": false
-          }
-        ],
-        "options": [
-          {
-            "name": "--category",
-            "short": "-c",
-            "type": "str",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--max-price",
-            "short": "-m",
-            "type": "float",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--min-quantity",
-            "short": "-q",
-            "type": "int",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--help",
-            "short": "-h",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--version",
-            "short": "-v",
-            "type": "bool",
-            "required": false,
-            "default": null
-          }
-        ],
         "commands": [
           {
             "name": "Product",
@@ -57,32 +21,68 @@
                 "name": "search",
                 "options": [
                   {
+                    "default": null,
                     "name": "--name",
-                    "short": null,
-                    "type": "str",
                     "required": true,
-                    "default": null
+                    "short": null,
+                    "type": "str"
                   }
                 ]
               }
             ]
           }
+        ],
+        "options": [
+          {
+            "default": null,
+            "name": "--category",
+            "required": false,
+            "short": "-c",
+            "type": "str"
+          },
+          {
+            "default": null,
+            "name": "--max-price",
+            "required": false,
+            "short": "-m",
+            "type": "float"
+          },
+          {
+            "default": null,
+            "name": "--min-quantity",
+            "required": false,
+            "short": "-q",
+            "type": "int"
+          },
+          {
+            "default": null,
+            "name": "--help",
+            "required": false,
+            "short": "-h",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--version",
+            "required": false,
+            "short": "-v",
+            "type": "bool"
+          }
+        ],
+        "positional": [
+          {
+            "name": "query",
+            "required": false,
+            "type": "str"
+          }
         ]
-      }
+      },
+      "technology": "argparse",
+      "type": "cli"
     },
     "persistence": {
       "required": true,
       "technology": "sqlite"
-    },
-    "external_access": [],
-    "crud_services": [
-      {
-        "entity": "Product",
-        "operations": [
-          "read_all",
-          "read_one"
-        ]
-      }
-    ]
+    }
   }
 }

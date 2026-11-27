@@ -58,7 +58,7 @@ class DocumentRepository:
         self._store = store
 
 
-    def create(self, status: str = None) -> Any:
+    def create(self, status: str = None) -> models.Document:
         """Creates a new Document. [crud:create: STANDARD_CRUD]"""
         values = {}
         if status is not None:
@@ -71,7 +71,15 @@ class DocumentRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
         return models.Document(**record)
 
-    def read_one(self, id: int = None) -> Any:
+    def read_all(self, status: str = None) -> list[models.Document]:
+        """Lists every Document; optional fields narrow the result. [mechanical contained-name filter]"""
+        criteria = []
+        if status is not None:
+            criteria.append(('status', 'eq', status))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Document(**row) for row in found], models.Document)
+
+    def read_one(self, id: int = None) -> models.Document:
         """Reads one Document by its key. [crud:read_one: READ_ONE_BY_ID]"""
         found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
         if not found:
@@ -79,15 +87,7 @@ class DocumentRepository:
         record = found[0]
         return models.Document(**record)
 
-    def read_all(self, status: str = None) -> list[models.Document]:
-        """Lists every Document; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if status is not None:
-            criteria.append(('status', 'eq', status))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Document(**r) for r in found]
-
-    def update(self, id: int = None, status: str = None) -> Any:
+    def update(self, id: int = None, status: str = None) -> models.Document:
         """Updates an existing Document. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if id is not None:

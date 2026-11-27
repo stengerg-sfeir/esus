@@ -1,136 +1,136 @@
 {
   "invariants": [
     {
-      "text": "Customer.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An invoice line must reference a product that exists in the Product entity."
     },
     {
-      "text": "Customer.name must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An invoice line must reference a valid invoice to which it belongs."
     },
     {
-      "text": "Customer.name must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An invoice must have at least one invoice line to be valid."
     },
     {
-      "text": "Customer.email must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.email must be a string"
     },
     {
-      "text": "Customer.email must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.email must not be null"
     },
     {
-      "text": "Product.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Product.name must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.name must be a string"
     },
     {
-      "text": "Product.name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.name must not be null"
     },
     {
-      "text": "Product.price must be a number",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Each invoice line's product_id must correspond to a product with a defined price."
     },
     {
-      "text": "Product.price must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.customer_id must be an integer"
     },
     {
-      "text": "Invoice.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.customer_id must not be null"
     },
     {
-      "text": "Invoice.customer_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.customer_id must reference an existing Customer.id"
     },
     {
-      "text": "Invoice.customer_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Invoice.customer_id must reference an existing Customer.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.issue_date must be a date"
     },
     {
-      "text": "Invoice.issue_date must be a date",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.issue_date must not be null"
     },
     {
-      "text": "Invoice.issue_date must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.total_amount must be a number"
     },
     {
-      "text": "Invoice.total_amount must be a number",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.total_amount must not be null"
     },
     {
-      "text": "Invoice.total_amount must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "InvoiceLine.invoice_id must be an integer"
     },
     {
-      "text": "InvoiceLine.line_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "InvoiceLine.invoice_id must not be null"
     },
     {
-      "text": "InvoiceLine.invoice_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "InvoiceLine.invoice_id must reference an existing Invoice.id"
     },
     {
-      "text": "InvoiceLine.invoice_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "InvoiceLine.line_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "InvoiceLine.invoice_id must reference an existing Invoice.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "InvoiceLine.product_id must be an integer"
     },
     {
-      "text": "InvoiceLine.product_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "InvoiceLine.product_id must not be null"
     },
     {
-      "text": "InvoiceLine.product_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "InvoiceLine.product_id must reference an existing Product.id"
     },
     {
-      "text": "InvoiceLine.product_id must reference an existing Product.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "InvoiceLine.quantity must be an integer"
     },
     {
-      "text": "InvoiceLine.quantity must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "InvoiceLine.quantity must not be null"
     },
     {
-      "text": "InvoiceLine.quantity must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "The total_amount of an invoice must equal the sum of (product.price * quantity) for all invoice lines in that invoice.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Product.name must be a string"
     },
     {
-      "text": "An invoice line must reference a product that exists in the Product entity.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Product.name must not be null"
     },
     {
-      "text": "An invoice line must reference a valid invoice to which it belongs.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Product.price must be a number"
     },
     {
-      "text": "Each invoice line's product_id must correspond to a product with a defined price.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Product.price must not be null"
     },
     {
-      "text": "The quantity in an invoice line must be a positive integer.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The quantity in an invoice line must be a positive integer."
     },
     {
-      "text": "An invoice must have at least one invoice line to be valid.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The total_amount of an invoice must equal the sum of (product.price * quantity) for all invoice lines in that invoice."
     }
   ]
 }

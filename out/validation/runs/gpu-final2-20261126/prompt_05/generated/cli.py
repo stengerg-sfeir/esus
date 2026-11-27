@@ -190,15 +190,15 @@ def build_parser():
     p_Contact_add.add_argument('--email', type=str, required=True, dest='email')
     p_Contact_add.add_argument('--phone', type=str, required=True, dest='phone')
     p_Contact_add.set_defaults(_binding=('Contact', 'add'))
+    p_Contact_delete = sub_Contact.add_parser('delete')
+    p_Contact_delete.add_argument('--id', type=int, required=True, dest='id')
+    p_Contact_delete.set_defaults(_binding=('Contact', 'delete'))
     p_Contact_update = sub_Contact.add_parser('update')
     p_Contact_update.add_argument('--id', type=int, required=True, dest='id')
     p_Contact_update.add_argument('--name', type=str, required=False, dest='name')
     p_Contact_update.add_argument('--email', type=str, required=False, dest='email')
     p_Contact_update.add_argument('--phone', type=str, required=False, dest='phone')
     p_Contact_update.set_defaults(_binding=('Contact', 'update'))
-    p_Contact_delete = sub_Contact.add_parser('delete')
-    p_Contact_delete.add_argument('--id', type=int, required=True, dest='id')
-    p_Contact_delete.set_defaults(_binding=('Contact', 'delete'))
     return parser
 
 

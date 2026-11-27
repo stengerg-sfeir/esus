@@ -12,15 +12,15 @@ from typing import Any, Dict, List, Literal, Optional
 
 
 @dataclass
+class Department:
+    department_id: int = None
+    department_name: str = None
+
+
+@dataclass
 class Employee:
     employee_id: int = None
     first_name: str = None
     last_name: str = None
     email: str = None
     department_id: int = None
-
-
-@dataclass
-class Department:
-    department_id: int = None
-    department_name: str = None

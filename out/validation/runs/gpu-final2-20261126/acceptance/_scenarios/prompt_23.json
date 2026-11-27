@@ -1,6 +1,75 @@
 {
   "scenarios": [
     {
+      "name": "cli:Author add",
+      "when": {
+        "cli_variants": [
+          [
+            "Author",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ],
+        "seed_exclude": [
+          "PostTag"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Author delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Author",
+            "delete",
+            "--author-id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "seed1@example.test"
+          ],
+          [
+            "Author",
+            "delete",
+            "--author-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Author": {
+            "name": "value1",
+            "email": "seed1@example.test"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Author update",
+      "when": {
+        "cli_variants": [
+          [
+            "Author",
+            "update",
+            "--author-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
       "name": "cli:Post add",
       "when": {
         "cli_variants": [
@@ -17,22 +86,6 @@
         ],
         "seed_exclude": [
           "PostTag"
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Post update",
-      "when": {
-        "cli_variants": [
-          [
-            "Post",
-            "update",
-            "--post-id",
-            "1"
-          ]
         ]
       },
       "expect": {
@@ -75,84 +128,36 @@
       }
     },
     {
-      "name": "cli:Author add",
+      "name": "cli:Post update",
       "when": {
         "cli_variants": [
           [
-            "Author",
+            "Post",
+            "update",
+            "--post-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:PostTag add",
+      "when": {
+        "cli_variants": [
+          [
+            "PostTag",
             "add",
-            "--name",
-            "value1",
-            "--email",
-            "cli1@example.test"
+            "--post-id",
+            "1",
+            "--tag-id",
+            "1"
           ]
         ],
         "seed_exclude": [
           "PostTag"
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Author update",
-      "when": {
-        "cli_variants": [
-          [
-            "Author",
-            "update",
-            "--author-id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Author delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Author",
-            "delete",
-            "--author-id",
-            "1",
-            "--name",
-            "value1",
-            "--email",
-            "seed1@example.test"
-          ],
-          [
-            "Author",
-            "delete",
-            "--author-id",
-            "1"
-          ]
-        ],
-        "seed_overrides": {
-          "Author": {
-            "name": "value1",
-            "email": "seed1@example.test"
-          }
-        }
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Tag update",
-      "when": {
-        "cli_variants": [
-          [
-            "Tag",
-            "update",
-            "--tag-id",
-            "1"
-          ]
         ]
       },
       "expect": {
@@ -189,20 +194,15 @@
       }
     },
     {
-      "name": "cli:PostTag add",
+      "name": "cli:Tag update",
       "when": {
         "cli_variants": [
           [
-            "PostTag",
-            "add",
-            "--post-id",
-            "1",
+            "Tag",
+            "update",
             "--tag-id",
             "1"
           ]
-        ],
-        "seed_exclude": [
-          "PostTag"
         ]
       },
       "expect": {

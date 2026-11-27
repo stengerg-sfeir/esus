@@ -58,7 +58,7 @@ class ProductRepository:
         self._store = store
 
 
-    def create(self, name: str = None, category: str = None, stock_quantity: int = None) -> Any:
+    def create(self, name: str = None, category: str = None, stock_quantity: int = None) -> models.Product:
         """Creates a new Product. [crud:create: STANDARD_CRUD]"""
         values = {}
         if name is not None:
@@ -76,13 +76,23 @@ class ProductRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
         return models.Product(**record)
 
-    def read_one(self, product_id: int = None) -> Any:
-        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', product_id)])
+    def delete(self, product_id: int = None, name: str = None, category: str = None, stock_quantity: int = None) -> None:
+        """Deletes an existing Product. [crud:delete: STANDARD_CRUD]"""
+        criteria = []
+        if product_id is not None:
+            criteria.append(('product_id', 'eq', product_id))
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if category is not None:
+            criteria.append(('category', 'eq', category))
+        if stock_quantity is not None:
+            criteria.append(('stock_quantity', 'eq', stock_quantity))
+        found = self._store.select(self.ENTITY, criteria)
         if not found:
-            return None
-        record = found[0]
-        return models.Product(**record)
+            raise LookupError(f"Product delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
 
     def read_all(self, name: str = None, category: str = None, stock_quantity: int = None) -> list[models.Product]:
         """Lists every Product; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
@@ -96,7 +106,15 @@ class ProductRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Product(**r) for r in found]
 
-    def update(self, product_id: int = None, name: str = None, category: str = None, stock_quantity: int = None) -> Any:
+    def read_one(self, product_id: int = None) -> models.Product:
+        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', product_id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Product(**record)
+
+    def update(self, product_id: int = None, name: str = None, category: str = None, stock_quantity: int = None) -> models.Product:
         """Updates an existing Product. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if product_id is not None:
@@ -118,21 +136,3 @@ class ProductRepository:
             raise ValueError(f"Product.stock_quantity must be >= 0, got {value!r}")
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Product(**record)
-
-    def delete(self, product_id: int = None, name: str = None, category: str = None, stock_quantity: int = None) -> None:
-        """Deletes an existing Product. [crud:delete: STANDARD_CRUD]"""
-        criteria = []
-        if product_id is not None:
-            criteria.append(('product_id', 'eq', product_id))
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if category is not None:
-            criteria.append(('category', 'eq', category))
-        if stock_quantity is not None:
-            criteria.append(('stock_quantity', 'eq', stock_quantity))
-        found = self._store.select(self.ENTITY, criteria)
-        if not found:
-            raise LookupError(f"Product delete matched no records")
-        for record in found:
-            self._store.delete(self.ENTITY, self.PK, record[self.PK])
-        return None

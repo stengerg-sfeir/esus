@@ -19,13 +19,6 @@ class Customer:
 
 
 @dataclass
-class Product:
-    id: int = None
-    name: str = None
-    price: Decimal = None
-
-
-@dataclass
 class Invoice:
     id: int = None
     customer_id: int = None
@@ -39,3 +32,10 @@ class InvoiceLine:
     invoice_id: int = None
     product_id: int = None
     quantity: int = None
+
+
+@dataclass
+class Product:
+    id: int = None
+    name: str = None
+    price: Decimal = None

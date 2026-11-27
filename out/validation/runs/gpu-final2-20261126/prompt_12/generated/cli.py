@@ -190,15 +190,15 @@ def build_parser():
     p_Customer_add.add_argument('--email', type=str, required=True, dest='email')
     p_Customer_add.add_argument('--phone-number', type=str, required=False, dest='phone_number')
     p_Customer_add.set_defaults(_binding=('Customer', 'add'))
+    p_Customer_delete = sub_Customer.add_parser('delete')
+    p_Customer_delete.add_argument('--id', type=int, required=True, dest='id')
+    p_Customer_delete.set_defaults(_binding=('Customer', 'delete'))
     p_Customer_update = sub_Customer.add_parser('update')
     p_Customer_update.add_argument('--id', type=int, required=True, dest='id')
     p_Customer_update.add_argument('--name', type=str, required=False, dest='name')
     p_Customer_update.add_argument('--email', type=str, required=False, dest='email')
     p_Customer_update.add_argument('--phone-number', type=str, required=False, dest='phone_number')
     p_Customer_update.set_defaults(_binding=('Customer', 'update'))
-    p_Customer_delete = sub_Customer.add_parser('delete')
-    p_Customer_delete.add_argument('--id', type=int, required=True, dest='id')
-    p_Customer_delete.set_defaults(_binding=('Customer', 'delete'))
     return parser
 
 

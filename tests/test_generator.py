@@ -671,6 +671,9 @@ class PlanTests(unittest.TestCase):
         self.assertEqual(codegen.map_type("dict"), "Dict[str, Any]")
         self.assertEqual(codegen.map_type("datetime | None"),
                          "datetime.datetime | None")
+        self.assertEqual(codegen.map_type("models.Expense"), "Expense")
+        self.assertEqual(codegen.map_type("list[models.Expense]"),
+                         "list[Expense]")
         self.assertEqual(codegen.map_type("Optional[datetime]"),
                          "Optional[datetime.datetime]")
 
@@ -4801,6 +4804,47 @@ class CapabilityExportTests(unittest.TestCase):
         self.assertIsNotNone(lines)
         self.assertIn("json.dump", "\n".join(lines))
         self.assertIn("contact.json", "\n".join(lines))
+
+
+class LowStockBodyTests(unittest.TestCase):
+    def ctx(self):
+        return {
+            "models": [
+                {"name": "Category", "fields": [
+                    {"name": "id", "type": "int", "primary_key": True},
+                    {"name": "reorder_threshold", "type": "int"}]},
+                {"name": "Product", "fields": [
+                    {"name": "id", "type": "int", "primary_key": True},
+                    {"name": "category_id", "type": "int",
+                     "foreign_key": {"target_entity": "Category"}},
+                    {"name": "stock_qty", "type": "int"}]},
+            ],
+            "entity_names": ["Category", "Product"],
+            "mappings": {},
+            "repositories": [
+                {"entity": "Category",
+                 "interface_name": "CategoryRepository",
+                 "methods": [{"name": "read_all", "params": [],
+                              "return_type": "list[Category]"}]},
+                {"entity": "Product",
+                 "interface_name": "ProductRepository",
+                 "methods": [{"name": "read_all", "params": [],
+                              "return_type": "list[Product]"}]},
+            ],
+        }
+
+    def test_a_dict_typed_report_still_gets_the_stock_scan(self):
+        lines = generator._service_low_stock_body(
+            self.ctx(),
+            {"name": "low_stock_report",
+             "description": "Returns products below their category's "
+                            "reorder threshold.",
+             "params": [], "return_type": "list[dict]"},
+            [], "list[dict]", "InventoryService")
+        self.assertIsNotNone(lines)
+        text = "\n".join(lines)
+        self.assertIn("threshold is not None", text)
+        self.assertIn("stock_qty < threshold", text)
 
 
 if __name__ == "__main__":

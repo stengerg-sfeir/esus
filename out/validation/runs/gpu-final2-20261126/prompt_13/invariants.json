@@ -1,80 +1,80 @@
 {
   "invariants": [
     {
-      "text": "Product.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A category filter must return all products that belong to the specified category."
     },
     {
-      "text": "Product.name must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A product search must return only products that match the specified name or category filter."
     },
     {
-      "text": "Product.name must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Low-stock reporting must identify products with a stock quantity less than or equal to 10."
     },
     {
-      "text": "Product.category must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.category must be a string"
     },
     {
-      "text": "Product.category must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.category must not be null"
     },
     {
-      "text": "Product.price must be a number",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Product.price must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.name must be a string"
     },
     {
-      "text": "Product.stock_quantity must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.name must not be null"
     },
     {
-      "text": "Product.stock_quantity must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.price must be a number"
     },
     {
-      "text": "The SKU of a product must be unique across all products in the inventory.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Product.price must not be null"
     },
     {
-      "text": "The stock quantity of a product must be non-negative.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Product.stock_quantity must be an integer"
     },
     {
-      "text": "The price of a product must be non-negative.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Product.stock_quantity must not be null"
     },
     {
-      "text": "When a product is deleted, its associated stock quantity is removed from the inventory.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The price of a product must be non-negative."
     },
     {
-      "text": "When a product is updated, the new stock quantity must not exceed the maximum allowable stock quantity defined by inventory policy.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The SKU of a product must be unique across all products in the inventory."
     },
     {
-      "text": "A product search must return only products that match the specified name or category filter.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The stock quantity of a product must be non-negative."
     },
     {
-      "text": "A category filter must return all products that belong to the specified category.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The total number of products in the inventory must remain consistent across all CRUD operations."
     },
     {
-      "text": "Low-stock reporting must identify products with a stock quantity less than or equal to 10.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When a product is added, its SKU must not already exist in the inventory."
     },
     {
-      "text": "The total number of products in the inventory must remain consistent across all CRUD operations.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When a product is deleted, its associated stock quantity is removed from the inventory."
     },
     {
-      "text": "When a product is added, its SKU must not already exist in the inventory.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When a product is updated, the new stock quantity must not exceed the maximum allowable stock quantity defined by inventory policy."
     }
   ]
 }

@@ -1,144 +1,144 @@
 {
   "invariants": [
     {
-      "text": "Client.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A client must have a valid email address to be created in the system."
     },
     {
-      "text": "Client.name must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A payment cannot be made for an invoice that has already been fully paid."
     },
     {
-      "text": "Client.name must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A payment must be associated with an invoice that exists in the system."
     },
     {
-      "text": "Client.email must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A payment must have a payment date that is on or after the invoice's due date."
     },
     {
-      "text": "Client.email must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An invoice can only be linked to one client."
     },
     {
-      "text": "Client.phone must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An invoice is considered outstanding if its payment has not been recorded or if the payment amount is less than the invoice amount."
     },
     {
-      "text": "Client.account_status must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Client.account_status must be a string"
     },
     {
-      "text": "Client.account_status must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Client.account_status must not be null"
     },
     {
-      "text": "Invoice.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Client.email must be a string"
     },
     {
-      "text": "Invoice.client_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Client.email must not be null"
     },
     {
-      "text": "Invoice.client_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Client.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Invoice.client_id must reference an existing Client.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Client.name must be a string"
     },
     {
-      "text": "Invoice.due_date must be a date",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Client.name must not be null"
     },
     {
-      "text": "Invoice.due_date must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Client.phone must be a string"
     },
     {
-      "text": "Invoice.amount must be a number",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.amount must be a number"
     },
     {
-      "text": "Invoice.amount must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.amount must not be null"
     },
     {
-      "text": "Invoice.description must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.client_id must be an integer"
     },
     {
-      "text": "Payment.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.client_id must not be null"
     },
     {
-      "text": "Payment.invoice_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.client_id must reference an existing Client.id"
     },
     {
-      "text": "Payment.invoice_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.description must be a string"
     },
     {
-      "text": "Payment.invoice_id must reference an existing Invoice.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.due_date must be a date"
     },
     {
-      "text": "Payment.payment_date must be a date",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.due_date must not be null"
     },
     {
-      "text": "Payment.payment_date must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Invoice.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Payment.amount must be a number",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Payment.amount must be a number"
     },
     {
-      "text": "Payment.amount must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Payment.amount must not be null"
     },
     {
-      "text": "The amount of an invoice must be greater than zero.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Payment.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "The due date of an invoice must be after or on the current date.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Payment.invoice_id must be an integer"
     },
     {
-      "text": "A payment must be associated with an invoice that exists in the system.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Payment.invoice_id must not be null"
     },
     {
-      "text": "The amount of a payment must be greater than zero.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Payment.invoice_id must reference an existing Invoice.id"
     },
     {
-      "text": "An invoice is considered outstanding if its payment has not been recorded or if the payment amount is less than the invoice amount.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Payment.payment_date must be a date"
     },
     {
-      "text": "A client must have a valid email address to be created in the system.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Payment.payment_date must not be null"
     },
     {
-      "text": "A payment cannot be made for an invoice that has already been fully paid.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The amount of a payment must be greater than zero."
     },
     {
-      "text": "The sum of all payments made against an invoice must not exceed the invoice amount.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The amount of an invoice must be greater than zero."
     },
     {
-      "text": "An invoice can only be linked to one client.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The due date of an invoice must be after or on the current date."
     },
     {
-      "text": "A payment must have a payment date that is on or after the invoice's due date.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The sum of all payments made against an invoice must not exceed the invoice amount."
     }
   ]
 }

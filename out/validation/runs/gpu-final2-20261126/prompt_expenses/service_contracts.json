@@ -1,271 +1,145 @@
 {
   "service_contracts": [
     {
-      "service_name": "ExpenseService",
       "methods": [
         {
-          "name": "list_expenses",
-          "description": "Lists expenses filtered by optional category, date range, and payment method. All parameters are optional; omitting them returns all expenses.",
+          "description": "Determines whether a category's budget has been exceeded in a given month",
+          "name": "check_budget_exceeded",
           "params": [
             {
               "name": "category_id",
-              "type": "Optional[int]"
-            },
-            {
-              "name": "start_date",
-              "type": "Optional[date]"
-            },
-            {
-              "name": "end_date",
-              "type": "Optional[date]"
-            },
-            {
-              "name": "payment_method",
-              "type": "Optional[str]"
-            }
-          ],
-          "return_type": "List[Expense]",
-          "raises": []
-        },
-        {
-          "name": "get_expense_by_id",
-          "description": "Retrieves a single expense by its ID.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Expense",
-          "raises": [
-            "ExpenseNotFoundError"
-          ]
-        },
-        {
-          "name": "update_expense",
-          "description": "Updates an existing expense with new values. Validates that the category exists and updates the expense accordingly.",
-          "params": [
-            {
-              "name": "id",
               "type": "int"
             },
-            {
-              "name": "amount_cents",
-              "type": "int",
-              "status": "explicit"
-            },
-            {
-              "name": "description",
-              "type": "str",
-              "status": "explicit"
-            },
-            {
-              "name": "expense_date",
-              "type": "date",
-              "status": "explicit"
-            },
-            {
-              "name": "category_id",
-              "type": "int",
-              "status": "explicit"
-            },
-            {
-              "name": "payment_method",
-              "type": "str",
-              "status": "explicit"
-            },
-            {
-              "name": "is_recurring",
-              "type": "bool",
-              "status": "explicit"
-            }
-          ],
-          "return_type": "None",
-          "raises": [
-            "ExpenseNotFoundError",
-            "CategoryNotFoundError"
-          ]
-        },
-        {
-          "name": "delete_expense",
-          "description": "Deletes an expense by its ID.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "None",
-          "raises": [
-            "ExpenseNotFoundError"
-          ]
-        },
-        {
-          "name": "get_monthly_report",
-          "description": "Returns a monthly report including total spending, per-category breakdown, and budget status (on_track/warning/exceeded) for a given month in 'YYYY-MM' format.",
-          "params": [
             {
               "name": "month",
               "type": "str"
             }
           ],
-          "return_type": "Dict[str, Any]",
-          "raises": []
+          "return_type": "bool"
         },
         {
-          "name": "get_yearly_summary",
-          "description": "Returns a yearly summary including monthly totals, top spending categories, and average monthly spend for a given year.",
-          "params": [
-            {
-              "name": "year",
-              "type": "int"
-            }
-          ],
-          "return_type": "Dict[str, Any]",
-          "raises": []
-        },
-        {
-          "name": "get_category_spending",
-          "description": "Returns aggregated spending for a category over a specified date range.",
+          "description": "Creates a new Budget.",
+          "name": "create",
           "params": [
             {
               "name": "category_id",
               "type": "int"
             },
             {
-              "name": "start_date",
-              "type": "date"
-            },
-            {
-              "name": "end_date",
-              "type": "date"
-            }
-          ],
-          "return_type": "Dict[str, Any]",
-          "raises": []
-        },
-        {
-          "name": "export_to_csv",
-          "description": "Exports filtered expenses to a CSV file at the specified path.",
-          "params": [
-            {
-              "name": "file_path",
+              "name": "month",
               "type": "str"
             },
             {
-              "name": "start_date",
-              "type": "date"
-            },
-            {
-              "name": "end_date",
-              "type": "date"
+              "name": "amount_limit_cents",
+              "type": "int"
             }
           ],
-          "return_type": "None",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Budget"
         },
         {
-          "name": "detect_recurring",
-          "description": "Detects recurring expenses (same amount and category) that occur monthly and marks them as recurring.",
-          "params": [],
-          "return_type": "None",
-          "raises": []
+          "description": "Deletes an existing Budget.",
+          "name": "delete",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "category_id",
+              "type": "int"
+            },
+            {
+              "name": "month",
+              "type": "str"
+            },
+            {
+              "name": "amount_limit_cents",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "None"
         },
         {
-          "name": "expensereportmonthly",
-          "description": "Expensereportmonthly.",
+          "description": "Fetches budgets for a specific month, optionally filtered by category",
+          "name": "get_budgets_by_month",
           "params": [
             {
               "name": "month",
               "type": "str"
-            }
-          ],
-          "return_type": "None",
-          "raises": [],
-          "provenance": "capability_adapter",
-          "review_required": true
-        },
-        {
-          "name": "expensereportyearly",
-          "description": "Expensereportyearly.",
-          "params": [
-            {
-              "name": "year",
-              "type": "str"
-            }
-          ],
-          "return_type": "None",
-          "raises": [],
-          "provenance": "capability_adapter",
-          "review_required": true
-        },
-        {
-          "name": "expenseexport",
-          "description": "Expenseexport.",
-          "params": [
-            {
-              "name": "from_date",
-              "type": "str"
             },
             {
-              "name": "to_date",
-              "type": "str"
-            },
-            {
-              "name": "output",
-              "type": "str"
+              "name": "category_id",
+              "type": "int"
             }
           ],
-          "return_type": "None",
-          "raises": [],
-          "provenance": "capability_adapter",
-          "review_required": true
+          "return_type": "List[Budget]"
         },
         {
-          "name": "add_expense",
-          "description": "validates category exists, adds expense, checks if budget exceeded after insertion",
+          "description": "Lists every Budget; optional fields narrow the result.",
+          "name": "read_all",
           "params": [
             {
-              "name": "amount_cents",
+              "name": "category_id",
               "type": "int"
             },
             {
-              "name": "description",
+              "name": "month",
               "type": "str"
             },
             {
-              "name": "expense_date",
-              "type": "date"
+              "name": "amount_limit_cents",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Budget]"
+        },
+        {
+          "description": "Reads one Budget by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Budget"
+        },
+        {
+          "description": "Updates an existing Budget.",
+          "name": "update",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
             },
             {
               "name": "category_id",
               "type": "int"
             },
             {
-              "name": "payment_method",
+              "name": "month",
               "type": "str"
             },
             {
-              "name": "is_recurring",
-              "type": "bool"
+              "name": "amount_limit_cents",
+              "type": "int"
             }
           ],
-          "return_type": "models.Expense",
-          "raises": [
-            "BudgetExceededException",
-            "CategoryNotFoundError"
-          ],
-          "provenance": "prose_service_method",
-          "review_required": true
+          "raises": [],
+          "return_type": "models.Budget"
         }
-      ]
+      ],
+      "service_name": "BudgetRepository"
     },
     {
-      "service_name": "CategoryRepository",
       "methods": [
         {
-          "name": "create",
           "description": "Creates a new Category.",
+          "name": "create",
           "params": [
             {
               "name": "name",
@@ -284,80 +158,12 @@
               "type": "str"
             }
           ],
-          "return_type": "models.Category",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Category"
         },
         {
-          "name": "read_one",
-          "description": "Reads one Category by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Category",
-          "raises": [
-            "CategoryNotFoundError"
-          ]
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Category; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "description",
-              "type": "str"
-            },
-            {
-              "name": "monthly_budget",
-              "type": "int"
-            },
-            {
-              "name": "icon",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Category]",
-          "raises": []
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Category.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "description",
-              "type": "str"
-            },
-            {
-              "name": "monthly_budget",
-              "type": "int"
-            },
-            {
-              "name": "icon",
-              "type": "str"
-            }
-          ],
-          "return_type": "models.Category",
-          "raises": [
-            "CategoryNotFoundError"
-          ]
-        },
-        {
-          "name": "delete",
           "description": "Deletes an existing Category.",
+          "name": "delete",
           "params": [
             {
               "name": "id",
@@ -380,19 +186,102 @@
               "type": "str"
             }
           ],
-          "return_type": "None",
           "raises": [
             "CategoryNotFoundError"
-          ]
+          ],
+          "return_type": "None"
+        },
+        {
+          "description": "Lists every Category; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "monthly_budget",
+              "type": "int"
+            },
+            {
+              "name": "icon",
+              "type": "str"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Category]"
+        },
+        {
+          "description": "Reads one Category by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "CategoryNotFoundError"
+          ],
+          "return_type": "models.Category"
+        },
+        {
+          "description": "Updates an existing Category.",
+          "name": "update",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "monthly_budget",
+              "type": "int"
+            },
+            {
+              "name": "icon",
+              "type": "str"
+            }
+          ],
+          "raises": [
+            "CategoryNotFoundError"
+          ],
+          "return_type": "models.Category"
         }
-      ]
+      ],
+      "service_name": "CategoryRepository"
     },
     {
-      "service_name": "ExpenseRepository",
       "methods": [
         {
-          "name": "create",
+          "description": "Checks if a category has exceeded its monthly budget for a given month",
+          "name": "check_budget_exceeded",
+          "params": [
+            {
+              "name": "category_id",
+              "type": "int"
+            },
+            {
+              "name": "month",
+              "type": "str"
+            }
+          ],
+          "return_type": "bool"
+        },
+        {
           "description": "Creates a new Expense.",
+          "name": "create",
           "params": [
             {
               "name": "amount_cents",
@@ -419,96 +308,12 @@
               "type": "bool"
             }
           ],
-          "return_type": "models.Expense",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Expense"
         },
         {
-          "name": "read_one",
-          "description": "Reads one Expense by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Expense",
-          "raises": [
-            "ExpenseNotFoundError"
-          ]
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Expense; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "amount_cents",
-              "type": "int"
-            },
-            {
-              "name": "description",
-              "type": "str"
-            },
-            {
-              "name": "expense_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "payment_method",
-              "type": "str"
-            },
-            {
-              "name": "is_recurring",
-              "type": "bool"
-            }
-          ],
-          "return_type": "list[Expense]",
-          "raises": []
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Expense.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "amount_cents",
-              "type": "int"
-            },
-            {
-              "name": "description",
-              "type": "str"
-            },
-            {
-              "name": "expense_date",
-              "type": "datetime.date"
-            },
-            {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "payment_method",
-              "type": "str"
-            },
-            {
-              "name": "is_recurring",
-              "type": "bool"
-            }
-          ],
-          "return_type": "models.Expense",
-          "raises": [
-            "ExpenseNotFoundError"
-          ]
-        },
-        {
-          "name": "delete",
           "description": "Deletes an existing Expense.",
+          "name": "delete",
           "params": [
             {
               "name": "id",
@@ -539,14 +344,33 @@
               "type": "bool"
             }
           ],
-          "return_type": "None",
           "raises": [
             "ExpenseNotFoundError"
-          ]
+          ],
+          "return_type": "None"
         },
         {
-          "name": "get_expenses_by_date_range",
+          "description": "Returns aggregated spending for a category over a date range",
+          "name": "get_category_spending_over_period",
+          "params": [
+            {
+              "name": "category_id",
+              "type": "int"
+            },
+            {
+              "name": "start_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "end_date",
+              "type": "datetime.date"
+            }
+          ],
+          "return_type": "int"
+        },
+        {
           "description": "Fetches expenses within a specified date range, optionally filtered by category and payment method",
+          "name": "get_expenses_by_date_range",
           "params": [
             {
               "name": "start_date",
@@ -568,8 +392,8 @@
           "return_type": "List[Expense]"
         },
         {
-          "name": "get_monthly_spending_by_category",
           "description": "Returns total spending per category for a given month, aggregated from expenses",
+          "name": "get_monthly_spending_by_category",
           "params": [
             {
               "name": "month",
@@ -579,8 +403,8 @@
           "return_type": "Dict[str, int]"
         },
         {
-          "name": "get_yearly_spending_summary",
           "description": "Returns monthly totals and average monthly spend for a given year",
+          "name": "get_yearly_spending_summary",
           "params": [
             {
               "name": "year",
@@ -590,8 +414,225 @@
           "return_type": "Dict[str, Dict[str, int]]"
         },
         {
-          "name": "get_category_spending_over_period",
-          "description": "Returns aggregated spending for a category over a date range",
+          "description": "Lists every Expense; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "amount_cents",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "expense_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "category_id",
+              "type": "int"
+            },
+            {
+              "name": "payment_method",
+              "type": "str"
+            },
+            {
+              "name": "is_recurring",
+              "type": "bool"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Expense]"
+        },
+        {
+          "description": "Reads one Expense by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "ExpenseNotFoundError"
+          ],
+          "return_type": "models.Expense"
+        },
+        {
+          "description": "Updates an existing Expense.",
+          "name": "update",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "amount_cents",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "expense_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "category_id",
+              "type": "int"
+            },
+            {
+              "name": "payment_method",
+              "type": "str"
+            },
+            {
+              "name": "is_recurring",
+              "type": "bool"
+            }
+          ],
+          "raises": [
+            "ExpenseNotFoundError"
+          ],
+          "return_type": "models.Expense"
+        }
+      ],
+      "service_name": "ExpenseRepository"
+    },
+    {
+      "methods": [
+        {
+          "description": "validates category exists, adds expense, checks if budget exceeded after insertion",
+          "name": "add_expense",
+          "params": [
+            {
+              "name": "amount_cents",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "expense_date",
+              "type": "date"
+            },
+            {
+              "name": "category_id",
+              "type": "int"
+            },
+            {
+              "name": "payment_method",
+              "type": "str"
+            },
+            {
+              "name": "is_recurring",
+              "type": "bool"
+            }
+          ],
+          "provenance": "prose_service_method",
+          "raises": [
+            "BudgetExceededException",
+            "CategoryNotFoundError"
+          ],
+          "return_type": "models.Expense",
+          "review_required": true
+        },
+        {
+          "description": "Deletes an expense by its ID.",
+          "name": "delete_expense",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "ExpenseNotFoundError"
+          ],
+          "return_type": "None"
+        },
+        {
+          "description": "Detects recurring expenses (same amount and category) that occur monthly and marks them as recurring.",
+          "name": "detect_recurring",
+          "params": [],
+          "raises": [],
+          "return_type": "None"
+        },
+        {
+          "description": "Expenseexport.",
+          "name": "expenseexport",
+          "params": [
+            {
+              "name": "from_date",
+              "type": "str"
+            },
+            {
+              "name": "to_date",
+              "type": "str"
+            },
+            {
+              "name": "output",
+              "type": "str"
+            }
+          ],
+          "provenance": "capability_adapter",
+          "raises": [],
+          "return_type": "None",
+          "review_required": true
+        },
+        {
+          "description": "Expensereportmonthly.",
+          "name": "expensereportmonthly",
+          "params": [
+            {
+              "name": "month",
+              "type": "str"
+            }
+          ],
+          "provenance": "capability_adapter",
+          "raises": [],
+          "return_type": "None",
+          "review_required": true
+        },
+        {
+          "description": "Expensereportyearly.",
+          "name": "expensereportyearly",
+          "params": [
+            {
+              "name": "year",
+              "type": "str"
+            }
+          ],
+          "provenance": "capability_adapter",
+          "raises": [],
+          "return_type": "None",
+          "review_required": true
+        },
+        {
+          "description": "Exports filtered expenses to a CSV file at the specified path.",
+          "name": "export_to_csv",
+          "params": [
+            {
+              "name": "file_path",
+              "type": "str"
+            },
+            {
+              "name": "start_date",
+              "type": "date"
+            },
+            {
+              "name": "end_date",
+              "type": "date"
+            }
+          ],
+          "raises": [],
+          "return_type": "None"
+        },
+        {
+          "description": "Returns aggregated spending for a category over a specified date range.",
+          "name": "get_category_spending",
           "params": [
             {
               "name": "category_id",
@@ -599,166 +640,125 @@
             },
             {
               "name": "start_date",
-              "type": "datetime.date"
+              "type": "date"
             },
             {
               "name": "end_date",
-              "type": "datetime.date"
+              "type": "date"
             }
           ],
-          "return_type": "int"
+          "raises": [],
+          "return_type": "Dict[str, Any]"
         },
         {
-          "name": "check_budget_exceeded",
-          "description": "Checks if a category has exceeded its monthly budget for a given month",
+          "description": "Retrieves a single expense by its ID.",
+          "name": "get_expense_by_id",
           "params": [
             {
-              "name": "category_id",
+              "name": "id",
               "type": "int"
-            },
+            }
+          ],
+          "raises": [
+            "ExpenseNotFoundError"
+          ],
+          "return_type": "models.Expense"
+        },
+        {
+          "description": "Returns a monthly report including total spending, per-category breakdown, and budget status (on_track/warning/exceeded) for a given month in 'YYYY-MM' format.",
+          "name": "get_monthly_report",
+          "params": [
             {
               "name": "month",
               "type": "str"
             }
           ],
-          "return_type": "bool"
+          "raises": [],
+          "return_type": "Dict[str, Any]"
+        },
+        {
+          "description": "Returns a yearly summary including monthly totals, top spending categories, and average monthly spend for a given year.",
+          "name": "get_yearly_summary",
+          "params": [
+            {
+              "name": "year",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "Dict[str, Any]"
+        },
+        {
+          "description": "Lists expenses filtered by optional category, date range, and payment method. All parameters are optional; omitting them returns all expenses.",
+          "name": "list_expenses",
+          "params": [
+            {
+              "name": "category_id",
+              "type": "Optional[int]"
+            },
+            {
+              "name": "start_date",
+              "type": "Optional[date]"
+            },
+            {
+              "name": "end_date",
+              "type": "Optional[date]"
+            },
+            {
+              "name": "payment_method",
+              "type": "Optional[str]"
+            }
+          ],
+          "raises": [],
+          "return_type": "List[Expense]"
+        },
+        {
+          "description": "Updates an existing expense with new values. Validates that the category exists and updates the expense accordingly.",
+          "name": "update_expense",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "amount_cents",
+              "status": "explicit",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "status": "explicit",
+              "type": "str"
+            },
+            {
+              "name": "expense_date",
+              "status": "explicit",
+              "type": "date"
+            },
+            {
+              "name": "category_id",
+              "status": "explicit",
+              "type": "int"
+            },
+            {
+              "name": "payment_method",
+              "status": "explicit",
+              "type": "str"
+            },
+            {
+              "name": "is_recurring",
+              "status": "explicit",
+              "type": "bool"
+            }
+          ],
+          "raises": [
+            "ExpenseNotFoundError",
+            "CategoryNotFoundError"
+          ],
+          "return_type": "None"
         }
-      ]
-    },
-    {
-      "service_name": "BudgetRepository",
-      "methods": [
-        {
-          "name": "create",
-          "description": "Creates a new Budget.",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "month",
-              "type": "str"
-            },
-            {
-              "name": "amount_limit_cents",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Budget",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Budget by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Budget",
-          "raises": []
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Budget; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "month",
-              "type": "str"
-            },
-            {
-              "name": "amount_limit_cents",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Budget]",
-          "raises": []
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Budget.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "month",
-              "type": "str"
-            },
-            {
-              "name": "amount_limit_cents",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Budget",
-          "raises": []
-        },
-        {
-          "name": "delete",
-          "description": "Deletes an existing Budget.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "month",
-              "type": "str"
-            },
-            {
-              "name": "amount_limit_cents",
-              "type": "int"
-            }
-          ],
-          "return_type": "None",
-          "raises": []
-        },
-        {
-          "name": "get_budgets_by_month",
-          "description": "Fetches budgets for a specific month, optionally filtered by category",
-          "params": [
-            {
-              "name": "month",
-              "type": "str"
-            },
-            {
-              "name": "category_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "List[Budget]"
-        },
-        {
-          "name": "check_budget_exceeded",
-          "description": "Determines whether a category's budget has been exceeded in a given month",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "month",
-              "type": "str"
-            }
-          ],
-          "return_type": "bool"
-        }
-      ]
+      ],
+      "service_name": "ExpenseService"
     }
   ]
 }

@@ -37,6 +37,41 @@
       "reason": "every model declares a primary key"
     },
     {
+      "name": "api:BudgetRepository.check_budget_exceeded",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:BudgetRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:BudgetRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:BudgetRepository.get_budgets_by_month",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:BudgetRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:BudgetRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:BudgetRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
       "name": "api:CategoryRepository.create",
       "status": "passed",
       "reason": "generated service API present"
@@ -108,41 +143,6 @@
     },
     {
       "name": "api:ExpenseRepository.update",
-      "status": "passed",
-      "reason": "generated service API present"
-    },
-    {
-      "name": "api:BudgetRepository.check_budget_exceeded",
-      "status": "passed",
-      "reason": "generated service API present"
-    },
-    {
-      "name": "api:BudgetRepository.create",
-      "status": "passed",
-      "reason": "generated service API present"
-    },
-    {
-      "name": "api:BudgetRepository.delete",
-      "status": "passed",
-      "reason": "generated service API present"
-    },
-    {
-      "name": "api:BudgetRepository.get_budgets_by_month",
-      "status": "passed",
-      "reason": "generated service API present"
-    },
-    {
-      "name": "api:BudgetRepository.read_all",
-      "status": "passed",
-      "reason": "generated service API present"
-    },
-    {
-      "name": "api:BudgetRepository.read_one",
-      "status": "passed",
-      "reason": "generated service API present"
-    },
-    {
-      "name": "api:BudgetRepository.update",
       "status": "passed",
       "reason": "generated service API present"
     },
@@ -212,6 +212,41 @@
       "reason": "generated service API present"
     },
     {
+      "name": "api:BudgetRepository.check_budget_exceeded",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:BudgetRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:BudgetRepository.delete",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:BudgetRepository.get_budgets_by_month",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:BudgetRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:BudgetRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:BudgetRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
       "name": "api:CategoryRepository.create",
       "status": "passed",
       "reason": "generated repository API present"
@@ -283,41 +318,6 @@
     },
     {
       "name": "api:ExpenseRepository.update",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:BudgetRepository.check_budget_exceeded",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:BudgetRepository.create",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:BudgetRepository.delete",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:BudgetRepository.get_budgets_by_month",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:BudgetRepository.read_all",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:BudgetRepository.read_one",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:BudgetRepository.update",
       "status": "passed",
       "reason": "generated repository API present"
     },
@@ -427,6 +427,11 @@
       "reason": ""
     },
     {
+      "name": "schema:Budget",
+      "status": "passed",
+      "reason": ""
+    },
+    {
       "name": "schema:Category",
       "status": "passed",
       "reason": ""
@@ -437,9 +442,8 @@
       "reason": ""
     },
     {
-      "name": "schema:Budget",
-      "status": "passed",
-      "reason": ""
+      "name": "repository:BudgetRepository",
+      "status": "passed"
     },
     {
       "name": "repository:CategoryRepository",
@@ -450,7 +454,7 @@
       "status": "passed"
     },
     {
-      "name": "repository:BudgetRepository",
+      "name": "invariant:fk:Budget.category_id",
       "status": "passed"
     },
     {
@@ -459,10 +463,6 @@
     },
     {
       "name": "invariant:fk:Expense.category_id",
-      "status": "passed"
-    },
-    {
-      "name": "invariant:fk:Budget.category_id",
       "status": "passed"
     },
     {

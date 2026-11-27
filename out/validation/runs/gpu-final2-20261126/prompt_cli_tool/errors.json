@@ -1,14 +1,14 @@
 {
   "errors": [
     {
-      "name": "MissingFileError",
-      "base": "OSError",
-      "description": "Raised when the input CSV file path does not exist or cannot be accessed."
+      "base": "ValueError",
+      "description": "Raised when the CSV file contains malformed data, such as incorrect delimiters, missing quotes, or invalid row structure that prevents successful parsing.",
+      "name": "MalformedCSVError"
     },
     {
-      "name": "MalformedCSVError",
-      "base": "ValueError",
-      "description": "Raised when the CSV file contains malformed data, such as incorrect delimiters, missing quotes, or invalid row structure that prevents successful parsing."
+      "base": "OSError",
+      "description": "Raised when the input CSV file path does not exist or cannot be accessed.",
+      "name": "MissingFileError"
     }
   ]
 }

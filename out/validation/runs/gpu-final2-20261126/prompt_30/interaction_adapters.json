@@ -2,24 +2,24 @@
   "interaction_adapters": [
     {
       "action_name": "taskupdate",
-      "target_service": "TaskRepository",
-      "target_method": "update",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Task",
-          "required": true
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "status",
-          "target_param": "status",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "status",
+          "transform": "DIRECT"
         }
-      ]
+      ],
+      "target_method": "update",
+      "target_service": "TaskRepository"
     }
   ]
 }

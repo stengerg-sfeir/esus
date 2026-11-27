@@ -2,156 +2,156 @@
   "interaction_adapters": [
     {
       "action_name": "create_contact",
-      "target_service": "ContactRepository",
-      "target_method": "create",
       "input_fields": [
         {
           "field_name": "first_name",
-          "target_param": "first_name",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "first_name",
+          "transform": "DIRECT"
         },
         {
           "field_name": "last_name",
-          "target_param": "last_name",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "last_name",
+          "transform": "DIRECT"
         },
         {
           "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "email",
+          "transform": "DIRECT"
         },
         {
           "field_name": "phone",
-          "target_param": "phone",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "phone",
+          "transform": "DIRECT"
         },
         {
           "field_name": "address",
-          "target_param": "address",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "address",
+          "transform": "DIRECT"
         },
         {
           "field_name": "created_at",
-          "target_param": "created_at",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
           "required": true,
-          "status": "deduced"
+          "status": "deduced",
+          "target_param": "created_at",
+          "transform": "ISO_DATE"
         },
         {
           "field_name": "updated_at",
-          "target_param": "updated_at",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
           "required": true,
-          "status": "deduced"
+          "status": "deduced",
+          "target_param": "updated_at",
+          "transform": "ISO_DATE"
         }
-      ]
-    },
-    {
-      "action_name": "update_contact",
-      "target_service": "ContactRepository",
-      "target_method": "update",
-      "input_fields": [
-        {
-          "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Contact",
-          "required": true
-        },
-        {
-          "field_name": "first_name",
-          "target_param": "first_name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "last_name",
-          "target_param": "last_name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "phone",
-          "target_param": "phone",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "address",
-          "target_param": "address",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "ContactRepository"
     },
     {
       "action_name": "delete_contact",
-      "target_service": "ContactRepository",
-      "target_method": "delete",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Contact",
-          "required": true
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
         }
-      ]
-    },
-    {
-      "action_name": "import_contacts_from_csv",
-      "target_service": "ContactService",
-      "target_method": "import_contacts_from_csv",
-      "provenance": "capability_adapter",
-      "review_required": true,
-      "input_fields": [
-        {
-          "field_name": "file_path",
-          "target_param": "file_path",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
+      ],
+      "target_method": "delete",
+      "target_service": "ContactRepository"
     },
     {
       "action_name": "export_contacts_to_csv",
-      "target_service": "ContactService",
-      "target_method": "export_contacts_to_csv",
-      "provenance": "capability_adapter",
-      "review_required": true,
       "input_fields": [
         {
           "field_name": "file_path",
-          "target_param": "file_path",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "file_path",
+          "transform": "DIRECT"
         }
-      ]
+      ],
+      "provenance": "capability_adapter",
+      "review_required": true,
+      "target_method": "export_contacts_to_csv",
+      "target_service": "ContactService"
+    },
+    {
+      "action_name": "import_contacts_from_csv",
+      "input_fields": [
+        {
+          "field_name": "file_path",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "file_path",
+          "transform": "DIRECT"
+        }
+      ],
+      "provenance": "capability_adapter",
+      "review_required": true,
+      "target_method": "import_contacts_from_csv",
+      "target_service": "ContactService"
+    },
+    {
+      "action_name": "update_contact",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "lookup_entity": "Contact",
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "first_name",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "first_name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "last_name",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "last_name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "email",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "email",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "phone",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "phone",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "address",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "address",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "ContactRepository"
     }
   ]
 }

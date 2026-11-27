@@ -37,12 +37,32 @@
       "reason": "every model declares a primary key"
     },
     {
+      "name": "api:PriorityRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:PriorityRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
       "name": "api:ProjectRepository.read_all",
       "status": "passed",
       "reason": "generated service API present"
     },
     {
       "name": "api:ProjectRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:StatusRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:StatusRepository.read_one",
       "status": "passed",
       "reason": "generated service API present"
     },
@@ -67,24 +87,14 @@
       "reason": "generated service API present"
     },
     {
-      "name": "api:StatusRepository.read_all",
-      "status": "passed",
-      "reason": "generated service API present"
-    },
-    {
-      "name": "api:StatusRepository.read_one",
-      "status": "passed",
-      "reason": "generated service API present"
-    },
-    {
       "name": "api:PriorityRepository.read_all",
       "status": "passed",
-      "reason": "generated service API present"
+      "reason": "generated repository API present"
     },
     {
       "name": "api:PriorityRepository.read_one",
       "status": "passed",
-      "reason": "generated service API present"
+      "reason": "generated repository API present"
     },
     {
       "name": "api:ProjectRepository.read_all",
@@ -93,6 +103,16 @@
     },
     {
       "name": "api:ProjectRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:StatusRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:StatusRepository.read_one",
       "status": "passed",
       "reason": "generated repository API present"
     },
@@ -113,26 +133,6 @@
     },
     {
       "name": "api:TaskRepository.update",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:StatusRepository.read_all",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:StatusRepository.read_one",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:PriorityRepository.read_all",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:PriorityRepository.read_one",
       "status": "passed",
       "reason": "generated repository API present"
     },
@@ -152,12 +152,12 @@
       "reason": ""
     },
     {
-      "name": "schema:Project",
+      "name": "schema:Priority",
       "status": "passed",
       "reason": ""
     },
     {
-      "name": "schema:Task",
+      "name": "schema:Project",
       "status": "passed",
       "reason": ""
     },
@@ -167,16 +167,16 @@
       "reason": ""
     },
     {
-      "name": "schema:Priority",
+      "name": "schema:Task",
       "status": "passed",
       "reason": ""
     },
     {
-      "name": "repository:ProjectRepository:store",
+      "name": "repository:PriorityRepository:store",
       "status": "passed"
     },
     {
-      "name": "repository:TaskRepository",
+      "name": "repository:ProjectRepository:store",
       "status": "passed"
     },
     {
@@ -184,7 +184,7 @@
       "status": "passed"
     },
     {
-      "name": "repository:PriorityRepository:store",
+      "name": "repository:TaskRepository",
       "status": "passed"
     },
     {

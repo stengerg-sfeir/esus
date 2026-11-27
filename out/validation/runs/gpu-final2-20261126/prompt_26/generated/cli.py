@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Book', 'Member', 'Loan']
-REPOSITORIES = ['BookRepository', 'MemberRepository', 'LoanRepository']
+MODELS = ['Book', 'Loan', 'Member']
+REPOSITORIES = ['BookRepository', 'LoanRepository', 'MemberRepository']
 SERVICES = ['LoanService']
 
 
@@ -197,6 +197,13 @@ def build_parser():
     parser.add_argument('--db', default=None,
                         help=('SQLite file for record storage (default: ' + DEFAULT_DB + ' in the working directory; use :memory: to stay in memory)'))
     sub = parser.add_subparsers(dest='command')
+    p_Book = sub.add_parser('Book')
+    sub_Book = p_Book.add_subparsers(dest='subcommand')
+    p_Book_add = sub_Book.add_parser('add')
+    p_Book_add.add_argument('--title', type=str, required=False, dest='title')
+    p_Book_add.add_argument('--isbn', type=str, required=False, dest='isbn')
+    p_Book_add.add_argument('--available', action='store_true', dest='available')
+    p_Book_add.set_defaults(_binding=('Book', 'add'))
     p_Loan = sub.add_parser('Loan')
     sub_Loan = p_Loan.add_subparsers(dest='subcommand')
     p_Loan_add = sub_Loan.add_parser('add')
@@ -209,13 +216,6 @@ def build_parser():
     p_Loan_delete = sub_Loan.add_parser('delete')
     p_Loan_delete.add_argument('--id', type=int, required=True, dest='id')
     p_Loan_delete.set_defaults(_binding=('Loan', 'delete'))
-    p_Book = sub.add_parser('Book')
-    sub_Book = p_Book.add_subparsers(dest='subcommand')
-    p_Book_add = sub_Book.add_parser('add')
-    p_Book_add.add_argument('--title', type=str, required=False, dest='title')
-    p_Book_add.add_argument('--isbn', type=str, required=False, dest='isbn')
-    p_Book_add.add_argument('--available', action='store_true', dest='available')
-    p_Book_add.set_defaults(_binding=('Book', 'add'))
     p_Member = sub.add_parser('Member')
     sub_Member = p_Member.add_subparsers(dest='subcommand')
     p_Member_add = sub_Member.add_parser('add')

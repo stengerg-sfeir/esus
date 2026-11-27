@@ -1,33 +1,17 @@
 [
   {
     "label": "TaskService.import_tasks_from_json",
-    "status": "kept",
-    "note": "still refused: passes keyword `title` to `TaskRepository.read_one`, whose declared parameter is `task_id`; pass the value positionally or use the declared keyword",
-    "answer": "with open(file_path, 'r', encoding='utf-8') as handle:\n    data = json.load(handle)\nif not isinstance(data, list):\n    raise errors.AppError('Invalid JSON format: expected a list of tasks')\ninvalid_tasks = 0\nfor task_data in data:\n    if 'title' not in task_data or not task_data['title']:\n        invalid_tasks += 1\n        continue\n    due_date_str = task_data.get('due_date')\n    due_date = None\n    if due_date_str:\n        try:\n            due_date = _as_date(due_date_str)\n        except ValueError:\n            invalid_tasks += 1\n            continue\n    valid_status = ['pending', 'in_progress', 'completed']\n    valid_priority = ['low', 'medium', 'high']\n    status = task_data.get('status')\n    if status and status not in valid_status:\n        invalid_tasks += 1\n        continue\n    priority = task_data.get('priority')\n    if priority and priority not in valid_priority:\n        invalid_tasks += 1\n        continue\n    task = models.Task(title=task_data['title'], description=task_data.get('description'), due_date=due_date, status=status or 'pending', priority=priority or 'medium')\n    existing_task = self._repos['TaskRepository'].read_one(title=task.title)\n    if existing_task:\n        self._repos['TaskRepository'].update(task_id=existing_task.task_id, title=task.title, description=task.description, due_date=task.due_date, status=task.status, priority=task.priority)\n    else:\n        created_task_id = self._repos['TaskRepository'].create(title=task.title, description=task.description, due_date=task.due_date, status=task.status, priority=task.priority)\n        created_task = self._repos['TaskRepository'].read_one(task_id=created_task_id)\n        if created_task:\n            pass\nreturn invalid_tasks",
-    "first_answer": "with open(file_path, 'r', encoding='utf-8') as handle:\n        data = json.load(handle)\n    \n    if not isinstance(data, list):\n        raise errors.AppError(\"Invalid JSON format: expected a list of tasks\")\n    \n    invalid_tasks = 0\n    for task_data in data:\n        # Validate required fields\n        if 'title' not in task_data or not task_data['title']:\n            invalid_tasks += 1\n            continue\n        \n        # Convert due_date to date if present\n        due_date_str = task_data.get('due_date')\n        due_date = None\n        if due_date_str:\n            try:\n                due_date = _as_date(due_date_str)\n            except ValueError:\n                invalid_tasks += 1\n                continue\n        \n        # Validate status and priority\n        valid_status = ['pending', 'in_progress', 'completed']\n        valid_priority = ['low', 'medium', 'high']\n        \n        status = task_data.get('status')\n        if status and status not in valid_status:\n            invalid_tasks += 1\n            continue\n        \n        priority = task_data.get('priority')\n        if priority and priority not in valid_priority:\n            invalid_tasks += 1\n            continue\n        \n        # Create task record\n        task = models.Task(\n            title=task_data['title'],\n            description=task_data.get('description'),\n            due_date=due_date,\n            status=status or 'pending',\n            priority=priority or 'medium'\n        )\n        \n        # Check if task with same title and due_date already exists\n        existing_task = self._repos['TaskRepository'].read_one(title=task.title, due_date=task.due_date)\n        if existing_task:\n            # Update existing task instead of creating a new one\n            self._repos['TaskRepository'].update(\n                task_id=existing_task.task_id,\n                title=task.title,\n                description=task.description,\n                due_date=task.due_date,\n                status=task.status,\n                priority=task.priority\n            )\n        else:\n            # Create new task\n            created_task_id = self._repos['TaskRepository'].create(\n                title=task.title,\n                description=task.description,\n                due_date=task.due_date,\n                status=task.status,\n                priority=task.priority\n            )\n            # Read back the created task to ensure consistency\n            created_task = self._repos['TaskRepository'].read_one(task_id=created_task_id)\n            if created_task:\n                # Update the task if any fields differ (but only if they are non-None)\n                # This is a safeguard to ensure data integrity\n                pass\n    \n    return invalid_tasks",
-    "complaints": [
-      "passes keyword `title` to `TaskRepository.read_one`, whose declared parameter is `task_id`; pass the value positionally or use the declared keyword"
-    ],
-    "second_complaints": [
-      "passes keyword `title` to `TaskRepository.read_one`, whose declared parameter is `task_id`; pass the value positionally or use the declared keyword"
-    ],
-    "repairs": 1,
-    "first_finish_reason": "stop",
-    "first_tokens": 550,
-    "first_budget": 3584,
-    "first_truncated": false,
-    "first_seconds": 4.035027503967285,
-    "first_decode_seconds": 3.601071,
-    "first_prompt_tokens": 2106,
-    "first_cached_tokens": 658,
+    "status": "written",
+    "note": "",
+    "answer": "with open(file_path, 'r', encoding='utf-8') as handle:\n            data = json.load(handle)\n        \n        # Validate input structure\n        if not isinstance(data, list):\n            raise errors.AppError(\"Invalid JSON: expected a list of tasks\")\n        \n        # Validate each task\n        for task_data in data:\n            # Validate required fields\n            if not isinstance(task_data, dict):\n                raise errors.AppError(\"Invalid task entry: must be an object\")\n            \n            title = task_data.get('title')\n            description = task_data.get('description')\n            due_date_str = task_data.get('due_date')\n            status = task_data.get('status')\n            priority = task_data.get('priority')\n            \n            # Validate due_date format\n            if due_date_str is not None:\n                try:\n                    due_date = _as_date(due_date_str)\n                except ValueError:\n                    raise errors.AppError(\"Invalid due_date format: must be ISO date string or date object\")\n            else:\n                due_date = None\n            \n            # Validate status and priority\n            valid_status = ['pending', 'in_progress', 'completed']\n            valid_priority = ['low', 'medium', 'high']\n            \n            if status is not None and status not in valid_status:\n                raise errors.AppError(f\"Invalid status: {status}. Must be one of {valid_status}\")\n            \n            if priority is not None and priority not in valid_priority:\n                raise errors.AppError(f\"Invalid priority: {priority}. Must be one of {valid_priority}\")\n            \n            # Create task using TaskRepository.create\n            new_task = self._repos['TaskRepository'].create(\n                title=title,\n                description=description,\n                due_date=due_date,\n                status=status,\n                priority=priority\n            )\n        \n        # Return the total number of imported tasks\n        return len(data)",
     "finish_reason": "stop",
-    "tokens": 406,
+    "tokens": 384,
     "budget": 3584,
     "truncated": false,
-    "seconds": 2.7573602199554443,
-    "decode_seconds": 2.686692,
-    "prompt_tokens": 2590,
-    "cached_tokens": 2075,
+    "seconds": 3.1518850326538086,
+    "decode_seconds": 2.488323,
+    "prompt_tokens": 2109,
+    "cached_tokens": 658,
     "context": "exact"
   }
 ]

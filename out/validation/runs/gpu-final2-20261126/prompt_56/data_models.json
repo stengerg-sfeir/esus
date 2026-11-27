@@ -1,168 +1,178 @@
 {
   "data_models": [
     {
-      "name": "Customer",
       "fields": [
         {
-          "name": "customer_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "customer_id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "name",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "name",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
         },
         {
+          "foreign_key": null,
           "name": "email",
-          "type": "string",
-          "primary_key": false,
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
+          "primary_key": false,
           "status": "explicit",
+          "type": "string",
+          "unique": false,
           "unique_status": "rejected"
         }
-      ]
+      ],
+      "name": "Customer"
     },
     {
-      "name": "Product",
       "fields": [
         {
-          "name": "product_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
-          "status": "explicit",
-          "unique_status": "explicit"
-        },
-        {
-          "name": "name",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "description",
-          "type": "text",
-          "primary_key": false,
-          "nullable": true,
-          "unique": false,
-          "foreign_key": null,
-          "status": "deduced"
-        },
-        {
-          "name": "stock_quantity",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        }
-      ]
-    },
-    {
-      "name": "Order",
-      "fields": [
-        {
           "name": "order_id",
-          "type": "int",
-          "primary_key": true,
           "nullable": false,
-          "unique": true,
-          "foreign_key": null,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "customer_id",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": {
+            "relationship": "one_to_many",
             "target_entity": "Customer",
-            "target_field": "customer_id",
-            "relationship": "one_to_many"
+            "target_field": "customer_id"
           },
-          "status": "explicit"
+          "name": "customer_id",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
         },
         {
+          "foreign_key": null,
           "name": "order_date",
-          "type": "datetime",
-          "primary_key": false,
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "primary_key": false,
+          "status": "explicit",
+          "type": "datetime",
+          "unique": false
         },
         {
-          "name": "status",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "status",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
         }
-      ]
+      ],
+      "name": "Order"
     },
     {
-      "name": "OrderProduct",
       "fields": [
         {
-          "name": "order_id",
-          "type": "int",
-          "primary_key": true,
+          "foreign_key": null,
+          "name": "order_product_id",
           "nullable": false,
+          "primary_key": true,
+          "status": "deduced",
+          "type": "int",
           "unique": true,
-          "foreign_key": {
-            "target_entity": "Order",
-            "target_field": "order_id",
-            "relationship": "many_to_one"
-          },
-          "status": "explicit",
           "unique_status": "explicit"
         },
         {
-          "name": "product_id",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": {
-            "target_entity": "Product",
-            "target_field": "product_id",
-            "relationship": "one_to_many"
+            "relationship": "many_to_one",
+            "target_entity": "Order",
+            "target_field": "order_id"
           },
-          "status": "explicit",
+          "name": "order_id",
+          "nullable": false,
+          "primary_key": false,
+          "status": "deduced",
+          "type": "int",
+          "unique": false,
           "unique_status": "rejected"
         },
         {
-          "name": "quantity",
-          "type": "int",
-          "primary_key": false,
+          "foreign_key": {
+            "relationship": "one_to_many",
+            "target_entity": "Product",
+            "target_field": "product_id"
+          },
+          "name": "product_id",
           "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
           "unique": false,
+          "unique_status": "rejected"
+        },
+        {
           "foreign_key": null,
-          "status": "explicit"
+          "name": "quantity",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
         }
-      ]
+      ],
+      "name": "OrderProduct"
+    },
+    {
+      "fields": [
+        {
+          "foreign_key": null,
+          "name": "product_id",
+          "nullable": false,
+          "primary_key": true,
+          "status": "explicit",
+          "type": "int",
+          "unique": true,
+          "unique_status": "explicit"
+        },
+        {
+          "foreign_key": null,
+          "name": "name",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "description",
+          "nullable": true,
+          "primary_key": false,
+          "status": "deduced",
+          "type": "text",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "stock_quantity",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
+        }
+      ],
+      "name": "Product"
     }
   ]
 }

@@ -58,7 +58,7 @@ class TaskRepository:
         self._store = store
 
 
-    def read_one(self, id: int = None) -> Any:
+    def read_one(self, id: int = None) -> models.Task:
         """Reads one Task by its key. [crud:read_one: READ_ONE_BY_ID]"""
         found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
         if not found:
@@ -66,7 +66,7 @@ class TaskRepository:
         record = found[0]
         return models.Task(**record)
 
-    def update(self, id: int = None, status: str = None) -> Any:
+    def update(self, id: int = None, status: str = None) -> models.Task:
         """Updates an existing Task. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if id is not None:

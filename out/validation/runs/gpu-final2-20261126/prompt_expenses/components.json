@@ -1,636 +1,16 @@
 {
   "components": {
-    "facade": {
-      "type": "cli",
-      "technology": "click",
-      "invocation": {
-        "positional": [],
-        "options": [],
-        "commands": [
-          {
-            "name": "expense",
-            "options": [
-              {
-                "name": "--help",
-                "short": "-h",
-                "type": "bool",
-                "required": false,
-                "default": null
-              },
-              {
-                "name": "--version",
-                "short": "-v",
-                "type": "bool",
-                "required": false,
-                "default": null
-              }
-            ],
-            "subcommands": [
-              {
-                "name": "category add",
-                "options": [
-                  {
-                    "name": "--name",
-                    "short": "-n",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--description",
-                    "short": "-d",
-                    "type": "str",
-                    "required": false,
-                    "default": ""
-                  },
-                  {
-                    "name": "--budget",
-                    "short": "-b",
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--icon",
-                    "short": "-i",
-                    "type": "str",
-                    "required": false,
-                    "default": ""
-                  }
-                ]
-              },
-              {
-                "name": "category list",
-                "options": []
-              },
-              {
-                "name": "category update",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": "-i",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--name",
-                    "short": "-n",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--description",
-                    "short": "-d",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--budget",
-                    "short": "-b",
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--icon",
-                    "short": "-i",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "category delete",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": "-i",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "add",
-                "options": [
-                  {
-                    "name": "--amount",
-                    "short": "-a",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--description",
-                    "short": "-d",
-                    "type": "str",
-                    "required": true,
-                    "default": ""
-                  },
-                  {
-                    "name": "--category",
-                    "short": "-c",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--expense-date",
-                    "short": "-e",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--method",
-                    "short": "-m",
-                    "type": "str",
-                    "required": false,
-                    "default": "cash"
-                  },
-                  {
-                    "name": "--recurring",
-                    "short": "-r",
-                    "type": "bool",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "list",
-                "options": [
-                  {
-                    "name": "--category",
-                    "short": "-c",
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--from-date",
-                    "short": "-f",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--to-date",
-                    "short": "-t",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--method",
-                    "short": "-m",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "report monthly",
-                "options": [
-                  {
-                    "name": "--month",
-                    "short": "-m",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "report yearly",
-                "options": [
-                  {
-                    "name": "--year",
-                    "short": "-y",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "export",
-                "options": [
-                  {
-                    "name": "--from-date",
-                    "short": "-f",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--to-date",
-                    "short": "-t",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--output",
-                    "short": "-o",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "recurring detect",
-                "options": []
-              },
-              {
-                "name": "update",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--amount-cents",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--description",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--expense-date",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--category-id",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--payment-method",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--is-recurring",
-                    "short": null,
-                    "type": "bool",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "delete",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--amount-cents",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--description",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--expense-date",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--category-id",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--payment-method",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--is-recurring",
-                    "short": null,
-                    "type": "bool",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "name": "budget",
-            "options": [
-              {
-                "name": "--help",
-                "short": "-h",
-                "type": "bool",
-                "required": false,
-                "default": null
-              },
-              {
-                "name": "--version",
-                "short": "-v",
-                "type": "bool",
-                "required": false,
-                "default": null
-              }
-            ],
-            "subcommands": [
-              {
-                "name": "list",
-                "options": [
-                  {
-                    "name": "--category",
-                    "short": "-c",
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--month",
-                    "short": "-m",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "add",
-                "options": [
-                  {
-                    "name": "--category-id",
-                    "short": "-c",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--month",
-                    "short": "-m",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--amount",
-                    "short": "-a",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "update",
-                "options": [
-                  {
-                    "name": "--category-id",
-                    "short": "-c",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--month",
-                    "short": "-m",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--amount",
-                    "short": "-a",
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "delete",
-                "options": [
-                  {
-                    "name": "--category-id",
-                    "short": "-c",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--month",
-                    "short": "-m",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "name": "Category",
-            "options": [],
-            "subcommands": [
-              {
-                "name": "add",
-                "options": [
-                  {
-                    "name": "--name",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--description",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--monthly-budget",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--icon",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "list",
-                "options": [
-                  {
-                    "name": "--name",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--description",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--monthly-budget",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--icon",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "update",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--name",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--description",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--monthly-budget",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--icon",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "delete",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": null,
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--name",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--description",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--monthly-budget",
-                    "short": null,
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--icon",
-                    "short": null,
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "persistence": {
-      "required": true,
-      "technology": "sqlite"
-    },
-    "external_access": [],
     "crud_services": [
+      {
+        "entity": "Budget",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      },
       {
         "entity": "Category",
         "operations": [
@@ -650,17 +30,637 @@
           "update",
           "delete"
         ]
-      },
-      {
-        "entity": "Budget",
-        "operations": [
-          "create",
-          "read_one",
-          "read_all",
-          "update",
-          "delete"
-        ]
       }
-    ]
+    ],
+    "external_access": [],
+    "facade": {
+      "invocation": {
+        "commands": [
+          {
+            "name": "expense",
+            "options": [
+              {
+                "default": null,
+                "name": "--help",
+                "required": false,
+                "short": "-h",
+                "type": "bool"
+              },
+              {
+                "default": null,
+                "name": "--version",
+                "required": false,
+                "short": "-v",
+                "type": "bool"
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "category add",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": true,
+                    "short": "-n",
+                    "type": "str"
+                  },
+                  {
+                    "default": "",
+                    "name": "--description",
+                    "required": false,
+                    "short": "-d",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--budget",
+                    "required": false,
+                    "short": "-b",
+                    "type": "int"
+                  },
+                  {
+                    "default": "",
+                    "name": "--icon",
+                    "required": false,
+                    "short": "-i",
+                    "type": "str"
+                  }
+                ]
+              },
+              {
+                "name": "category list",
+                "options": []
+              },
+              {
+                "name": "category update",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": "-i",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": false,
+                    "short": "-n",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--description",
+                    "required": false,
+                    "short": "-d",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--budget",
+                    "required": false,
+                    "short": "-b",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--icon",
+                    "required": false,
+                    "short": "-i",
+                    "type": "str"
+                  }
+                ]
+              },
+              {
+                "name": "category delete",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": "-i",
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--amount",
+                    "required": true,
+                    "short": "-a",
+                    "type": "int"
+                  },
+                  {
+                    "default": "",
+                    "name": "--description",
+                    "required": true,
+                    "short": "-d",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--category",
+                    "required": true,
+                    "short": "-c",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--expense-date",
+                    "required": false,
+                    "short": "-e",
+                    "type": "str"
+                  },
+                  {
+                    "default": "cash",
+                    "name": "--method",
+                    "required": false,
+                    "short": "-m",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--recurring",
+                    "required": false,
+                    "short": "-r",
+                    "type": "bool"
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--category",
+                    "required": false,
+                    "short": "-c",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--from-date",
+                    "required": false,
+                    "short": "-f",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--to-date",
+                    "required": false,
+                    "short": "-t",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--method",
+                    "required": false,
+                    "short": "-m",
+                    "type": "str"
+                  }
+                ]
+              },
+              {
+                "name": "report monthly",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--month",
+                    "required": true,
+                    "short": "-m",
+                    "type": "str"
+                  }
+                ]
+              },
+              {
+                "name": "report yearly",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--year",
+                    "required": true,
+                    "short": "-y",
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "export",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--from-date",
+                    "required": true,
+                    "short": "-f",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--to-date",
+                    "required": true,
+                    "short": "-t",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--output",
+                    "required": true,
+                    "short": "-o",
+                    "type": "str"
+                  }
+                ]
+              },
+              {
+                "name": "recurring detect",
+                "options": []
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--amount-cents",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--description",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--expense-date",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--category-id",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--payment-method",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--is-recurring",
+                    "required": false,
+                    "short": null,
+                    "type": "bool"
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--amount-cents",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--description",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--expense-date",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--category-id",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--payment-method",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--is-recurring",
+                    "required": false,
+                    "short": null,
+                    "type": "bool"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "budget",
+            "options": [
+              {
+                "default": null,
+                "name": "--help",
+                "required": false,
+                "short": "-h",
+                "type": "bool"
+              },
+              {
+                "default": null,
+                "name": "--version",
+                "required": false,
+                "short": "-v",
+                "type": "bool"
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--category",
+                    "required": false,
+                    "short": "-c",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--month",
+                    "required": false,
+                    "short": "-m",
+                    "type": "str"
+                  }
+                ]
+              },
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--category-id",
+                    "required": true,
+                    "short": "-c",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--month",
+                    "required": true,
+                    "short": "-m",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--amount",
+                    "required": true,
+                    "short": "-a",
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--category-id",
+                    "required": true,
+                    "short": "-c",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--month",
+                    "required": true,
+                    "short": "-m",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--amount",
+                    "required": false,
+                    "short": "-a",
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--category-id",
+                    "required": true,
+                    "short": "-c",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--month",
+                    "required": false,
+                    "short": "-m",
+                    "type": "str"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Category",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--description",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--monthly-budget",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--icon",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--description",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--monthly-budget",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--icon",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--description",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--monthly-budget",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--icon",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--description",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--monthly-budget",
+                    "required": false,
+                    "short": null,
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--icon",
+                    "required": false,
+                    "short": null,
+                    "type": "str"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "options": [],
+        "positional": []
+      },
+      "technology": "click",
+      "type": "cli"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    }
   }
 }

@@ -1,96 +1,96 @@
 {
   "invariants": [
     {
-      "text": "Customer.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A customer can have multiple orders, but each order must be linked to exactly one customer."
     },
     {
-      "text": "Customer.name must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A customer's email must be unique across all customers."
     },
     {
-      "text": "Customer.name must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An order cannot be created with a customer_id that does not exist in the Customer table."
     },
     {
-      "text": "Customer.email must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An order must be associated with a valid customer through the customer_id field."
     },
     {
-      "text": "Customer.email must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An order must have at least one item in the order_items list to be valid."
     },
     {
-      "text": "Order.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.email must be a string"
     },
     {
-      "text": "Order.customer_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.email must not be null"
     },
     {
-      "text": "Order.customer_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Order.customer_id must reference an existing Customer.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.name must be a string"
     },
     {
-      "text": "Order.order_items must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.name must not be null"
     },
     {
-      "text": "Order.order_items must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "If an order is marked as cancelled, no further status changes can be applied to it."
     },
     {
-      "text": "Order.status must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "If an order status is changed to 'completed', all order items must be marked as fulfilled."
     },
     {
-      "text": "Order.status must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Order.customer_id must be an integer"
     },
     {
-      "text": "An order must be associated with a valid customer through the customer_id field.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.customer_id must not be null"
     },
     {
-      "text": "The status of an order must be one of 'pending', 'completed', or 'cancelled'.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.customer_id must reference an existing Customer.id"
     },
     {
-      "text": "If an order status is changed to 'completed', all order items must be marked as fulfilled.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "An order cannot be created with a customer_id that does not exist in the Customer table.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.order_items must be a string"
     },
     {
-      "text": "The total order value is the sum of the prices of all items in the order_items list.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.order_items must not be null"
     },
     {
-      "text": "A customer can have multiple orders, but each order must be linked to exactly one customer.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.status must be a string"
     },
     {
-      "text": "If an order is marked as cancelled, no further status changes can be applied to it.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.status must not be null"
     },
     {
-      "text": "The order_items list in an order must not contain duplicate items with the same product and quantity.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The order_items list in an order must not contain duplicate items with the same product and quantity."
     },
     {
-      "text": "A customer's email must be unique across all customers.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The status of an order must be one of 'pending', 'completed', or 'cancelled'."
     },
     {
-      "text": "An order must have at least one item in the order_items list to be valid.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The total order value is the sum of the prices of all items in the order_items list."
     }
   ]
 }

@@ -1,91 +1,91 @@
 {
   "data_models": [
     {
-      "name": "Product",
       "fields": [
         {
-          "name": "id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "name",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
+          "name": "name",
+          "nullable": false,
+          "primary_key": false,
           "status": "explicit",
+          "type": "string",
+          "unique": false,
           "unique_status": "rejected"
         },
         {
+          "foreign_key": null,
           "name": "category",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
           "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "unique": false
         },
         {
+          "foreign_key": null,
           "name": "price",
-          "type": "decimal",
-          "primary_key": false,
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "primary_key": false,
+          "status": "explicit",
+          "type": "decimal",
+          "unique": false
         },
         {
-          "name": "quantity",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "quantity",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
         }
-      ]
+      ],
+      "name": "Product"
     },
     {
-      "name": "User",
       "fields": [
         {
-          "name": "id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "id",
+          "nullable": false,
+          "primary_key": true,
           "status": "deduced",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "username",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
+          "name": "username",
+          "nullable": false,
+          "primary_key": false,
           "status": "deduced",
+          "type": "string",
+          "unique": false,
           "unique_status": "rejected"
         },
         {
-          "name": "email",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
+          "name": "email",
+          "nullable": false,
+          "primary_key": false,
           "status": "deduced",
+          "type": "string",
+          "unique": false,
           "unique_status": "rejected"
         }
-      ]
+      ],
+      "name": "User"
     }
   ]
 }

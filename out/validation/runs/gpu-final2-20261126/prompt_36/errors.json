@@ -1,19 +1,19 @@
 {
   "errors": [
     {
-      "name": "CategoryNotFoundError",
       "base": "LookupError",
-      "description": "Raised when a requested category does not exist in the system."
+      "description": "Raised when a requested category does not exist in the system.",
+      "name": "CategoryNotFoundError"
     },
     {
-      "name": "ProductCategoryNotFoundError",
-      "base": "LookupError",
-      "description": "Raised when a product is referenced with a category that does not exist."
-    },
-    {
-      "name": "CategoryStillHasProductsError",
       "base": "RuntimeError",
-      "description": "Raised when an attempt is made to delete a category while it still has products assigned to it."
+      "description": "Raised when an attempt is made to delete a category while it still has products assigned to it.",
+      "name": "CategoryStillHasProductsError"
+    },
+    {
+      "base": "LookupError",
+      "description": "Raised when a product is referenced with a category that does not exist.",
+      "name": "ProductCategoryNotFoundError"
     }
   ]
 }

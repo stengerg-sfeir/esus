@@ -114,7 +114,7 @@ def errors():
                 "error-decl",
                 json_object(
                     [
-                        ("name", "identifier"),
+                        ("name", "error-name"),
                         ("base", "base-error"),
                         ("description", "string"),
                     ]
@@ -341,9 +341,9 @@ def service_contracts():
             rule("contract-list", json_list("contract", 0, MAX_SERVICES)),
             rule(
                 "contract",
-                json_object([("service_name", "identifier"), ("methods", "method-list")]),
+                json_object([("service_name", "service-name"), ("methods", "method-list")]),
             ),
-            rule("raises-list", json_list("identifier", 0, MAX_RAISES)),
+            rule("raises-list", json_list("error-name", 0, MAX_RAISES)),
             *method_rules([("raises", "raises-list")]),
         ]
     )
@@ -421,7 +421,7 @@ def persistence_ports():
                 json_object(
                     [
                         ("entity", "identifier"),
-                        ("interface_name", "identifier"),
+                        ("interface_name", "repository-name"),
                         ("methods", "method-list"),
                     ]
                 ),

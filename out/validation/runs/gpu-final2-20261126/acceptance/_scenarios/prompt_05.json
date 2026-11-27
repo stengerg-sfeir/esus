@@ -21,22 +21,6 @@
       }
     },
     {
-      "name": "cli:Contact update",
-      "when": {
-        "cli_variants": [
-          [
-            "Contact",
-            "update",
-            "--id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Contact delete",
       "when": {
         "cli_variants": [
@@ -49,6 +33,22 @@
           [
             "Contact",
             "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Contact update",
+      "when": {
+        "cli_variants": [
+          [
+            "Contact",
+            "update",
             "--id",
             "1"
           ]

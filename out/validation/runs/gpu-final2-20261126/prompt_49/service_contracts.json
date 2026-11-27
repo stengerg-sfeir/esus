@@ -1,23 +1,84 @@
 {
   "service_contracts": [
     {
-      "service_name": "EmployeeRepository",
       "methods": [
         {
-          "name": "read_one",
-          "description": "Reads one Employee by its key.",
+          "description": "Retrieve a department record by its name.",
+          "name": "find_department_by_name",
           "params": [
             {
-              "name": "employee_id",
+              "name": "department_name",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Department"
+        },
+        {
+          "description": "Lists every Department; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "department_name",
+              "type": "str"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Department]"
+        },
+        {
+          "description": "Reads one Department by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "department_id",
               "type": "int"
             }
           ],
-          "return_type": "models.Employee",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Department"
+        }
+      ],
+      "service_name": "DepartmentRepository"
+    },
+    {
+      "methods": [
+        {
+          "description": "Retrieve an employee record by their email address.",
+          "name": "find_employee_by_email",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Employee"
         },
         {
-          "name": "read_all",
+          "description": "Retrieve a list of employees belonging to a specific department by department ID.",
+          "name": "find_employees_by_department",
+          "params": [
+            {
+              "name": "department_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Employee]"
+        },
+        {
+          "description": "Lists the Employee records belonging to one Department.",
+          "name": "get_employees_by_department_id",
+          "params": [
+            {
+              "name": "department_id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Employee]"
+        },
+        {
           "description": "Lists every Employee; optional fields narrow the result.",
+          "name": "read_all",
           "params": [
             {
               "name": "first_name",
@@ -36,84 +97,23 @@
               "type": "int"
             }
           ],
-          "return_type": "list[Employee]",
-          "raises": []
-        },
-        {
-          "name": "get_employees_by_department_id",
-          "description": "Lists the Employee records belonging to one Department.",
-          "params": [
-            {
-              "name": "department_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Employee]",
-          "raises": []
-        },
-        {
-          "name": "find_employee_by_email",
-          "description": "Retrieve an employee record by their email address.",
-          "params": [
-            {
-              "name": "email",
-              "type": "str"
-            }
-          ],
-          "return_type": "models.Employee"
-        },
-        {
-          "name": "find_employees_by_department",
-          "description": "Retrieve a list of employees belonging to a specific department by department ID.",
-          "params": [
-            {
-              "name": "department_id",
-              "type": "int"
-            }
-          ],
+          "raises": [],
           "return_type": "list[Employee]"
-        }
-      ]
-    },
-    {
-      "service_name": "DepartmentRepository",
-      "methods": [
-        {
-          "name": "read_all",
-          "description": "Lists every Department; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "department_name",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Department]",
-          "raises": []
         },
         {
+          "description": "Reads one Employee by its key.",
           "name": "read_one",
-          "description": "Reads one Department by its key.",
           "params": [
             {
-              "name": "department_id",
+              "name": "employee_id",
               "type": "int"
             }
           ],
-          "return_type": "models.Department",
-          "raises": []
-        },
-        {
-          "name": "find_department_by_name",
-          "description": "Retrieve a department record by its name.",
-          "params": [
-            {
-              "name": "department_name",
-              "type": "str"
-            }
-          ],
-          "return_type": "models.Department"
+          "raises": [],
+          "return_type": "models.Employee"
         }
-      ]
+      ],
+      "service_name": "EmployeeRepository"
     }
   ]
 }

@@ -27,13 +27,13 @@ class Post:
 
 
 @dataclass
-class Tag:
-    tag_id: int = None
-    name: str = None
-
-
-@dataclass
 class PostTag:
     post_tag_id: int = None
     post_id: int = None
     tag_id: int = None
+
+
+@dataclass
+class Tag:
+    tag_id: int = None
+    name: str = None

@@ -1,67 +1,67 @@
 {
   "interaction_adapters": [
     {
-      "action_name": "ordership",
-      "target_service": "OrderService",
-      "target_method": "ship_order",
+      "action_name": "ordercancel",
       "input_fields": [
         {
           "field_name": "order_id",
-          "target_param": "order_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Order",
-          "required": true
+          "required": true,
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID"
         }
-      ]
+      ],
+      "target_method": "cancel_order",
+      "target_service": "OrderService"
     },
     {
-      "action_name": "ordercancel",
-      "target_service": "OrderService",
-      "target_method": "cancel_order",
+      "action_name": "ordership",
       "input_fields": [
         {
           "field_name": "order_id",
-          "target_param": "order_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Order",
-          "required": true
+          "required": true,
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID"
         }
-      ]
+      ],
+      "target_method": "ship_order",
+      "target_service": "OrderService"
     },
     {
       "action_name": "orderupdate",
-      "target_service": "OrderService",
-      "target_method": "update_order",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Order",
-          "required": false
+          "required": false,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "state",
-          "target_param": "state",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "state",
+          "transform": "DIRECT"
         },
         {
           "field_name": "created_at",
-          "target_param": "created_at",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "created_at",
+          "transform": "ISO_DATE"
         },
         {
           "field_name": "updated_at",
-          "target_param": "updated_at",
-          "transform": "ISO_DATE",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "updated_at",
+          "transform": "ISO_DATE"
         }
-      ]
+      ],
+      "target_method": "update_order",
+      "target_service": "OrderService"
     }
   ]
 }

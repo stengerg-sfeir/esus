@@ -12,16 +12,6 @@ from typing import Any, Dict, List, Literal, Optional
 
 
 @dataclass
-class Book:
-    id: int = None
-    title: str = None
-    isbn: str = None
-    published_year: int = None
-    available_copies: int = 1
-    author_id: int = None
-
-
-@dataclass
 class Author:
     id: int = None
     name: str = None
@@ -30,12 +20,13 @@ class Author:
 
 
 @dataclass
-class Member:
+class Book:
     id: int = None
-    name: str = None
-    email: str = None
-    membership_date: datetime.date = None
-    is_active: bool = True
+    title: str = None
+    isbn: str = None
+    published_year: int = None
+    available_copies: int = 1
+    author_id: int = None
 
 
 @dataclass
@@ -47,3 +38,12 @@ class Loan:
     due_date: datetime.date = None
     return_date: Optional[datetime.date] = None
     status: str = None
+
+
+@dataclass
+class Member:
+    id: int = None
+    name: str = None
+    email: str = None
+    membership_date: datetime.date = None
+    is_active: bool = True

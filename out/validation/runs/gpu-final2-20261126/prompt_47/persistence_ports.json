@@ -1,13 +1,54 @@
 {
   "persistence_ports": {
+    "entity_mappings": [
+      {
+        "entity": "Project",
+        "indexes": [
+          "created_at",
+          "updated_at"
+        ],
+        "primary_key": "id",
+        "table": "projects"
+      },
+      {
+        "entity": "Task",
+        "indexes": [
+          "project_id",
+          "created_at",
+          "updated_at"
+        ],
+        "primary_key": "id",
+        "table": "tasks"
+      },
+      {
+        "entity": "TaskAssignment",
+        "indexes": [
+          "task_id",
+          "member_id",
+          "assigned_at",
+          "updated_at"
+        ],
+        "primary_key": "id",
+        "table": "task_assignments"
+      },
+      {
+        "entity": "TeamMember",
+        "indexes": [
+          "email",
+          "created_at"
+        ],
+        "primary_key": "id",
+        "table": "team_members"
+      }
+    ],
     "repositories": [
       {
         "entity": "Project",
         "interface_name": "ProjectRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new Project.",
+            "name": "create",
             "params": [
               {
                 "name": "name",
@@ -26,226 +67,24 @@
                 "type": "datetime.datetime"
               }
             ],
-            "return_type": "models.Project",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Project"
           },
           {
-            "name": "read_one",
-            "description": "Reads one Project by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Project",
-            "raises": []
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every Project; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "description",
-                "type": "str"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "list[Project]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Project.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "description",
-                "type": "str"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.Project",
-            "raises": []
-          },
-          {
-            "name": "delete",
             "description": "Deletes an existing Project.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "description",
-                "type": "str"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "None",
-            "raises": []
-          }
-        ]
-      },
-      {
-        "entity": "Task",
-        "interface_name": "TaskRepository",
-        "methods": [
-          {
-            "name": "create",
-            "description": "Creates a new Task.",
-            "params": [
-              {
-                "name": "title",
-                "type": "str"
-              },
-              {
-                "name": "description",
-                "type": "str"
-              },
-              {
-                "name": "project_id",
-                "type": "int"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.Task",
-            "raises": []
-          },
-          {
-            "name": "read_one",
-            "description": "Reads one Task by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Task",
-            "raises": []
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every Task; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "title",
-                "type": "str"
-              },
-              {
-                "name": "description",
-                "type": "str"
-              },
-              {
-                "name": "project_id",
-                "type": "int"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "list[Task]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Task.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "title",
-                "type": "str"
-              },
-              {
-                "name": "description",
-                "type": "str"
-              },
-              {
-                "name": "project_id",
-                "type": "int"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.Task",
-            "raises": []
-          },
-          {
             "name": "delete",
-            "description": "Deletes an existing Task.",
             "params": [
               {
                 "name": "id",
                 "type": "int"
               },
               {
-                "name": "title",
+                "name": "name",
                 "type": "str"
               },
               {
                 "name": "description",
                 "type": "str"
-              },
-              {
-                "name": "project_id",
-                "type": "int"
               },
               {
                 "name": "created_at",
@@ -256,78 +95,48 @@
                 "type": "datetime.datetime"
               }
             ],
-            "return_type": "None",
-            "raises": []
-          }
-        ]
-      },
-      {
-        "entity": "TeamMember",
-        "interface_name": "TeamMemberRepository",
-        "methods": [
-          {
-            "name": "create",
-            "description": "Creates a new TeamMember.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              },
-              {
-                "name": "role",
-                "type": "str"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.TeamMember",
-            "raises": []
+            "raises": [],
+            "return_type": "None"
           },
           {
-            "name": "read_one",
-            "description": "Reads one TeamMember by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.TeamMember",
-            "raises": []
-          },
-          {
+            "description": "Lists every Project; optional fields narrow the result.",
             "name": "read_all",
-            "description": "Lists every TeamMember; optional fields narrow the result.",
             "params": [
               {
                 "name": "name",
                 "type": "str"
               },
               {
-                "name": "email",
-                "type": "str"
-              },
-              {
-                "name": "role",
+                "name": "description",
                 "type": "str"
               },
               {
                 "name": "created_at",
                 "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
               }
             ],
-            "return_type": "list[TeamMember]",
-            "raises": []
+            "raises": [],
+            "return_type": "list[Project]"
           },
           {
+            "description": "Reads one Project by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Project"
+          },
+          {
+            "description": "Updates an existing Project.",
             "name": "update",
-            "description": "Updates an existing TeamMember.",
             "params": [
               {
                 "name": "id",
@@ -338,48 +147,20 @@
                 "type": "str"
               },
               {
-                "name": "email",
-                "type": "str"
-              },
-              {
-                "name": "role",
+                "name": "description",
                 "type": "str"
               },
               {
                 "name": "created_at",
                 "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.TeamMember",
-            "raises": []
-          },
-          {
-            "name": "delete",
-            "description": "Deletes an existing TeamMember.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
               },
               {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              },
-              {
-                "name": "role",
-                "type": "str"
-              },
-              {
-                "name": "created_at",
+                "name": "updated_at",
                 "type": "datetime.datetime"
               }
             ],
-            "return_type": "None",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Project"
           }
         ]
       },
@@ -388,8 +169,8 @@
         "interface_name": "TaskAssignmentRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new TaskAssignment.",
+            "name": "create",
             "params": [
               {
                 "name": "task_id",
@@ -412,84 +193,12 @@
                 "type": "datetime.datetime"
               }
             ],
-            "return_type": "models.TaskAssignment",
-            "raises": []
+            "raises": [],
+            "return_type": "models.TaskAssignment"
           },
           {
-            "name": "read_one",
-            "description": "Reads one TaskAssignment by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.TaskAssignment",
-            "raises": []
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every TaskAssignment; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "task_id",
-                "type": "int"
-              },
-              {
-                "name": "member_id",
-                "type": "int"
-              },
-              {
-                "name": "responsibility_type",
-                "type": "str"
-              },
-              {
-                "name": "assigned_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "list[TaskAssignment]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing TaskAssignment.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "task_id",
-                "type": "int"
-              },
-              {
-                "name": "member_id",
-                "type": "int"
-              },
-              {
-                "name": "responsibility_type",
-                "type": "str"
-              },
-              {
-                "name": "assigned_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "updated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.TaskAssignment",
-            "raises": []
-          },
-          {
-            "name": "delete",
             "description": "Deletes an existing TaskAssignment.",
+            "name": "delete",
             "params": [
               {
                 "name": "id",
@@ -516,23 +225,12 @@
                 "type": "datetime.datetime"
               }
             ],
-            "return_type": "None",
-            "raises": []
+            "raises": [],
+            "return_type": "None"
           },
           {
-            "name": "findAssignmentsByTaskId",
-            "description": "Retrieve all task assignments for a specific task identified by its ID.",
-            "params": [
-              {
-                "name": "taskId",
-                "type": "int"
-              }
-            ],
-            "return_type": "list[models.TaskAssignment]"
-          },
-          {
-            "name": "findAssignmentsByMemberId",
             "description": "Retrieve all task assignments for a specific team member identified by their ID.",
+            "name": "findAssignmentsByMemberId",
             "params": [
               {
                 "name": "memberId",
@@ -542,8 +240,8 @@
             "return_type": "list[models.TaskAssignment]"
           },
           {
-            "name": "findAssignmentsByResponsibilityType",
             "description": "Retrieve all task assignments with a specific responsibility type.",
+            "name": "findAssignmentsByResponsibilityType",
             "params": [
               {
                 "name": "responsibilityType",
@@ -553,8 +251,19 @@
             "return_type": "list[models.TaskAssignment]"
           },
           {
-            "name": "getAssignmentCountByTask",
+            "description": "Retrieve all task assignments for a specific task identified by its ID.",
+            "name": "findAssignmentsByTaskId",
+            "params": [
+              {
+                "name": "taskId",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[models.TaskAssignment]"
+          },
+          {
             "description": "Count the number of assignments associated with each task.",
+            "name": "getAssignmentCountByTask",
             "params": [
               {
                 "name": "id",
@@ -562,48 +271,339 @@
               }
             ],
             "return_type": "dict[str, int]"
+          },
+          {
+            "description": "Lists every TaskAssignment; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "task_id",
+                "type": "int"
+              },
+              {
+                "name": "member_id",
+                "type": "int"
+              },
+              {
+                "name": "responsibility_type",
+                "type": "str"
+              },
+              {
+                "name": "assigned_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[TaskAssignment]"
+          },
+          {
+            "description": "Reads one TaskAssignment by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.TaskAssignment"
+          },
+          {
+            "description": "Updates an existing TaskAssignment.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "task_id",
+                "type": "int"
+              },
+              {
+                "name": "member_id",
+                "type": "int"
+              },
+              {
+                "name": "responsibility_type",
+                "type": "str"
+              },
+              {
+                "name": "assigned_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.TaskAssignment"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Project",
-        "table": "projects",
-        "primary_key": "id",
-        "indexes": [
-          "created_at",
-          "updated_at"
         ]
       },
       {
         "entity": "Task",
-        "table": "tasks",
-        "primary_key": "id",
-        "indexes": [
-          "project_id",
-          "created_at",
-          "updated_at"
+        "interface_name": "TaskRepository",
+        "methods": [
+          {
+            "description": "Creates a new Task.",
+            "name": "create",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "project_id",
+                "type": "int"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Task"
+          },
+          {
+            "description": "Deletes an existing Task.",
+            "name": "delete",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "project_id",
+                "type": "int"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "None"
+          },
+          {
+            "description": "Lists every Task; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "project_id",
+                "type": "int"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Task]"
+          },
+          {
+            "description": "Reads one Task by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Task"
+          },
+          {
+            "description": "Updates an existing Task.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "project_id",
+                "type": "int"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Task"
+          }
         ]
       },
       {
         "entity": "TeamMember",
-        "table": "team_members",
-        "primary_key": "id",
-        "indexes": [
-          "email",
-          "created_at"
-        ]
-      },
-      {
-        "entity": "TaskAssignment",
-        "table": "task_assignments",
-        "primary_key": "id",
-        "indexes": [
-          "task_id",
-          "member_id",
-          "assigned_at",
-          "updated_at"
+        "interface_name": "TeamMemberRepository",
+        "methods": [
+          {
+            "description": "Creates a new TeamMember.",
+            "name": "create",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "role",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.TeamMember"
+          },
+          {
+            "description": "Deletes an existing TeamMember.",
+            "name": "delete",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "role",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "None"
+          },
+          {
+            "description": "Lists every TeamMember; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "role",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[TeamMember]"
+          },
+          {
+            "description": "Reads one TeamMember by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.TeamMember"
+          },
+          {
+            "description": "Updates an existing TeamMember.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "role",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.TeamMember"
+          }
         ]
       }
     ]

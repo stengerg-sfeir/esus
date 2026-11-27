@@ -1,128 +1,128 @@
 {
   "data_models": [
     {
-      "name": "Project",
       "fields": [
         {
-          "name": "project_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "project_id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
+          "foreign_key": null,
           "name": "name",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
           "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "unique": false
         },
         {
+          "foreign_key": null,
           "name": "description",
-          "type": "text",
-          "primary_key": false,
           "nullable": true,
-          "unique": false,
-          "foreign_key": null,
-          "status": "deduced"
+          "primary_key": false,
+          "status": "deduced",
+          "type": "text",
+          "unique": false
         },
         {
+          "foreign_key": null,
           "name": "created_at",
-          "type": "datetime",
-          "primary_key": false,
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "deduced"
+          "primary_key": false,
+          "status": "deduced",
+          "type": "datetime",
+          "unique": false
         },
         {
-          "name": "updated_at",
-          "type": "datetime",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "name": "updated_at",
+          "nullable": false,
+          "primary_key": false,
+          "status": "deduced",
+          "type": "datetime",
+          "unique": false
         }
-      ]
+      ],
+      "name": "Project"
     },
     {
-      "name": "Task",
       "fields": [
         {
-          "name": "task_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "task_id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
+          "foreign_key": null,
           "name": "title",
-          "type": "string",
-          "primary_key": false,
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
         },
         {
+          "foreign_key": null,
           "name": "description",
-          "type": "text",
-          "primary_key": false,
           "nullable": true,
-          "unique": false,
-          "foreign_key": null,
-          "status": "deduced"
+          "primary_key": false,
+          "status": "deduced",
+          "type": "text",
+          "unique": false
         },
         {
+          "foreign_key": null,
           "name": "status",
+          "nullable": false,
+          "primary_key": false,
+          "status": "deduced",
           "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "deduced"
+          "unique": false
         },
         {
-          "name": "project_id",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": {
+            "relationship": "one_to_many",
             "target_entity": "Project",
-            "target_field": "project_id",
-            "relationship": "one_to_many"
+            "target_field": "project_id"
           },
-          "status": "explicit"
+          "name": "project_id",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
         },
         {
+          "foreign_key": null,
           "name": "created_at",
-          "type": "datetime",
-          "primary_key": false,
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "deduced"
+          "primary_key": false,
+          "status": "deduced",
+          "type": "datetime",
+          "unique": false
         },
         {
-          "name": "updated_at",
-          "type": "datetime",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "name": "updated_at",
+          "nullable": false,
+          "primary_key": false,
+          "status": "deduced",
+          "type": "datetime",
+          "unique": false
         }
-      ]
+      ],
+      "name": "Task"
     }
   ]
 }

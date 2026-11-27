@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Employee', 'Department']
-REPOSITORIES = ['EmployeeRepository', 'DepartmentRepository']
+MODELS = ['Department', 'Employee']
+REPOSITORIES = ['DepartmentRepository', 'EmployeeRepository']
 SERVICES = []
 
 
@@ -197,6 +197,11 @@ def build_parser():
     parser.add_argument('--db', default=None,
                         help=('SQLite file for record storage (default: ' + DEFAULT_DB + ' in the working directory; use :memory: to stay in memory)'))
     sub = parser.add_subparsers(dest='command')
+    p_Department = sub.add_parser('Department')
+    sub_Department = p_Department.add_subparsers(dest='subcommand')
+    p_Department_add = sub_Department.add_parser('add')
+    p_Department_add.add_argument('--department-name', type=str, required=True, dest='department_name')
+    p_Department_add.set_defaults(_binding=('Department', 'add'))
     p_Employee = sub.add_parser('Employee')
     sub_Employee = p_Employee.add_subparsers(dest='subcommand')
     p_Employee_add = sub_Employee.add_parser('add')
@@ -205,6 +210,9 @@ def build_parser():
     p_Employee_add.add_argument('--email', type=str, required=True, dest='email')
     p_Employee_add.add_argument('--department-id', type=int, required=True, dest='department_id')
     p_Employee_add.set_defaults(_binding=('Employee', 'add'))
+    p_Employee_delete = sub_Employee.add_parser('delete')
+    p_Employee_delete.add_argument('--employee-id', type=int, required=True, dest='employee_id')
+    p_Employee_delete.set_defaults(_binding=('Employee', 'delete'))
     p_Employee_update = sub_Employee.add_parser('update')
     p_Employee_update.add_argument('--employee-id', type=int, required=False, dest='employee_id')
     p_Employee_update.add_argument('--first-name', type=str, required=False, dest='first_name')
@@ -212,14 +220,6 @@ def build_parser():
     p_Employee_update.add_argument('--email', type=str, required=False, dest='email')
     p_Employee_update.add_argument('--department-id', type=int, required=False, dest='department_id')
     p_Employee_update.set_defaults(_binding=('Employee', 'update'))
-    p_Employee_delete = sub_Employee.add_parser('delete')
-    p_Employee_delete.add_argument('--employee-id', type=int, required=True, dest='employee_id')
-    p_Employee_delete.set_defaults(_binding=('Employee', 'delete'))
-    p_Department = sub.add_parser('Department')
-    sub_Department = p_Department.add_subparsers(dest='subcommand')
-    p_Department_add = sub_Department.add_parser('add')
-    p_Department_add.add_argument('--department-name', type=str, required=True, dest='department_name')
-    p_Department_add.set_defaults(_binding=('Department', 'add'))
     return parser
 
 

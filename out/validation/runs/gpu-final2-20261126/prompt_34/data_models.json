@@ -1,101 +1,101 @@
 {
   "data_models": [
     {
-      "name": "Order",
       "fields": [
         {
-          "name": "order_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "order_id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "created_at",
-          "type": "datetime",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "name": "created_at",
+          "nullable": false,
+          "primary_key": false,
+          "status": "deduced",
+          "type": "datetime",
+          "unique": false
         },
         {
-          "name": "updated_at",
-          "type": "datetime",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "name": "updated_at",
+          "nullable": false,
+          "primary_key": false,
+          "status": "deduced",
+          "type": "datetime",
+          "unique": false
         }
-      ]
+      ],
+      "name": "Order"
     },
     {
-      "name": "OrderLine",
       "fields": [
         {
-          "name": "order_line_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "order_line_id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "order_id",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": {
+            "relationship": "one_to_many",
             "target_entity": "Order",
-            "target_field": "order_id",
-            "relationship": "one_to_many"
+            "target_field": "order_id"
           },
-          "status": "explicit"
-        },
-        {
-          "name": "product_id",
-          "type": "string",
-          "primary_key": false,
+          "name": "order_id",
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "quantity",
+          "primary_key": false,
+          "status": "explicit",
           "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "unique": false
         },
         {
+          "foreign_key": null,
+          "name": "product_id",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "quantity",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
           "name": "unit_price",
-          "type": "decimal",
-          "primary_key": false,
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "primary_key": false,
+          "status": "explicit",
+          "type": "decimal",
+          "unique": false
         },
         {
-          "name": "total_price",
-          "type": "decimal",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "name": "total_price",
+          "nullable": false,
+          "primary_key": false,
+          "status": "deduced",
+          "type": "decimal",
+          "unique": false
         }
-      ]
+      ],
+      "name": "OrderLine"
     }
   ]
 }

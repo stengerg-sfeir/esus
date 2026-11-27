@@ -1,96 +1,96 @@
 {
   "invariants": [
     {
-      "text": "Project.project_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Project.created_at must be a datetime"
     },
     {
-      "text": "Project.name must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Project.created_at must not be null"
     },
     {
-      "text": "Project.name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Project.description must be a string"
     },
     {
-      "text": "Project.description must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Project.name must be a string"
     },
     {
-      "text": "Project.created_at must be a datetime",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Project.name must not be null"
     },
     {
-      "text": "Project.created_at must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Project.project_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Project.updated_at must be a datetime",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Project.updated_at must be a datetime"
     },
     {
-      "text": "Project.updated_at must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Project.updated_at must not be null"
     },
     {
-      "text": "Task.task_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Task.created_at must be a datetime"
     },
     {
-      "text": "Task.title must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Task.created_at must not be null"
     },
     {
-      "text": "Task.title must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Task.description must be a string"
     },
     {
-      "text": "Task.description must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Task.project_id must be an integer"
     },
     {
-      "text": "Task.status must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Task.project_id must not be null"
     },
     {
-      "text": "Task.status must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Task.project_id must reference an existing Project.project_id"
     },
     {
-      "text": "Task.project_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Task.status must be a string"
     },
     {
-      "text": "Task.project_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Task.status must not be null"
     },
     {
-      "text": "Task.project_id must reference an existing Project.project_id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Task.task_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Task.created_at must be a datetime",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Task.title must be a string"
     },
     {
-      "text": "Task.created_at must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Task.title must not be null"
     },
     {
-      "text": "Task.updated_at must be a datetime",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Task.updated_at must be a datetime"
     },
     {
-      "text": "Task.updated_at must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Task.updated_at must not be null"
     },
     {
-      "text": "When a project is deleted, all tasks associated with that project must be removed.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The deletion of a project and the deletion of its associated tasks must be performed as a single atomic operation."
     },
     {
-      "text": "The deletion of a project and the deletion of its associated tasks must be performed as a single atomic operation.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When a project is deleted, all tasks associated with that project must be removed."
     }
   ]
 }

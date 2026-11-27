@@ -1,44 +1,26 @@
 {
   "components": {
+    "crud_services": [
+      {
+        "entity": "Account",
+        "operations": [
+          "read_one",
+          "read_all",
+          "create",
+          "update"
+        ]
+      },
+      {
+        "entity": "Customer",
+        "operations": [
+          "read_one",
+          "read_all"
+        ]
+      }
+    ],
+    "external_access": [],
     "facade": {
-      "type": "cli",
-      "technology": "argparse",
       "invocation": {
-        "positional": [
-          {
-            "name": "customer_id",
-            "type": "int",
-            "required": true
-          },
-          {
-            "name": "amount",
-            "type": "float",
-            "required": true
-          }
-        ],
-        "options": [
-          {
-            "name": "--operation",
-            "short": "-op",
-            "type": "str",
-            "required": false,
-            "default": "deposit"
-          },
-          {
-            "name": "--help",
-            "short": "-h",
-            "type": "bool",
-            "required": false,
-            "default": null
-          },
-          {
-            "name": "--version",
-            "short": "-v",
-            "type": "bool",
-            "required": false,
-            "default": null
-          }
-        ],
         "commands": [
           {
             "name": "Account",
@@ -48,18 +30,18 @@
                 "name": "add",
                 "options": [
                   {
+                    "default": null,
                     "name": "--customer-id",
-                    "short": null,
-                    "type": "int",
                     "required": false,
-                    "default": null
+                    "short": null,
+                    "type": "int"
                   },
                   {
+                    "default": null,
                     "name": "--balance",
-                    "short": null,
-                    "type": "int",
                     "required": false,
-                    "default": null
+                    "short": null,
+                    "type": "int"
                   }
                 ]
               },
@@ -67,55 +49,73 @@
                 "name": "update",
                 "options": [
                   {
+                    "default": null,
                     "name": "--id",
-                    "short": null,
-                    "type": "int",
                     "required": true,
-                    "default": null
+                    "short": null,
+                    "type": "int"
                   },
                   {
+                    "default": null,
                     "name": "--customer-id",
-                    "short": null,
-                    "type": "int",
                     "required": false,
-                    "default": null
+                    "short": null,
+                    "type": "int"
                   },
                   {
+                    "default": null,
                     "name": "--balance",
-                    "short": null,
-                    "type": "int",
                     "required": false,
-                    "default": null
+                    "short": null,
+                    "type": "int"
                   }
                 ]
               }
             ]
           }
+        ],
+        "options": [
+          {
+            "default": "deposit",
+            "name": "--operation",
+            "required": false,
+            "short": "-op",
+            "type": "str"
+          },
+          {
+            "default": null,
+            "name": "--help",
+            "required": false,
+            "short": "-h",
+            "type": "bool"
+          },
+          {
+            "default": null,
+            "name": "--version",
+            "required": false,
+            "short": "-v",
+            "type": "bool"
+          }
+        ],
+        "positional": [
+          {
+            "name": "customer_id",
+            "required": true,
+            "type": "int"
+          },
+          {
+            "name": "amount",
+            "required": true,
+            "type": "float"
+          }
         ]
-      }
+      },
+      "technology": "argparse",
+      "type": "cli"
     },
     "persistence": {
       "required": true,
       "technology": "sqlite"
-    },
-    "external_access": [],
-    "crud_services": [
-      {
-        "entity": "Customer",
-        "operations": [
-          "read_one",
-          "read_all"
-        ]
-      },
-      {
-        "entity": "Account",
-        "operations": [
-          "read_one",
-          "read_all",
-          "create",
-          "update"
-        ]
-      }
-    ]
+    }
   }
 }

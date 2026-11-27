@@ -50,33 +50,6 @@ def _model_list(records, model_cls):
 
 
 
-class CustomerRepository:
-    ENTITY = "Customer"
-    PK = "id"
-
-    def __init__(self, store):
-        self._store = store
-
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Customer(**record)
-
-    def read_all(self, name: str = None, email: str = None) -> list[models.Customer]:
-        """Lists every Customer; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if email is not None:
-            criteria.append(('email', 'eq', email))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Customer(**r) for r in found]
-
-
 class AccountRepository:
     ENTITY = "Account"
     PK = "id"
@@ -85,25 +58,7 @@ class AccountRepository:
         self._store = store
 
 
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Account by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Account(**record)
-
-    def read_all(self, customer_id: int = None, balance: int = None) -> list[models.Account]:
-        """Lists every Account; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if customer_id is not None:
-            criteria.append(('customer_id', 'eq', customer_id))
-        if balance is not None:
-            criteria.append(('balance', 'eq', balance))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Account(**r) for r in found]
-
-    def create(self, customer_id: int = None, balance: int = None) -> Any:
+    def create(self, customer_id: int = None, balance: int = None) -> models.Account:
         """Creates a new Account. [crud:create: STANDARD_CRUD]"""
         values = {}
         if customer_id is not None:
@@ -116,7 +71,25 @@ class AccountRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("customer_id", "Customer", "id", None)])
         return models.Account(**record)
 
-    def update(self, id: int = None, customer_id: int = None, balance: int = None) -> Any:
+    def read_all(self, customer_id: int = None, balance: int = None) -> list[models.Account]:
+        """Lists every Account; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if customer_id is not None:
+            criteria.append(('customer_id', 'eq', customer_id))
+        if balance is not None:
+            criteria.append(('balance', 'eq', balance))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Account(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Account:
+        """Reads one Account by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Account(**record)
+
+    def update(self, id: int = None, customer_id: int = None, balance: int = None) -> models.Account:
         """Updates an existing Account. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if id is not None:
@@ -133,3 +106,30 @@ class AccountRepository:
             patch['balance'] = balance
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Account(**record)
+
+
+class CustomerRepository:
+    ENTITY = "Customer"
+    PK = "id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def read_all(self, name: str = None, email: str = None) -> list[models.Customer]:
+        """Lists every Customer; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if email is not None:
+            criteria.append(('email', 'eq', email))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Customer(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Customer:
+        """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Customer(**record)

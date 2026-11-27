@@ -39,106 +39,21 @@ def _as_date(value):
 
 
 
-class OrderService:
-
-    def __init__(self, repos):
-        self._repos = repos
-
-
-    def cancel_order(self, order_id: int = None) -> None:
-        """Cancels an order by updating its status to 'cancelled' and releasing the reserved stock quantities of the products in the order. [delegates to OrderRepository.cancel_order — cancel/restore]"""
-        self._repos['OrderRepository'].cancel_order(order_id)
-
-    def create_order(self, customer_id: int = None, order_date: Any = None, status: str = None) -> None:
-        """Creates a new Order. [mechanical CRUD wrapper]"""
-        if customer_id is None or order_date is None or status is None:
-            raise ValueError('missing required field')
-        self._repos['OrderRepository'].create(customer_id=customer_id, order_date=order_date, status=status)
-
-    def read_all_orders(self) -> list[models.Order]:
-        """Lists every Order. [composes OrderRepository.read_all over READ_ALL]"""
-        records = self._repos['OrderRepository'].read_all()
-        criteria = []
-        out = []
-        for record in records:
-            row = record if isinstance(record, dict) else vars(record)
-            if all(_holds(row.get(field), operator, value)
-                   for field, operator, value in criteria):
-                out.append(record)
-        return out
-
-    def read_order_by_id(self, order_id: int = None) -> models.Order | None:
-        """Reads one Order by its key. [delegates to OrderRepository.get_order_with_products — renamed from read_order_by_id]"""
-        return self._repos['OrderRepository'].get_order_with_products(order_id)
-
-    def update_order(self, order_id: int = None, customer_id: int = None, order_date: Any = None, status: str = None) -> None:
-        """Updates an existing Order. [mechanical CRUD wrapper]"""
-        self._repos['OrderRepository'].update(order_id=order_id, customer_id=customer_id, order_date=order_date, status=status)
-
-    def delete_order(self, order_id: int = None) -> None:
-        """Deletes an existing Order. [mechanical CRUD wrapper]"""
-        self._repos['OrderRepository'].delete(order_id=order_id)
-
-
-class ProductService:
-
-    def __init__(self, repos):
-        self._repos = repos
-
-
-    def create_product(self, name: str = None, description: str = None, stock_quantity: int = None) -> None:
-        """Creates a new Product. [mechanical CRUD wrapper]"""
-        if name is None or stock_quantity is None:
-            raise ValueError('missing required field')
-        self._repos['ProductRepository'].create(name=name, description=description, stock_quantity=stock_quantity)
-
-    def read_all_products(self) -> list[models.Product]:
-        """Lists every Product. [composes ProductRepository.read_all over READ_ALL]"""
-        records = self._repos['ProductRepository'].read_all()
-        criteria = []
-        out = []
-        for record in records:
-            row = record if isinstance(record, dict) else vars(record)
-            if all(_holds(row.get(field), operator, value)
-                   for field, operator, value in criteria):
-                out.append(record)
-        return out
-
-    def read_product_by_id(self, product_id: int = None) -> models.Product | None:
-        """Reads one Product by its key. [mechanical standard read]"""
-        try:
-            return self._repos['ProductRepository'].read_one(product_id)
-        except errors.ProductNotFoundError:
-            return None
-
-    def update_product(self, product_id: int = None, name: str = None, description: str = None, stock_quantity: int = None) -> None:
-        """Updates an existing Product. [mechanical CRUD wrapper]"""
-        self._repos['ProductRepository'].update(product_id=product_id, name=name, description=description, stock_quantity=stock_quantity)
-
-    def delete_product(self, product_id: int = None) -> None:
-        """Deletes an existing Product. [mechanical CRUD wrapper]"""
-        self._repos['ProductRepository'].delete(product_id=product_id)
-
-
 class CustomerService:
 
     def __init__(self, repos):
         self._repos = repos
 
 
-    def validate_customer_exists(self, customer_id: int = None) -> bool:
-        """Validates that a customer exists in the system by customer ID. [llm-written by server — review]"""
-        try:
-            self._repos['CustomerRepository'].read_one(customer_id)
-            return True
-        except errors.CustomerNotFoundError:
-            return False
-
     def create_customer(self, name: str = None, email: str = None) -> None:
         """Creates a new Customer. [mechanical CRUD wrapper]"""
         if name is None or email is None:
             raise ValueError('missing required field')
         self._repos['CustomerRepository'].create(name=name, email=email)
+
+    def delete_customer(self, customer_id: int = None) -> None:
+        """Deletes an existing Customer. [mechanical CRUD wrapper]"""
+        self._repos['CustomerRepository'].delete(customer_id=customer_id)
 
     def read_all_customers(self) -> list[models.Customer]:
         """Lists every Customer. [composes CustomerRepository.read_all over READ_ALL]"""
@@ -163,9 +78,94 @@ class CustomerService:
         """Updates an existing Customer. [mechanical CRUD wrapper]"""
         self._repos['CustomerRepository'].update(customer_id=customer_id, name=name, email=email)
 
-    def delete_customer(self, customer_id: int = None) -> None:
-        """Deletes an existing Customer. [mechanical CRUD wrapper]"""
-        self._repos['CustomerRepository'].delete(customer_id=customer_id)
+    def validate_customer_exists(self, customer_id: int = None) -> bool:
+        """Validates that a customer exists in the system by customer ID. [llm-written by server — review]"""
+        try:
+            self._repos['CustomerRepository'].read_one(customer_id)
+            return True
+        except errors.CustomerNotFoundError:
+            return False
+
+
+class OrderService:
+
+    def __init__(self, repos):
+        self._repos = repos
+
+
+    def cancel_order(self, order_id: int = None) -> None:
+        """Cancels an order by updating its status to 'cancelled' and releasing the reserved stock quantities of the products in the order. [delegates to OrderRepository.cancel_order — cancel/restore]"""
+        self._repos['OrderRepository'].cancel_order(order_id)
+
+    def create_order(self, customer_id: int = None, order_date: Any = None, status: str = None) -> None:
+        """Creates a new Order. [mechanical CRUD wrapper]"""
+        if customer_id is None or order_date is None or status is None:
+            raise ValueError('missing required field')
+        self._repos['OrderRepository'].create(customer_id=customer_id, order_date=order_date, status=status)
+
+    def delete_order(self, order_id: int = None) -> None:
+        """Deletes an existing Order. [mechanical CRUD wrapper]"""
+        self._repos['OrderRepository'].delete(order_id=order_id)
+
+    def read_all_orders(self) -> list[models.Order]:
+        """Lists every Order. [composes OrderRepository.read_all over READ_ALL]"""
+        records = self._repos['OrderRepository'].read_all()
+        criteria = []
+        out = []
+        for record in records:
+            row = record if isinstance(record, dict) else vars(record)
+            if all(_holds(row.get(field), operator, value)
+                   for field, operator, value in criteria):
+                out.append(record)
+        return out
+
+    def read_order_by_id(self, order_id: int = None) -> models.Order | None:
+        """Reads one Order by its key. [delegates to OrderRepository.get_order_with_products — renamed from read_order_by_id]"""
+        return self._repos['OrderRepository'].get_order_with_products(order_id)
+
+    def update_order(self, order_id: int = None, customer_id: int = None, order_date: Any = None, status: str = None) -> None:
+        """Updates an existing Order. [mechanical CRUD wrapper]"""
+        self._repos['OrderRepository'].update(order_id=order_id, customer_id=customer_id, order_date=order_date, status=status)
+
+
+class ProductService:
+
+    def __init__(self, repos):
+        self._repos = repos
+
+
+    def create_product(self, name: str = None, description: str = None, stock_quantity: int = None) -> None:
+        """Creates a new Product. [mechanical CRUD wrapper]"""
+        if name is None or stock_quantity is None:
+            raise ValueError('missing required field')
+        self._repos['ProductRepository'].create(name=name, description=description, stock_quantity=stock_quantity)
+
+    def delete_product(self, product_id: int = None) -> None:
+        """Deletes an existing Product. [mechanical CRUD wrapper]"""
+        self._repos['ProductRepository'].delete(product_id=product_id)
+
+    def read_all_products(self) -> list[models.Product]:
+        """Lists every Product. [composes ProductRepository.read_all over READ_ALL]"""
+        records = self._repos['ProductRepository'].read_all()
+        criteria = []
+        out = []
+        for record in records:
+            row = record if isinstance(record, dict) else vars(record)
+            if all(_holds(row.get(field), operator, value)
+                   for field, operator, value in criteria):
+                out.append(record)
+        return out
+
+    def read_product_by_id(self, product_id: int = None) -> models.Product | None:
+        """Reads one Product by its key. [mechanical standard read]"""
+        try:
+            return self._repos['ProductRepository'].read_one(product_id)
+        except errors.ProductNotFoundError:
+            return None
+
+    def update_product(self, product_id: int = None, name: str = None, description: str = None, stock_quantity: int = None) -> None:
+        """Updates an existing Product. [mechanical CRUD wrapper]"""
+        self._repos['ProductRepository'].update(product_id=product_id, name=name, description=description, stock_quantity=stock_quantity)
 
 
 def _atomic(method):

@@ -1,6 +1,26 @@
 {
   "scenarios": [
     {
+      "name": "cli:AuditLog add",
+      "when": {
+        "cli_variants": [
+          [
+            "AuditLog",
+            "add",
+            "--operation",
+            "delete",
+            "--customer-id",
+            "1",
+            "--timestamp",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
       "name": "cli:Customer add",
       "when": {
         "cli_variants": [
@@ -15,22 +35,6 @@
             "2024-01-01T00:00:00",
             "--updated-at",
             "2024-01-01T00:00:00"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Customer update",
-      "when": {
-        "cli_variants": [
-          [
-            "Customer",
-            "update",
-            "--id",
-            "1"
           ]
         ]
       },
@@ -61,18 +65,14 @@
       }
     },
     {
-      "name": "cli:AuditLog add",
+      "name": "cli:Customer update",
       "when": {
         "cli_variants": [
           [
-            "AuditLog",
-            "add",
-            "--operation",
-            "create",
-            "--customer-id",
-            "1",
-            "--timestamp",
-            "2024-01-01T00:00:00"
+            "Customer",
+            "update",
+            "--id",
+            "1"
           ]
         ]
       },

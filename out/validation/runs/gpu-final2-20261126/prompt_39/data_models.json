@@ -1,230 +1,230 @@
 {
   "data_models": [
     {
-      "name": "User",
       "fields": [
         {
-          "name": "user_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "order_id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "email",
-          "type": "string",
-          "primary_key": false,
+          "foreign_key": {
+            "relationship": "one_to_many",
+            "target_entity": "User",
+            "target_field": "user_id"
+          },
+          "name": "user_id",
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
+          "primary_key": false,
           "status": "explicit",
+          "type": "int",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "order_date",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "datetime",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "total_amount",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "decimal",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "status",
+          "nullable": false,
+          "primary_key": false,
+          "status": "deduced",
+          "type": "string",
+          "unique": false
+        }
+      ],
+      "name": "Order"
+    },
+    {
+      "fields": [
+        {
+          "foreign_key": null,
+          "name": "order_item_id",
+          "nullable": false,
+          "primary_key": true,
+          "status": "explicit",
+          "type": "int",
+          "unique": true,
+          "unique_status": "explicit"
+        },
+        {
+          "foreign_key": {
+            "relationship": "one_to_many",
+            "target_entity": "Order",
+            "target_field": "order_id"
+          },
+          "name": "order_id",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
+        },
+        {
+          "foreign_key": {
+            "relationship": "one_to_many",
+            "target_entity": "Product",
+            "target_field": "product_id"
+          },
+          "name": "product_id",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "quantity",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "unit_price",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "decimal",
+          "unique": false
+        }
+      ],
+      "name": "OrderItem"
+    },
+    {
+      "fields": [
+        {
+          "foreign_key": null,
+          "name": "product_id",
+          "nullable": false,
+          "primary_key": true,
+          "status": "explicit",
+          "type": "int",
+          "unique": true,
+          "unique_status": "explicit"
+        },
+        {
+          "foreign_key": null,
+          "name": "name",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "description",
+          "nullable": true,
+          "primary_key": false,
+          "status": "deduced",
+          "type": "text",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "price",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "decimal",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "stock_quantity",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "created_at",
+          "nullable": false,
+          "primary_key": false,
+          "status": "deduced",
+          "type": "datetime",
+          "unique": false
+        }
+      ],
+      "name": "Product"
+    },
+    {
+      "fields": [
+        {
+          "foreign_key": null,
+          "name": "user_id",
+          "nullable": false,
+          "primary_key": true,
+          "status": "explicit",
+          "type": "int",
+          "unique": true,
+          "unique_status": "explicit"
+        },
+        {
+          "foreign_key": null,
+          "name": "email",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false,
           "unique_status": "rejected"
         },
         {
+          "foreign_key": null,
           "name": "password_hash",
-          "type": "string",
-          "primary_key": false,
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
         },
         {
+          "foreign_key": null,
           "name": "is_admin",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
           "type": "boolean",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "unique": false
         },
         {
+          "foreign_key": null,
           "name": "created_at",
+          "nullable": false,
+          "primary_key": false,
+          "status": "deduced",
           "type": "datetime",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "deduced"
+          "unique": false
         }
-      ]
-    },
-    {
-      "name": "Product",
-      "fields": [
-        {
-          "name": "product_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
-          "foreign_key": null,
-          "status": "explicit",
-          "unique_status": "explicit"
-        },
-        {
-          "name": "name",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "description",
-          "type": "text",
-          "primary_key": false,
-          "nullable": true,
-          "unique": false,
-          "foreign_key": null,
-          "status": "deduced"
-        },
-        {
-          "name": "price",
-          "type": "decimal",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "stock_quantity",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "created_at",
-          "type": "datetime",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "deduced"
-        }
-      ]
-    },
-    {
-      "name": "Order",
-      "fields": [
-        {
-          "name": "order_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
-          "foreign_key": null,
-          "status": "explicit",
-          "unique_status": "explicit"
-        },
-        {
-          "name": "user_id",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": {
-            "target_entity": "User",
-            "target_field": "user_id",
-            "relationship": "one_to_many"
-          },
-          "status": "explicit"
-        },
-        {
-          "name": "order_date",
-          "type": "datetime",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "total_amount",
-          "type": "decimal",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "status",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "deduced"
-        }
-      ]
-    },
-    {
-      "name": "OrderItem",
-      "fields": [
-        {
-          "name": "order_item_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
-          "foreign_key": null,
-          "status": "explicit",
-          "unique_status": "explicit"
-        },
-        {
-          "name": "order_id",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": {
-            "target_entity": "Order",
-            "target_field": "order_id",
-            "relationship": "one_to_many"
-          },
-          "status": "explicit"
-        },
-        {
-          "name": "product_id",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": {
-            "target_entity": "Product",
-            "target_field": "product_id",
-            "relationship": "one_to_many"
-          },
-          "status": "explicit"
-        },
-        {
-          "name": "quantity",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "unit_price",
-          "type": "decimal",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        }
-      ]
+      ],
+      "name": "User"
     }
   ]
 }

@@ -58,7 +58,7 @@ class CustomerRepository:
         self._store = store
 
 
-    def create(self, name: str = None, email: str = None) -> Any:
+    def create(self, name: str = None, email: str = None) -> models.Customer:
         """Creates a new Customer. [crud:create: STANDARD_CRUD]"""
         values = {}
         if name is not None:
@@ -69,42 +69,6 @@ class CustomerRepository:
         if unknown:
             raise ValueError(f"cannot create Customer from {unknown}")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Customer(**record)
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Customer(**record)
-
-    def read_all(self, name: str = None, email: str = None) -> list[models.Customer]:
-        """Lists every Customer; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if email is not None:
-            criteria.append(('email', 'eq', email))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Customer(**r) for r in found]
-
-    def update(self, id: int = None, name: str = None, email: str = None) -> Any:
-        """Updates an existing Customer. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Customer update matched {len(found)} records")
-        patch = {}
-        if id is not None and 'id' in ['id', 'name', 'email']:
-            patch['id'] = id
-        if name is not None and 'name' in ['id', 'name', 'email']:
-            patch['name'] = name
-        if email is not None and 'email' in ['id', 'name', 'email']:
-            patch['email'] = email
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Customer(**record)
 
     def delete(self, id: int = None, name: str = None, email: str = None) -> None:
@@ -123,6 +87,42 @@ class CustomerRepository:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
 
+    def read_all(self, name: str = None, email: str = None) -> list[models.Customer]:
+        """Lists every Customer; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if email is not None:
+            criteria.append(('email', 'eq', email))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Customer(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Customer:
+        """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Customer(**record)
+
+    def update(self, id: int = None, name: str = None, email: str = None) -> models.Customer:
+        """Updates an existing Customer. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Customer update matched {len(found)} records")
+        patch = {}
+        if id is not None and 'id' in ['id', 'name', 'email']:
+            patch['id'] = id
+        if name is not None and 'name' in ['id', 'name', 'email']:
+            patch['name'] = name
+        if email is not None and 'email' in ['id', 'name', 'email']:
+            patch['email'] = email
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.Customer(**record)
+
 
 class OrderRepository:
     ENTITY = "Order"
@@ -132,7 +132,7 @@ class OrderRepository:
         self._store = store
 
 
-    def create(self, customer_id: int = None, order_items: str = None, status: str = None) -> Any:
+    def create(self, customer_id: int = None, order_items: str = None, status: str = None) -> models.Order:
         """Creates a new Order. [crud:create: STANDARD_CRUD]"""
         values = {}
         if customer_id is not None:
@@ -147,46 +147,6 @@ class OrderRepository:
         if values.get('status') is None:
             values['status'] = 'pending'
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("customer_id", "Customer", "id", None)])
-        return models.Order(**record)
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Order by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Order(**record)
-
-    def read_all(self, customer_id: int = None, order_items: str = None, status: str = None) -> list[models.Order]:
-        """Lists every Order; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if customer_id is not None:
-            criteria.append(('customer_id', 'eq', customer_id))
-        if order_items is not None:
-            criteria.append(('order_items', 'eq', order_items))
-        if status is not None:
-            criteria.append(('status', 'eq', status))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Order(**r) for r in found]
-
-    def update(self, id: int = None, customer_id: int = None, order_items: str = None, status: str = None) -> Any:
-        """Updates an existing Order. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Order update matched {len(found)} records")
-        patch = {}
-        if id is not None and 'id' in ['id', 'customer_id', 'order_items', 'status']:
-            patch['id'] = id
-        if customer_id is not None and 'customer_id' in ['id', 'customer_id', 'order_items', 'status']:
-            patch['customer_id'] = customer_id
-        if order_items is not None and 'order_items' in ['id', 'customer_id', 'order_items', 'status']:
-            patch['order_items'] = order_items
-        if status is not None and 'status' in ['id', 'customer_id', 'order_items', 'status']:
-            patch['status'] = status
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Order(**record)
 
     def delete(self, id: int = None, customer_id: int = None, order_items: str = None, status: str = None) -> None:
@@ -206,3 +166,43 @@ class OrderRepository:
         for record in found:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
+
+    def read_all(self, customer_id: int = None, order_items: str = None, status: str = None) -> list[models.Order]:
+        """Lists every Order; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if customer_id is not None:
+            criteria.append(('customer_id', 'eq', customer_id))
+        if order_items is not None:
+            criteria.append(('order_items', 'eq', order_items))
+        if status is not None:
+            criteria.append(('status', 'eq', status))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Order(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Order:
+        """Reads one Order by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Order(**record)
+
+    def update(self, id: int = None, customer_id: int = None, order_items: str = None, status: str = None) -> models.Order:
+        """Updates an existing Order. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Order update matched {len(found)} records")
+        patch = {}
+        if id is not None and 'id' in ['id', 'customer_id', 'order_items', 'status']:
+            patch['id'] = id
+        if customer_id is not None and 'customer_id' in ['id', 'customer_id', 'order_items', 'status']:
+            patch['customer_id'] = customer_id
+        if order_items is not None and 'order_items' in ['id', 'customer_id', 'order_items', 'status']:
+            patch['order_items'] = order_items
+        if status is not None and 'status' in ['id', 'customer_id', 'order_items', 'status']:
+            patch['status'] = status
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.Order(**record)

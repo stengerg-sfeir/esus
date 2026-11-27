@@ -19,6 +19,38 @@
       }
     },
     {
+      "name": "cli:Product delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1",
+            "--name",
+            "value1",
+            "--price",
+            "2.0"
+          ],
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "price": 2.0
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
       "name": "cli:Product list",
       "when": {
         "cli_variants": [
@@ -49,38 +81,6 @@
             "value1",
             "--price",
             "2"
-          ]
-        ],
-        "seed_overrides": {
-          "Product": {
-            "name": "value1",
-            "price": 2.0
-          }
-        }
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Product delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Product",
-            "delete",
-            "--product-id",
-            "1",
-            "--name",
-            "value1",
-            "--price",
-            "2.0"
-          ],
-          [
-            "Product",
-            "delete",
-            "--product-id",
-            "1"
           ]
         ],
         "seed_overrides": {

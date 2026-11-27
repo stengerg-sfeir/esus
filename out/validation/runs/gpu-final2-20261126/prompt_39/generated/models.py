@@ -12,25 +12,6 @@ from typing import Any, Dict, List, Literal, Optional
 
 
 @dataclass
-class User:
-    user_id: int = None
-    email: str = None
-    password_hash: str = None
-    is_admin: bool = None
-    created_at: datetime.datetime = None
-
-
-@dataclass
-class Product:
-    product_id: int = None
-    name: str = None
-    description: Optional[str] = None
-    price: Decimal = None
-    stock_quantity: int = None
-    created_at: datetime.datetime = None
-
-
-@dataclass
 class Order:
     order_id: int = None
     user_id: int = None
@@ -46,3 +27,22 @@ class OrderItem:
     product_id: int = None
     quantity: int = None
     unit_price: Decimal = None
+
+
+@dataclass
+class Product:
+    product_id: int = None
+    name: str = None
+    description: Optional[str] = None
+    price: Decimal = None
+    stock_quantity: int = None
+    created_at: datetime.datetime = None
+
+
+@dataclass
+class User:
+    user_id: int = None
+    email: str = None
+    password_hash: str = None
+    is_admin: bool = None
+    created_at: datetime.datetime = None

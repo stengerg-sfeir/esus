@@ -1,72 +1,72 @@
 {
   "invariants": [
     {
-      "text": "Product.product_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A product's stock quantity after a bulk update must reflect the new value provided in the update request, and must not be modified by any other operation until the transaction is committed."
     },
     {
-      "text": "Product.name must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "All CRUD operations on products must maintain data integrity, ensuring that no product is created with a negative stock quantity."
     },
     {
-      "text": "Product.name must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Any change to a product's stock quantity via CRUD operations must be consistent with the state of the database at the time of the operation, and must not allow partial updates."
     },
     {
-      "text": "Product.category must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "If a product does not exist in the inventory when attempting to update its stock quantity, the bulk update operation must fail and not apply any changes to any other product."
     },
     {
-      "text": "Product.category must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "If the bulk update operation is invoked, all products specified in the update must have their stock quantity modified atomically; if any product fails to update, the entire transaction must roll back and no changes must be applied to any product."
     },
     {
-      "text": "Product.stock_quantity must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.category must be a string"
     },
     {
-      "text": "Product.stock_quantity must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.category must not be null"
     },
     {
-      "text": "If the bulk update operation is invoked, all products specified in the update must have their stock quantity modified atomically; if any product fails to update, the entire transaction must roll back and no changes must be applied to any product.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Product.name must be a string"
     },
     {
-      "text": "The stock quantity of a product must not be reduced below zero during any operation, including bulk updates.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Product.name must not be null"
     },
     {
-      "text": "A product's stock quantity after a bulk update must reflect the new value provided in the update request, and must not be modified by any other operation until the transaction is committed.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Product.product_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "The bulk update operation must only accept a list of product IDs and a new stock quantity value, and must not allow different stock quantity values for different products unless explicitly supported by a separate bulk update mechanism.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Product.stock_quantity must be an integer"
     },
     {
-      "text": "Any change to a product's stock quantity via CRUD operations must be consistent with the state of the database at the time of the operation, and must not allow partial updates.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Product.stock_quantity must not be null"
     },
     {
-      "text": "If a product does not exist in the inventory when attempting to update its stock quantity, the bulk update operation must fail and not apply any changes to any other product.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The bulk update operation must be executed within a transaction that ensures all changes are either fully committed or fully rolled back, with no partial updates applied to the database."
     },
     {
-      "text": "The bulk update operation must ensure that all products in the update list are updated with the same new stock quantity value, unless the operation is designed to handle per-product updates with explicit support.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The bulk update operation must ensure that all products in the update list are updated with the same new stock quantity value, unless the operation is designed to handle per-product updates with explicit support."
     },
     {
-      "text": "The stock quantity of a product after a successful update must be equal to the value specified in the update request, and must not be derived from any other product's value.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The bulk update operation must only accept a list of product IDs and a new stock quantity value, and must not allow different stock quantity values for different products unless explicitly supported by a separate bulk update mechanism."
     },
     {
-      "text": "All CRUD operations on products must maintain data integrity, ensuring that no product is created with a negative stock quantity.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The stock quantity of a product after a successful update must be equal to the value specified in the update request, and must not be derived from any other product's value."
     },
     {
-      "text": "The bulk update operation must be executed within a transaction that ensures all changes are either fully committed or fully rolled back, with no partial updates applied to the database.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The stock quantity of a product must not be reduced below zero during any operation, including bulk updates."
     }
   ]
 }

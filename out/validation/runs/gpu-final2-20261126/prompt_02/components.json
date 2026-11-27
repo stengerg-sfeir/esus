@@ -1,38 +1,38 @@
 {
   "components": {
+    "crud_services": [],
+    "external_access": [],
     "facade": {
-      "type": "cli",
-      "technology": "argparse",
       "invocation": {
+        "commands": [],
+        "options": [
+          {
+            "default": null,
+            "name": "--operation",
+            "required": false,
+            "short": "-o",
+            "type": "str"
+          }
+        ],
         "positional": [
           {
             "name": "first_number",
-            "type": "float",
-            "required": true
+            "required": true,
+            "type": "float"
           },
           {
             "name": "second_number",
-            "type": "float",
-            "required": true
+            "required": true,
+            "type": "float"
           }
-        ],
-        "options": [
-          {
-            "name": "--operation",
-            "short": "-o",
-            "type": "str",
-            "required": false,
-            "default": null
-          }
-        ],
-        "commands": []
-      }
+        ]
+      },
+      "technology": "argparse",
+      "type": "cli"
     },
     "persistence": {
       "required": false,
       "technology": "none"
-    },
-    "external_access": [],
-    "crud_services": []
+    }
   }
 }

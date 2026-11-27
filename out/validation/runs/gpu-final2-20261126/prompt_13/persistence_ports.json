@@ -1,13 +1,21 @@
 {
   "persistence_ports": {
+    "entity_mappings": [
+      {
+        "entity": "Product",
+        "indexes": [],
+        "primary_key": "id",
+        "table": "products"
+      }
+    ],
     "repositories": [
       {
         "entity": "Product",
         "interface_name": "ProductRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new Product.",
+            "name": "create",
             "params": [
               {
                 "name": "name",
@@ -30,153 +38,145 @@
                 "type": "str"
               }
             ],
-            "return_type": "models.Product",
-            "raises": []
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every Product; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "category",
-                "type": "str"
-              },
-              {
-                "name": "price",
-                "type": "int"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              }
-            ],
-            "return_type": "list[Product]",
-            "raises": []
-          },
-          {
-            "name": "read_one",
-            "description": "Reads one Product by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Product",
-            "raises": [
-              "ProductNotFoundError"
-            ]
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Product.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "category",
-                "type": "str"
-              },
-              {
-                "name": "price",
-                "type": "int"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Product",
-            "raises": [
-              "ProductNotFoundError"
-            ]
-          },
-          {
-            "name": "delete",
-            "description": "Deletes an existing Product.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "category",
-                "type": "str"
-              },
-              {
-                "name": "price",
-                "type": "int"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              }
-            ],
-            "return_type": "None",
-            "raises": [
-              "ProductNotFoundError"
-            ]
-          },
-          {
-            "name": "filter_by_category",
-            "description": "Filters Product records by category.",
-            "params": [
-              {
-                "name": "category",
-                "type": "str"
-              }
-            ],
-            "return_type": "list[Product]",
             "raises": [],
+            "return_type": "models.Product"
+          },
+          {
+            "description": "Deletes an existing Product.",
+            "name": "delete",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "ProductNotFoundError"
+            ],
+            "return_type": "None"
+          },
+          {
+            "description": "Filters Product records by category.",
+            "name": "filter_by_category",
+            "params": [
+              {
+                "name": "category",
+                "type": "str"
+              }
+            ],
             "provenance": "prose_query",
+            "raises": [],
+            "return_type": "list[Product]",
             "review_required": true
           },
           {
-            "name": "search_products",
+            "description": "Lists every Product; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Product]"
+          },
+          {
+            "description": "Reads one Product by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "ProductNotFoundError"
+            ],
+            "return_type": "models.Product"
+          },
+          {
+            "description": "Reports Product records whose stock_quantity is below the threshold.",
+            "name": "report_low_stock",
+            "params": [],
+            "provenance": "prose_query",
+            "raises": [],
+            "return_type": "list[Product]",
+            "review_required": true
+          },
+          {
             "description": "Searches Product records across their text fields.",
+            "name": "search_products",
             "params": [
               {
                 "name": "query",
                 "type": "str"
               }
             ],
-            "return_type": "list[Product]",
-            "raises": [],
             "provenance": "prose_query",
+            "raises": [],
+            "return_type": "list[Product]",
             "review_required": true
           },
           {
-            "name": "report_low_stock",
-            "description": "Reports Product records whose stock_quantity is below the threshold.",
-            "params": [],
-            "return_type": "list[Product]",
-            "raises": [],
-            "provenance": "prose_query",
-            "review_required": true
+            "description": "Updates an existing Product.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "ProductNotFoundError"
+            ],
+            "return_type": "models.Product"
           }
         ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Product",
-        "table": "products",
-        "primary_key": "id",
-        "indexes": []
       }
     ]
   }

@@ -1,6 +1,22 @@
 {
   "scenarios": [
     {
+      "name": "cli:Department add",
+      "when": {
+        "cli_variants": [
+          [
+            "Department",
+            "add",
+            "--department-name",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
       "name": "cli:Employee add",
       "when": {
         "cli_variants": [
@@ -14,6 +30,28 @@
             "--email",
             "cli1@example.test",
             "--department-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Employee delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "delete",
+            "--employee-id",
+            "1"
+          ],
+          [
+            "Employee",
+            "delete",
+            "--employee-id",
             "1"
           ]
         ]
@@ -49,44 +87,6 @@
             "department_id": 1
           }
         }
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Employee delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Employee",
-            "delete",
-            "--employee-id",
-            "1"
-          ],
-          [
-            "Employee",
-            "delete",
-            "--employee-id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Department add",
-      "when": {
-        "cli_variants": [
-          [
-            "Department",
-            "add",
-            "--department-name",
-            "value1"
-          ]
-        ]
       },
       "expect": {
         "exit": 0

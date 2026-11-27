@@ -1,13 +1,24 @@
 {
   "persistence_ports": {
+    "entity_mappings": [
+      {
+        "entity": "Book",
+        "indexes": [
+          "title",
+          "isbn"
+        ],
+        "primary_key": "id",
+        "table": "books"
+      }
+    ],
     "repositories": [
       {
         "entity": "Book",
         "interface_name": "BookRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new Book.",
+            "name": "create",
             "params": [
               {
                 "name": "title",
@@ -34,12 +45,12 @@
                 "type": "str"
               }
             ],
-            "return_type": "models.Book",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Book"
           },
           {
-            "name": "read_all",
             "description": "Lists every Book; optional fields narrow the result.",
+            "name": "read_all",
             "params": [
               {
                 "name": "title",
@@ -66,32 +77,21 @@
                 "type": "str"
               }
             ],
-            "return_type": "list[Book]",
-            "raises": []
+            "raises": [],
+            "return_type": "list[Book]"
           },
           {
-            "name": "read_one",
             "description": "Reads one Book by its key.",
+            "name": "read_one",
             "params": [
               {
                 "name": "id",
                 "type": "int"
               }
             ],
-            "return_type": "models.Book",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Book"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Book",
-        "table": "books",
-        "primary_key": "id",
-        "indexes": [
-          "title",
-          "isbn"
         ]
       }
     ]

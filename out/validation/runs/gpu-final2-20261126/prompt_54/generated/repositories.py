@@ -58,7 +58,7 @@ class AppointmentRepository:
         self._store = store
 
 
-    def create(self, start_time: Any = None, end_time: Any = None) -> Any:
+    def create(self, start_time: Any = None, end_time: Any = None) -> models.Appointment:
         """Creates a new Appointment. [crud:create: STANDARD_CRUD]"""
         values = {}
         if start_time is not None:
@@ -69,42 +69,6 @@ class AppointmentRepository:
         if unknown:
             raise ValueError(f"cannot create Appointment from {unknown}")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Appointment(**record)
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Appointment by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Appointment(**record)
-
-    def read_all(self, start_time: Any = None, end_time: Any = None) -> list[models.Appointment]:
-        """Lists every Appointment; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if start_time is not None:
-            criteria.append(('start_time', 'eq', start_time))
-        if end_time is not None:
-            criteria.append(('end_time', 'eq', end_time))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Appointment(**r) for r in found]
-
-    def update(self, id: int = None, start_time: Any = None, end_time: Any = None) -> Any:
-        """Updates an existing Appointment. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Appointment update matched {len(found)} records")
-        patch = {}
-        if id is not None and 'id' in ['id', 'start_time', 'end_time']:
-            patch['id'] = id
-        if start_time is not None and 'start_time' in ['id', 'start_time', 'end_time']:
-            patch['start_time'] = start_time
-        if end_time is not None and 'end_time' in ['id', 'start_time', 'end_time']:
-            patch['end_time'] = end_time
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Appointment(**record)
 
     def delete(self, id: int = None, start_time: Any = None, end_time: Any = None) -> None:
@@ -122,3 +86,39 @@ class AppointmentRepository:
         for record in found:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
+
+    def read_all(self, start_time: Any = None, end_time: Any = None) -> list[models.Appointment]:
+        """Lists every Appointment; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if start_time is not None:
+            criteria.append(('start_time', 'eq', start_time))
+        if end_time is not None:
+            criteria.append(('end_time', 'eq', end_time))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Appointment(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Appointment:
+        """Reads one Appointment by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Appointment(**record)
+
+    def update(self, id: int = None, start_time: Any = None, end_time: Any = None) -> models.Appointment:
+        """Updates an existing Appointment. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Appointment update matched {len(found)} records")
+        patch = {}
+        if id is not None and 'id' in ['id', 'start_time', 'end_time']:
+            patch['id'] = id
+        if start_time is not None and 'start_time' in ['id', 'start_time', 'end_time']:
+            patch['start_time'] = start_time
+        if end_time is not None and 'end_time' in ['id', 'start_time', 'end_time']:
+            patch['end_time'] = end_time
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.Appointment(**record)

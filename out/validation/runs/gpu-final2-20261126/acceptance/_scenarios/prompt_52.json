@@ -1,6 +1,22 @@
 {
   "scenarios": [
     {
+      "name": "cli:Book update",
+      "when": {
+        "cli_variants": [
+          [
+            "Book",
+            "update",
+            "--book-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
       "name": "cli:BorrowRecord add",
       "when": {
         "cli_variants": [
@@ -15,22 +31,6 @@
             "2024-01-01T00:00:00",
             "--return-date",
             "2024-01-01T00:00:00"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:BorrowRecord update",
-      "when": {
-        "cli_variants": [
-          [
-            "BorrowRecord",
-            "update",
-            "--borrow-id",
-            "1"
           ]
         ]
       },
@@ -77,13 +77,13 @@
       }
     },
     {
-      "name": "cli:Book update",
+      "name": "cli:BorrowRecord update",
       "when": {
         "cli_variants": [
           [
-            "Book",
+            "BorrowRecord",
             "update",
-            "--book-id",
+            "--borrow-id",
             "1"
           ]
         ]

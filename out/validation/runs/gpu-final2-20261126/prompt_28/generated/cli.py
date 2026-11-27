@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Customer', 'Product', 'Invoice', 'InvoiceLine']
-REPOSITORIES = ['CustomerRepository', 'ProductRepository', 'InvoiceRepository', 'InvoiceLineRepository']
+MODELS = ['Customer', 'Invoice', 'InvoiceLine', 'Product']
+REPOSITORIES = ['CustomerRepository', 'InvoiceLineRepository', 'InvoiceRepository', 'ProductRepository']
 SERVICES = []
 
 

@@ -223,6 +223,10 @@ class Pipeline:
                 step()
                 if self.progress_fn is not None:
                     self.progress_fn(name, describe_step(name, self.documents))
+        # The adapters are written against step E's service names.  Canonicalise
+        # every holder once more at the end so a resumed or archived run cannot
+        # leave a reference pointing at the old spelling.
+        repairs.repair_holder_names(self.documents, log=self.log)
         return self.documents
 
     def _run_parallel(self, steps):
@@ -686,6 +690,12 @@ class Pipeline:
                 prompts.service_contracts(requirements, block),
                 grammar,
             )
+        # The grammar now closes these suffixes, but a resume can start from a
+        # document written before that rule existed.  Canonicalising here also
+        # lets the mechanical CRUD completion find `EntityService` and
+        # `EntityRepository` under their expected names.
+        repairs.repair_holder_names(self.documents, log=self.log)
+        body = self.documents.get(SERVICE_CONTRACTS)
         # Repositories are derived facts, not a judgement the open grammar can
         # safely leave out.  Fill every required repository and required CRUD
         # method mechanically, keeping any custom methods the model supplied.

@@ -50,6 +50,31 @@ def _model_list(records, model_cls):
 
 
 
+class PriorityRepository:
+    ENTITY = "Priority"
+    PK = "id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def read_all(self, name: str = None) -> list[models.Priority]:
+        """Lists every Priority; optional fields narrow the result. [mechanical contained-name filter]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Priority(**row) for row in found], models.Priority)
+
+    def read_one(self, id: int = None) -> models.Priority:
+        """Reads one Priority by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Priority(**record)
+
+
 class ProjectRepository:
     ENTITY = "Project"
     PK = "id"
@@ -72,13 +97,38 @@ class ProjectRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Project(**r) for r in found]
 
-    def read_one(self, id: int = None) -> Any:
+    def read_one(self, id: int = None) -> models.Project:
         """Reads one Project by its key. [crud:read_one: READ_ONE_BY_ID]"""
         found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
         if not found:
             return None
         record = found[0]
         return models.Project(**record)
+
+
+class StatusRepository:
+    ENTITY = "Status"
+    PK = "id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def read_all(self, name: str = None) -> list[models.Status]:
+        """Lists every Status; optional fields narrow the result. [mechanical contained-name filter]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Status(**row) for row in found], models.Status)
+
+    def read_one(self, id: int = None) -> models.Status:
+        """Reads one Status by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Status(**record)
 
 
 class TaskRepository:
@@ -89,37 +139,7 @@ class TaskRepository:
         self._store = store
 
 
-    def read_all(self, title: str = None, description: str = None, project_id: int = None, priority: str = None, status: str = None, due_date: Any = None, created_at: Any = None, updated_at: Any = None) -> list[models.Task]:
-        """Lists every Task; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if title is not None:
-            criteria.append(('title', 'eq', title))
-        if description is not None:
-            criteria.append(('description', 'eq', description))
-        if project_id is not None:
-            criteria.append(('project_id', 'eq', project_id))
-        if priority is not None:
-            criteria.append(('priority', 'eq', priority))
-        if status is not None:
-            criteria.append(('status', 'eq', status))
-        if due_date is not None:
-            criteria.append(('due_date', 'eq', due_date))
-        if created_at is not None:
-            criteria.append(('created_at', 'eq', created_at))
-        if updated_at is not None:
-            criteria.append(('updated_at', 'eq', updated_at))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Task(**r) for r in found]
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Task by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Task(**record)
-
-    def create(self, title: str = None, description: str = None, project_id: int = None, priority: str = None, status: str = None, due_date: Any = None, created_at: Any = None, updated_at: Any = None) -> Any:
+    def create(self, title: str = None, description: str = None, project_id: int = None, priority: str = None, status: str = None, due_date: Any = None, created_at: Any = None, updated_at: Any = None) -> models.Task:
         """Creates a new Task. [crud:create: STANDARD_CRUD]"""
         values = {}
         if title is not None:
@@ -150,7 +170,37 @@ class TaskRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("project_id", "Project", "id", None)])
         return models.Task(**record)
 
-    def update(self, id: int = None, title: str = None, description: str = None, project_id: int = None, priority: str = None, status: str = None, due_date: Any = None, created_at: Any = None, updated_at: Any = None) -> Any:
+    def read_all(self, title: str = None, description: str = None, project_id: int = None, priority: str = None, status: str = None, due_date: Any = None, created_at: Any = None, updated_at: Any = None) -> list[models.Task]:
+        """Lists every Task; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if title is not None:
+            criteria.append(('title', 'eq', title))
+        if description is not None:
+            criteria.append(('description', 'eq', description))
+        if project_id is not None:
+            criteria.append(('project_id', 'eq', project_id))
+        if priority is not None:
+            criteria.append(('priority', 'eq', priority))
+        if status is not None:
+            criteria.append(('status', 'eq', status))
+        if due_date is not None:
+            criteria.append(('due_date', 'eq', due_date))
+        if created_at is not None:
+            criteria.append(('created_at', 'eq', created_at))
+        if updated_at is not None:
+            criteria.append(('updated_at', 'eq', updated_at))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Task(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Task:
+        """Reads one Task by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Task(**record)
+
+    def update(self, id: int = None, title: str = None, description: str = None, project_id: int = None, priority: str = None, status: str = None, due_date: Any = None, created_at: Any = None, updated_at: Any = None) -> models.Task:
         """Updates an existing Task. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if id is not None:
@@ -179,53 +229,3 @@ class TaskRepository:
             patch['updated_at'] = updated_at
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Task(**record)
-
-
-class StatusRepository:
-    ENTITY = "Status"
-    PK = "id"
-
-    def __init__(self, store):
-        self._store = store
-
-
-    def read_all(self, name: str = None) -> list[models.Status]:
-        """Lists every Status; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Status(**r) for r in found]
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Status by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Status(**record)
-
-
-class PriorityRepository:
-    ENTITY = "Priority"
-    PK = "id"
-
-    def __init__(self, store):
-        self._store = store
-
-
-    def read_all(self, name: str = None) -> list[models.Priority]:
-        """Lists every Priority; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Priority(**r) for r in found]
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Priority by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Priority(**record)

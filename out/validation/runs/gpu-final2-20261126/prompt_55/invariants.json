@@ -1,92 +1,92 @@
 {
   "invariants": [
     {
-      "text": "Product.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A sale can only be recorded if the product's current stock quantity is greater than or equal to the sale quantity."
     },
     {
-      "text": "Product.name must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Product.name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.name must be a string"
     },
     {
-      "text": "Product.stock_quantity must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.name must not be null"
     },
     {
-      "text": "Product.stock_quantity must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.price must be a number"
     },
     {
-      "text": "Product.price must be a number",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.price must not be null"
     },
     {
-      "text": "Product.price must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.stock_quantity must be an integer"
     },
     {
-      "text": "Sale.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Product.stock_quantity must not be null"
     },
     {
-      "text": "Sale.product_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Sale.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Sale.product_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Sale.product_id must be an integer"
     },
     {
-      "text": "Sale.product_id must reference an existing Product.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Sale.product_id must not be null"
     },
     {
-      "text": "Sale.quantity must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Sale.product_id must reference an existing Product.id"
     },
     {
-      "text": "Sale.quantity must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Sale.quantity must be an integer"
     },
     {
-      "text": "Sale.sale_date must be a datetime",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Sale.quantity must not be null"
     },
     {
-      "text": "Sale.sale_date must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Sale.sale_date must be a datetime"
     },
     {
-      "text": "Sale.user_id must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Sale.sale_date must not be null"
     },
     {
-      "text": "Sale.user_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Sale.user_id must be a string"
     },
     {
-      "text": "The stock quantity of a product must not go below zero after a sale.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Sale.user_id must not be null"
     },
     {
-      "text": "The quantity sold in a sale must be greater than zero.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The quantity sold in a sale must be greater than zero."
     },
     {
-      "text": "The sum of the quantities sold in all sales for a product must equal the difference between its initial stock quantity and its current stock quantity.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The sale date must be a valid date in the past or present, not in the future."
     },
     {
-      "text": "A sale can only be recorded if the product's current stock quantity is greater than or equal to the sale quantity.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The stock quantity of a product must not go below zero after a sale."
     },
     {
-      "text": "The sale date must be a valid date in the past or present, not in the future.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The sum of the quantities sold in all sales for a product must equal the difference between its initial stock quantity and its current stock quantity."
     }
   ]
 }

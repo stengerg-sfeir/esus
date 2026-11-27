@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Book', 'Author', 'Member', 'Loan']
-REPOSITORIES = ['BookRepository', 'AuthorRepository', 'MemberRepository', 'LoanRepository']
+MODELS = ['Author', 'Book', 'Loan', 'Member']
+REPOSITORIES = ['AuthorRepository', 'BookRepository', 'LoanRepository', 'MemberRepository']
 SERVICES = ['LibraryService']
 
 

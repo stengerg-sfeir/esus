@@ -48,7 +48,7 @@ class EventRegistrationService:
     def register_for_event(self, event_id: int = None, user_id: int = None) -> None:
         """Allows a user to register for an event. If the event is at full capacity, this method raises a RegistrationCapacityExceededError. [llm-written by server — review]"""
         event = self._repos['EventRepository'].read_one(event_id=event_id)
-        if event is None:
+        if not event:
             raise errors.EventNotFoundError
         if self._repos['EventRepository'].is_event_full(event_id=event_id):
             raise errors.RegistrationCapacityExceededError

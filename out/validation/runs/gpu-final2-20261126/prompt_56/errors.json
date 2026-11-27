@@ -1,39 +1,39 @@
 {
   "errors": [
     {
-      "name": "CustomerNotFoundError",
-      "base": "LookupError",
-      "description": "Raised when a customer is referenced by an order but not found in the database."
-    },
-    {
-      "name": "ProductNotFoundError",
-      "base": "LookupError",
-      "description": "Raised when a product is referenced in an order but not found in the database."
-    },
-    {
-      "name": "OrderNotFoundError",
-      "base": "LookupError",
-      "description": "Raised when an order is referenced for cancellation or lookup but not found in the database."
-    },
-    {
-      "name": "InvalidOrderStatusError",
-      "base": "ValueError",
-      "description": "Raised when an invalid order status is provided during order creation or cancellation."
-    },
-    {
-      "name": "InsufficientStockError",
-      "base": "ValueError",
-      "description": "Raised when an order attempts to include a product with insufficient stock quantity."
-    },
-    {
-      "name": "InvalidQuantityError",
-      "base": "ValueError",
-      "description": "Raised when a product quantity in an order is negative or zero."
-    },
-    {
-      "name": "AtomicOperationFailedError",
       "base": "RuntimeError",
-      "description": "Raised when an atomic transaction fails due to a database constraint or rollback during a modification operation."
+      "description": "Raised when an atomic transaction fails due to a database constraint or rollback during a modification operation.",
+      "name": "AtomicOperationFailedError"
+    },
+    {
+      "base": "LookupError",
+      "description": "Raised when a customer is referenced by an order but not found in the database.",
+      "name": "CustomerNotFoundError"
+    },
+    {
+      "base": "ValueError",
+      "description": "Raised when an order attempts to include a product with insufficient stock quantity.",
+      "name": "InsufficientStockError"
+    },
+    {
+      "base": "ValueError",
+      "description": "Raised when an invalid order status is provided during order creation or cancellation.",
+      "name": "InvalidOrderStatusError"
+    },
+    {
+      "base": "ValueError",
+      "description": "Raised when a product quantity in an order is negative or zero.",
+      "name": "InvalidQuantityError"
+    },
+    {
+      "base": "LookupError",
+      "description": "Raised when an order is referenced for cancellation or lookup but not found in the database.",
+      "name": "OrderNotFoundError"
+    },
+    {
+      "base": "LookupError",
+      "description": "Raised when a product is referenced in an order but not found in the database.",
+      "name": "ProductNotFoundError"
     }
   ]
 }

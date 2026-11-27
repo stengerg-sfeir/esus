@@ -50,6 +50,42 @@ def _model_list(records, model_cls):
 
 
 
+class DepartmentRepository:
+    ENTITY = "Department"
+    PK = "department_id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def find_department_by_name(self, department_name: str = None) -> models.Department:
+        """Retrieve a department record by its name. [crud:read_one: READ_ONE_BY_ID]"""
+        criteria = []
+        if department_name is not None:
+            criteria.append(('department_name', 'eq', department_name))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            return None
+        record = found[0]
+        return models.Department(**record)
+
+    def read_all(self, department_name: str = None) -> list[models.Department]:
+        """Lists every Department; optional fields narrow the result. [mechanical contained-name filter]"""
+        criteria = []
+        if department_name is not None:
+            criteria.append(('department_name', 'eq', department_name))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Department(**row) for row in found], models.Department)
+
+    def read_one(self, department_id: int = None) -> models.Department:
+        """Reads one Department by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', department_id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Department(**record)
+
+
 class EmployeeRepository:
     ENTITY = "Employee"
     PK = "employee_id"
@@ -58,13 +94,32 @@ class EmployeeRepository:
         self._store = store
 
 
-    def read_one(self, employee_id: int = None) -> Any:
-        """Reads one Employee by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', employee_id)])
+    def find_employee_by_email(self, email: str = None) -> models.Employee:
+        """Retrieve an employee record by their email address. [crud:read_one: READ_ONE_BY_ID]"""
+        criteria = []
+        if email is not None:
+            criteria.append(('email', 'eq', email))
+        found = self._store.select(self.ENTITY, criteria)
         if not found:
             return None
         record = found[0]
         return models.Employee(**record)
+
+    def find_employees_by_department(self, department_id: int = None) -> list[models.Employee]:
+        """Retrieve a list of employees belonging to a specific department by department ID. [mechanical contained-name filter]"""
+        criteria = []
+        if department_id is not None:
+            criteria.append(('department_id', 'eq', department_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Employee(**row) for row in found], models.Employee)
+
+    def get_employees_by_department_id(self, department_id: int = None) -> list[models.Employee]:
+        """Lists the Employee records belonging to one Department. [mechanical contained-name filter]"""
+        criteria = []
+        if department_id is not None:
+            criteria.append(('department_id', 'eq', department_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Employee(**row) for row in found], models.Employee)
 
     def read_all(self, first_name: str = None, last_name: str = None, email: str = None, department_id: int = None) -> list[models.Employee]:
         """Lists every Employee; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
@@ -80,65 +135,10 @@ class EmployeeRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Employee(**r) for r in found]
 
-    def get_employees_by_department_id(self, department_id: int = None) -> list[models.Employee]:
-        """Lists the Employee records belonging to one Department. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
-        criteria = []
-        if department_id is not None:
-            criteria.append(('department_id', 'eq', department_id))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Employee(**r) for r in found]
-
-    def find_employee_by_email(self, email: str = None) -> Any:
-        """Retrieve an employee record by their email address. [crud:read_one: READ_ONE_BY_ID]"""
-        criteria = []
-        if email is not None:
-            criteria.append(('email', 'eq', email))
-        found = self._store.select(self.ENTITY, criteria)
+    def read_one(self, employee_id: int = None) -> models.Employee:
+        """Reads one Employee by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', employee_id)])
         if not found:
             return None
         record = found[0]
         return models.Employee(**record)
-
-    def find_employees_by_department(self, department_id: int = None) -> list[models.Employee]:
-        """Retrieve a list of employees belonging to a specific department by department ID. [crud:filter: FILTER_BY_FIELD]"""
-        criteria = []
-        if department_id is not None:
-            criteria.append(('department_id', 'eq', department_id))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Employee(**r) for r in found]
-
-
-class DepartmentRepository:
-    ENTITY = "Department"
-    PK = "department_id"
-
-    def __init__(self, store):
-        self._store = store
-
-
-    def read_all(self, department_name: str = None) -> list[models.Department]:
-        """Lists every Department; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if department_name is not None:
-            criteria.append(('department_name', 'eq', department_name))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Department(**r) for r in found]
-
-    def read_one(self, department_id: int = None) -> Any:
-        """Reads one Department by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', department_id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Department(**record)
-
-    def find_department_by_name(self, department_name: str = None) -> Any:
-        """Retrieve a department record by its name. [crud:read_one: READ_ONE_BY_ID]"""
-        criteria = []
-        if department_name is not None:
-            criteria.append(('department_name', 'eq', department_name))
-        found = self._store.select(self.ENTITY, criteria)
-        if not found:
-            return None
-        record = found[0]
-        return models.Department(**record)

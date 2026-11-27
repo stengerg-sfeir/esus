@@ -1,19 +1,19 @@
 {
   "errors": [
     {
-      "name": "CustomerEmailDuplicateError",
       "base": "ValueError",
-      "description": "Raised when attempting to create a customer with an email that is already in use."
+      "description": "Raised when attempting to create a customer with an email that is already in use.",
+      "name": "CustomerEmailDuplicateError"
     },
     {
-      "name": "CustomerNotFoundError",
       "base": "LookupError",
-      "description": "Raised when a customer is requested by ID but not found in the database."
+      "description": "Raised when a customer is searched by name and no matching customer is found.",
+      "name": "CustomerNameNotFoundError"
     },
     {
-      "name": "CustomerNameNotFoundError",
       "base": "LookupError",
-      "description": "Raised when a customer is searched by name and no matching customer is found."
+      "description": "Raised when a customer is requested by ID but not found in the database.",
+      "name": "CustomerNotFoundError"
     }
   ]
 }

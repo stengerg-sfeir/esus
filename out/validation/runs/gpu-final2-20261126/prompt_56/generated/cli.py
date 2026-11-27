@@ -26,9 +26,9 @@ import repositories
 import services
 
 
-MODELS = ['Customer', 'Product', 'Order', 'OrderProduct']
-REPOSITORIES = ['CustomerRepository', 'ProductRepository', 'OrderRepository', 'OrderProductRepository']
-SERVICES = ['OrderService', 'ProductService', 'CustomerService']
+MODELS = ['Customer', 'Order', 'OrderProduct', 'Product']
+REPOSITORIES = ['CustomerRepository', 'OrderProductRepository', 'OrderRepository', 'ProductRepository']
+SERVICES = ['CustomerService', 'OrderService', 'ProductService']
 
 
 def _transform(kind, value, field):
@@ -153,9 +153,10 @@ ADAPTERS = {
         'fields': [
             ('product_id', ('product_id', 'LOOKUP_ID', False)),
             ('quantity', ('quantity', 'DIRECT', False)),
+            ('order_id', ('order_id', 'LOOKUP_ID', True)),
         ],
-        'argv': {'product_id': 'product_id', 'quantity': 'quantity'},
-        'targets': {'product_id': None, 'quantity': None},
+        'argv': {'product_id': 'product_id', 'quantity': 'quantity', 'order_id': 'order_id'},
+        'targets': {'product_id': None, 'quantity': None, 'order_id': None},
         'assembled': [],
         'creates': True,
     },
@@ -288,25 +289,46 @@ def build_parser():
     parser.add_argument('--db', default=None,
                         help=('SQLite file for record storage (default: ' + DEFAULT_DB + ' in the working directory; use :memory: to stay in memory)'))
     sub = parser.add_subparsers(dest='command')
+    p_Customer = sub.add_parser('Customer')
+    sub_Customer = p_Customer.add_subparsers(dest='subcommand')
+    p_Customer_add = sub_Customer.add_parser('add')
+    p_Customer_add.add_argument('--name', type=str, required=True, dest='name')
+    p_Customer_add.add_argument('--email', type=str, required=True, dest='email')
+    p_Customer_add.set_defaults(_binding=('Customer', 'add'))
+    p_Customer_delete = sub_Customer.add_parser('delete')
+    p_Customer_delete.add_argument('--customer-id', type=int, required=True, dest='customer_id')
+    p_Customer_delete.set_defaults(_binding=('Customer', 'delete'))
+    p_Customer_update = sub_Customer.add_parser('update')
+    p_Customer_update.add_argument('--customer-id', type=int, required=False, dest='customer_id')
+    p_Customer_update.add_argument('--name', type=str, required=False, dest='name')
+    p_Customer_update.add_argument('--email', type=str, required=False, dest='email')
+    p_Customer_update.set_defaults(_binding=('Customer', 'update'))
     p_Order = sub.add_parser('Order')
     sub_Order = p_Order.add_subparsers(dest='subcommand')
-    p_Order_cancel = sub_Order.add_parser('cancel')
-    p_Order_cancel.add_argument('--order-id', type=int, required=True, dest='order_id')
-    p_Order_cancel.set_defaults(_binding=('Order', 'cancel'))
     p_Order_add = sub_Order.add_parser('add')
     p_Order_add.add_argument('--customer-id', type=int, required=True, dest='customer_id')
     p_Order_add.add_argument('--order-date', type=str, required=True, dest='order_date')
     p_Order_add.add_argument('--status', type=str, required=True, dest='status')
     p_Order_add.set_defaults(_binding=('Order', 'add'))
+    p_Order_cancel = sub_Order.add_parser('cancel')
+    p_Order_cancel.add_argument('--order-id', type=int, required=True, dest='order_id')
+    p_Order_cancel.set_defaults(_binding=('Order', 'cancel'))
+    p_Order_delete = sub_Order.add_parser('delete')
+    p_Order_delete.add_argument('--order-id', type=int, required=True, dest='order_id')
+    p_Order_delete.set_defaults(_binding=('Order', 'delete'))
     p_Order_update = sub_Order.add_parser('update')
     p_Order_update.add_argument('--order-id', type=int, required=False, dest='order_id')
     p_Order_update.add_argument('--customer-id', type=int, required=False, dest='customer_id')
     p_Order_update.add_argument('--order-date', type=str, required=False, dest='order_date')
     p_Order_update.add_argument('--status', type=str, required=False, dest='status')
     p_Order_update.set_defaults(_binding=('Order', 'update'))
-    p_Order_delete = sub_Order.add_parser('delete')
-    p_Order_delete.add_argument('--order-id', type=int, required=True, dest='order_id')
-    p_Order_delete.set_defaults(_binding=('Order', 'delete'))
+    p_OrderProduct = sub.add_parser('OrderProduct')
+    sub_OrderProduct = p_OrderProduct.add_subparsers(dest='subcommand')
+    p_OrderProduct_add = sub_OrderProduct.add_parser('add')
+    p_OrderProduct_add.add_argument('--product-id', type=int, required=False, dest='product_id')
+    p_OrderProduct_add.add_argument('--quantity', type=int, required=False, dest='quantity')
+    p_OrderProduct_add.add_argument('--order-id', type=int, required=True, dest='order_id')
+    p_OrderProduct_add.set_defaults(_binding=('OrderProduct', 'add'))
     p_Product = sub.add_parser('Product')
     sub_Product = p_Product.add_subparsers(dest='subcommand')
     p_Product_add = sub_Product.add_parser('add')
@@ -314,35 +336,15 @@ def build_parser():
     p_Product_add.add_argument('--description', type=str, required=True, dest='description')
     p_Product_add.add_argument('--stock-quantity', type=int, required=True, dest='stock_quantity')
     p_Product_add.set_defaults(_binding=('Product', 'add'))
+    p_Product_delete = sub_Product.add_parser('delete')
+    p_Product_delete.add_argument('--product-id', type=int, required=True, dest='product_id')
+    p_Product_delete.set_defaults(_binding=('Product', 'delete'))
     p_Product_update = sub_Product.add_parser('update')
     p_Product_update.add_argument('--product-id', type=int, required=False, dest='product_id')
     p_Product_update.add_argument('--name', type=str, required=False, dest='name')
     p_Product_update.add_argument('--description', type=str, required=False, dest='description')
     p_Product_update.add_argument('--stock-quantity', type=int, required=False, dest='stock_quantity')
     p_Product_update.set_defaults(_binding=('Product', 'update'))
-    p_Product_delete = sub_Product.add_parser('delete')
-    p_Product_delete.add_argument('--product-id', type=int, required=True, dest='product_id')
-    p_Product_delete.set_defaults(_binding=('Product', 'delete'))
-    p_Customer = sub.add_parser('Customer')
-    sub_Customer = p_Customer.add_subparsers(dest='subcommand')
-    p_Customer_add = sub_Customer.add_parser('add')
-    p_Customer_add.add_argument('--name', type=str, required=True, dest='name')
-    p_Customer_add.add_argument('--email', type=str, required=True, dest='email')
-    p_Customer_add.set_defaults(_binding=('Customer', 'add'))
-    p_Customer_update = sub_Customer.add_parser('update')
-    p_Customer_update.add_argument('--customer-id', type=int, required=False, dest='customer_id')
-    p_Customer_update.add_argument('--name', type=str, required=False, dest='name')
-    p_Customer_update.add_argument('--email', type=str, required=False, dest='email')
-    p_Customer_update.set_defaults(_binding=('Customer', 'update'))
-    p_Customer_delete = sub_Customer.add_parser('delete')
-    p_Customer_delete.add_argument('--customer-id', type=int, required=True, dest='customer_id')
-    p_Customer_delete.set_defaults(_binding=('Customer', 'delete'))
-    p_OrderProduct = sub.add_parser('OrderProduct')
-    sub_OrderProduct = p_OrderProduct.add_subparsers(dest='subcommand')
-    p_OrderProduct_add = sub_OrderProduct.add_parser('add')
-    p_OrderProduct_add.add_argument('--product-id', type=int, required=False, dest='product_id')
-    p_OrderProduct_add.add_argument('--quantity', type=int, required=False, dest='quantity')
-    p_OrderProduct_add.set_defaults(_binding=('OrderProduct', 'add'))
     return parser
 
 

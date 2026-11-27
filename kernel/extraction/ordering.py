@@ -87,19 +87,18 @@ def canonicalize(key, body):
     if key == "persistence_ports":
         if not isinstance(body, dict):
             return body
+        canonical = dict(body)
         repositories = body.get("repositories")
         if isinstance(repositories, list):
-            repositories = [_sorted_methods(repository)
-                            for repository in _sorted_dicts(
-                                repositories, "interface_name", "entity")]
+            canonical["repositories"] = [
+                _sorted_methods(repository)
+                for repository in _sorted_dicts(
+                    repositories, "interface_name", "entity")]
         mappings = body.get("entity_mappings")
         if isinstance(mappings, list):
-            mappings = _sorted_dicts(mappings, "entity", "table")
-        return {
-            **body,
-            "repositories": repositories,
-            "entity_mappings": mappings,
-        }
+            canonical["entity_mappings"] = _sorted_dicts(
+                mappings, "entity", "table")
+        return canonical
 
     if key == "interaction_adapters":
         return _sorted_dicts(body, "action_name")

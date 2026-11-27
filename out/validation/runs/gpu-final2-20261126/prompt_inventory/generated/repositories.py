@@ -58,7 +58,7 @@ class CategoryRepository:
         self._store = store
 
 
-    def create(self, name: str = None, description: str = None, reorder_threshold: int = None) -> Any:
+    def create(self, name: str = None, description: str = None, reorder_threshold: int = None) -> models.Category:
         """Creates a new Category. [crud:create: STANDARD_CRUD]"""
         values = {}
         if name is not None:
@@ -75,47 +75,6 @@ class CategoryRepository:
             if value is not None and self._store.select(self.ENTITY, [(unique_field, 'eq', value)]):
                 raise ValueError(f"Category with {unique_field}={value!r} already exists")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Category(**record)
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Category by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, id, error=errors.CategoryNotFoundError)
-        return models.Category(**record)
-
-    def read_all(self, name: str = None, description: str = None, reorder_threshold: int = None) -> list[models.Category]:
-        """Lists every Category; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if description is not None:
-            criteria.append(('description', 'eq', description))
-        if reorder_threshold is not None:
-            criteria.append(('reorder_threshold', 'eq', reorder_threshold))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Category(**r) for r in found]
-
-    def update(self, id: int = None, name: str = None, description: str = None, reorder_threshold: int = None) -> Any:
-        """Updates an existing Category. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise errors.CategoryNotFoundError(f"Category update matched {len(found)} records")
-        patch = {}
-        if id is not None and 'id' in ['id', 'name', 'description', 'reorder_threshold']:
-            patch['id'] = id
-        if name is not None and 'name' in ['id', 'name', 'description', 'reorder_threshold']:
-            patch['name'] = name
-        if description is not None and 'description' in ['id', 'name', 'description', 'reorder_threshold']:
-            patch['description'] = description
-        if reorder_threshold is not None and 'reorder_threshold' in ['id', 'name', 'description', 'reorder_threshold']:
-            patch['reorder_threshold'] = reorder_threshold
-        for unique_field in ['name']:
-            value = patch.get(unique_field)
-            if value is not None and any(row.get(self.PK) != found[0][self.PK] for row in self._store.select(self.ENTITY, [(unique_field, 'eq', value)])):
-                raise ValueError(f"Category with {unique_field}={value!r} already exists")
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.CategoryNotFoundError)
         return models.Category(**record)
 
     def delete(self, id: int = None, name: str = None, description: str = None, reorder_threshold: int = None) -> None:
@@ -144,6 +103,47 @@ class CategoryRepository:
         found = self._store.select('Product', criteria)
         return [models.Product(**r) for r in found]
 
+    def read_all(self, name: str = None, description: str = None, reorder_threshold: int = None) -> list[models.Category]:
+        """Lists every Category; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if description is not None:
+            criteria.append(('description', 'eq', description))
+        if reorder_threshold is not None:
+            criteria.append(('reorder_threshold', 'eq', reorder_threshold))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Category(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Category:
+        """Reads one Category by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, id, error=errors.CategoryNotFoundError)
+        return models.Category(**record)
+
+    def update(self, id: int = None, name: str = None, description: str = None, reorder_threshold: int = None) -> models.Category:
+        """Updates an existing Category. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise errors.CategoryNotFoundError(f"Category update matched {len(found)} records")
+        patch = {}
+        if id is not None and 'id' in ['id', 'name', 'description', 'reorder_threshold']:
+            patch['id'] = id
+        if name is not None and 'name' in ['id', 'name', 'description', 'reorder_threshold']:
+            patch['name'] = name
+        if description is not None and 'description' in ['id', 'name', 'description', 'reorder_threshold']:
+            patch['description'] = description
+        if reorder_threshold is not None and 'reorder_threshold' in ['id', 'name', 'description', 'reorder_threshold']:
+            patch['reorder_threshold'] = reorder_threshold
+        for unique_field in ['name']:
+            value = patch.get(unique_field)
+            if value is not None and any(row.get(self.PK) != found[0][self.PK] for row in self._store.select(self.ENTITY, [(unique_field, 'eq', value)])):
+                raise ValueError(f"Category with {unique_field}={value!r} already exists")
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.CategoryNotFoundError)
+        return models.Category(**record)
+
 
 class ProductRepository:
     ENTITY = "Product"
@@ -153,7 +153,18 @@ class ProductRepository:
         self._store = store
 
 
-    def create(self, sku: str = None, name: str = None, category_id: int = None, price_cents: int = None, stock_qty: int = None, low_active: bool = None) -> Any:
+    def aggregate_stock_value_by_category(self) -> dict[int, int]:
+        """Returns a dictionary mapping each category ID to the total value (price_cents * stock_qty) of all products in that category. [mechanical stock value]"""
+        parents = self._store.select('Category', [])
+        values = {row['id']: 0 for row in parents}
+        for row in self._store.select(self.ENTITY, []):
+            parent_id = row.get('category_id')
+            if parent_id is None:
+                continue
+            values[parent_id] = values.get(parent_id, 0) + (row.get('price_cents') or 0) * (row.get('stock_qty') or 0)
+        return values
+
+    def create(self, sku: str = None, name: str = None, category_id: int = None, price_cents: int = None, stock_qty: int = None, low_active: bool = None) -> models.Product:
         """Creates a new Product. [crud:create: STANDARD_CRUD]"""
         values = {}
         if sku is not None:
@@ -181,10 +192,41 @@ class ProductRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("category_id", "Category", "id", errors.CategoryNotFoundError)])
         return models.Product(**record)
 
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, id, error=errors.ProductNotFoundError)
-        return models.Product(**record)
+    def delete(self, id: int = None, sku: str = None, name: str = None, category_id: int = None, price_cents: int = None, stock_qty: int = None, low_active: bool = None) -> None:
+        """Deletes an existing Product. [crud:delete: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        if sku is not None:
+            criteria.append(('sku', 'eq', sku))
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if category_id is not None:
+            criteria.append(('category_id', 'eq', category_id))
+        if price_cents is not None:
+            criteria.append(('price_cents', 'eq', price_cents))
+        if stock_qty is not None:
+            criteria.append(('stock_qty', 'eq', stock_qty))
+        if low_active is not None:
+            criteria.append(('low_active', 'eq', low_active))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            raise errors.ProductNotFoundError(f"Product delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
+
+    def find_low_stock_products(self, id: int = None) -> list[models.Product]:
+        """Returns a list of products whose stock_qty is below the reorder_threshold of their category. [mechanical boolean filter]"""
+        return _model_list(self._store.select(self.ENTITY, [('low_active', 'eq', True)]), models.Product)
+
+    def find_products_by_category(self, category_id: int = None) -> list[models.Product]:
+        """Returns a list of products that belong to a given category ID. [mechanical contained-name filter]"""
+        criteria = []
+        if category_id is not None:
+            criteria.append(('category_id', 'eq', category_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Product(**row) for row in found], models.Product)
 
     def read_all(self, sku: str = None, name: str = None, category_id: int = None, price_cents: int = None, stock_qty: int = None, low_active: bool = None) -> list[models.Product]:
         """Lists every Product; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
@@ -204,7 +246,12 @@ class ProductRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Product(**r) for r in found]
 
-    def update(self, id: int = None, sku: str = None, name: str = None, category_id: int = None, price_cents: int = None, stock_qty: int = None, low_active: bool = None) -> Any:
+    def read_one(self, id: int = None) -> models.Product:
+        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, id, error=errors.ProductNotFoundError)
+        return models.Product(**record)
+
+    def update(self, id: int = None, sku: str = None, name: str = None, category_id: int = None, price_cents: int = None, stock_qty: int = None, low_active: bool = None) -> models.Product:
         """Updates an existing Product. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if id is not None:
@@ -236,50 +283,3 @@ class ProductRepository:
                 raise ValueError(f"Product with {unique_field}={value!r} already exists")
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.ProductNotFoundError)
         return models.Product(**record)
-
-    def delete(self, id: int = None, sku: str = None, name: str = None, category_id: int = None, price_cents: int = None, stock_qty: int = None, low_active: bool = None) -> None:
-        """Deletes an existing Product. [crud:delete: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        if sku is not None:
-            criteria.append(('sku', 'eq', sku))
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if category_id is not None:
-            criteria.append(('category_id', 'eq', category_id))
-        if price_cents is not None:
-            criteria.append(('price_cents', 'eq', price_cents))
-        if stock_qty is not None:
-            criteria.append(('stock_qty', 'eq', stock_qty))
-        if low_active is not None:
-            criteria.append(('low_active', 'eq', low_active))
-        found = self._store.select(self.ENTITY, criteria)
-        if not found:
-            raise errors.ProductNotFoundError(f"Product delete matched no records")
-        for record in found:
-            self._store.delete(self.ENTITY, self.PK, record[self.PK])
-        return None
-
-    def find_products_by_category(self, category_id: int = None) -> list[models.Product]:
-        """Returns a list of products that belong to a given category ID. [crud:filter: FILTER_BY_FIELD]"""
-        criteria = []
-        if category_id is not None:
-            criteria.append(('category_id', 'eq', category_id))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Product(**r) for r in found]
-
-    def find_low_stock_products(self, id: int = None) -> list[models.Product]:
-        """Returns a list of products whose stock_qty is below the reorder_threshold of their category. [mechanical boolean filter]"""
-        return _model_list(self._store.select(self.ENTITY, [('low_active', 'eq', True)]), models.Product)
-
-    def aggregate_stock_value_by_category(self) -> dict[int, int]:
-        """Returns a dictionary mapping each category ID to the total value (price_cents * stock_qty) of all products in that category. [mechanical stock value]"""
-        parents = self._store.select('Category', [])
-        values = {row['id']: 0 for row in parents}
-        for row in self._store.select(self.ENTITY, []):
-            parent_id = row.get('category_id')
-            if parent_id is None:
-                continue
-            values[parent_id] = values.get(parent_id, 0) + (row.get('price_cents') or 0) * (row.get('stock_qty') or 0)
-        return values

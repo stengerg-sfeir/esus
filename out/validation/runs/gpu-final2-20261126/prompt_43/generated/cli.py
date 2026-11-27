@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Project', 'Task', 'Status', 'Priority']
-REPOSITORIES = ['ProjectRepository', 'TaskRepository', 'StatusRepository', 'PriorityRepository']
+MODELS = ['Priority', 'Project', 'Status', 'Task']
+REPOSITORIES = ['PriorityRepository', 'ProjectRepository', 'StatusRepository', 'TaskRepository']
 SERVICES = []
 
 

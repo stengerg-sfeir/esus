@@ -12,10 +12,13 @@ from typing import Any, Dict, List, Literal, Optional
 
 
 @dataclass
-class Room:
+class Booking:
     id: int = None
-    room_number: str = None
-    availability_status: bool = None
+    room_id: int = None
+    guest_id: int = None
+    check_in_date: datetime.date = None
+    check_out_date: datetime.date = None
+    booking_status: str = None
 
 
 @dataclass
@@ -28,10 +31,7 @@ class Guest:
 
 
 @dataclass
-class Booking:
+class Room:
     id: int = None
-    room_id: int = None
-    guest_id: int = None
-    check_in_date: datetime.date = None
-    check_out_date: datetime.date = None
-    booking_status: str = None
+    room_number: str = None
+    availability_status: bool = None

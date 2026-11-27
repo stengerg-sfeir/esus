@@ -1,96 +1,96 @@
 {
   "invariants": [
     {
-      "text": "Customer.customer_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A customer can have multiple orders."
     },
     {
-      "text": "Customer.name must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An order cannot exist without a corresponding customer."
     },
     {
-      "text": "Customer.name must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An order must belong to exactly one customer."
     },
     {
-      "text": "Customer.email must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.customer_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Customer.email must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.email must be a string"
     },
     {
-      "text": "Order.order_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.email must not be null"
     },
     {
-      "text": "Order.customer_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.name must be a string"
     },
     {
-      "text": "Order.customer_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Customer.name must not be null"
     },
     {
-      "text": "Order.customer_id must reference an existing Customer.customer_id",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Each customer must have a unique customer_id that identifies them within the system."
     },
     {
-      "text": "Order.order_date must be a datetime",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Each order has a status that reflects its current state in the order lifecycle."
     },
     {
-      "text": "Order.order_date must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Each order must have a unique order_id that identifies it within the system."
     },
     {
-      "text": "Order.status must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Order.customer_id must be an integer"
     },
     {
-      "text": "Order.status must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Order.customer_id must not be null"
     },
     {
-      "text": "An order must belong to exactly one customer.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.customer_id must reference an existing Customer.customer_id"
     },
     {
-      "text": "A customer can have multiple orders.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.order_date must be a datetime"
     },
     {
-      "text": "Each order has a status that reflects its current state in the order lifecycle.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.order_date must not be null"
     },
     {
-      "text": "The order date must be set when an order is created and cannot be modified after creation.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.order_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "When a customer is listed, all orders associated with that customer must be returned in the list response.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.status must be a string"
     },
     {
-      "text": "The status of an order can only be updated through a dedicated update operation and must be one of the valid status values defined in the system.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Order.status must not be null"
     },
     {
-      "text": "Each order must have a unique order_id that identifies it within the system.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The order date must be set when an order is created and cannot be modified after creation."
     },
     {
-      "text": "Each customer must have a unique customer_id that identifies them within the system.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The order_date of an order must be on or after the system's current date when the order is created."
     },
     {
-      "text": "An order cannot exist without a corresponding customer.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The status of an order can only be updated through a dedicated update operation and must be one of the valid status values defined in the system."
     },
     {
-      "text": "The order_date of an order must be on or after the system's current date when the order is created.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When a customer is listed, all orders associated with that customer must be returned in the list response."
     }
   ]
 }

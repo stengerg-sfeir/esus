@@ -213,6 +213,12 @@ def build_parser():
     p_Customer_add.add_argument('--created-at', type=str, required=True, dest='created_at')
     p_Customer_add.add_argument('--updated-at', type=str, required=True, dest='updated_at')
     p_Customer_add.set_defaults(_binding=('Customer', 'add'))
+    p_Customer_delete = sub_Customer.add_parser('delete')
+    p_Customer_delete.add_argument('--customer-id', type=int, required=True, dest='customer_id')
+    p_Customer_delete.add_argument('--first-name', type=str, required=False, dest='first_name')
+    p_Customer_delete.add_argument('--last-name', type=str, required=False, dest='last_name')
+    p_Customer_delete.add_argument('--phone', type=str, required=False, dest='phone')
+    p_Customer_delete.set_defaults(_binding=('Customer', 'delete'))
     p_Customer_list = sub_Customer.add_parser('list')
     p_Customer_list.add_argument('--page-number', type=int, required=True, dest='page_number')
     p_Customer_list.add_argument('--page-size', type=int, required=True, dest='page_size')
@@ -224,12 +230,6 @@ def build_parser():
     p_Customer_update.add_argument('--email', type=str, required=False, dest='email')
     p_Customer_update.add_argument('--phone', type=str, required=False, dest='phone')
     p_Customer_update.set_defaults(_binding=('Customer', 'update'))
-    p_Customer_delete = sub_Customer.add_parser('delete')
-    p_Customer_delete.add_argument('--customer-id', type=int, required=True, dest='customer_id')
-    p_Customer_delete.add_argument('--first-name', type=str, required=False, dest='first_name')
-    p_Customer_delete.add_argument('--last-name', type=str, required=False, dest='last_name')
-    p_Customer_delete.add_argument('--phone', type=str, required=False, dest='phone')
-    p_Customer_delete.set_defaults(_binding=('Customer', 'delete'))
     return parser
 
 

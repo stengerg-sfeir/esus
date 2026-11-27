@@ -10,25 +10,9 @@
             "--title",
             "value1",
             "--status",
-            "s status must be one of ",
+            "completed",
             "--priority",
             "s priority must be one of "
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Task update",
-      "when": {
-        "cli_variants": [
-          [
-            "Task",
-            "update",
-            "--task-id",
-            "1"
           ]
         ]
       },
@@ -59,30 +43,14 @@
       }
     },
     {
-      "name": "cli:Task import",
+      "name": "cli:Task update",
       "when": {
         "cli_variants": [
           [
             "Task",
-            "import",
-            "--file-path",
-            "value1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Task export",
-      "when": {
-        "cli_variants": [
-          [
-            "Task",
-            "export",
-            "--file-path",
-            "value1"
+            "update",
+            "--task-id",
+            "1"
           ]
         ]
       },

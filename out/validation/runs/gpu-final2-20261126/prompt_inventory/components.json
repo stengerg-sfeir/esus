@@ -1,261 +1,5 @@
 {
   "components": {
-    "facade": {
-      "type": "cli",
-      "technology": "click",
-      "invocation": {
-        "positional": [],
-        "options": [],
-        "commands": [
-          {
-            "name": "product",
-            "options": [
-              {
-                "name": "--version",
-                "short": "-v",
-                "type": "bool",
-                "required": false,
-                "default": null
-              },
-              {
-                "name": "--help",
-                "short": "-h",
-                "type": "bool",
-                "required": false,
-                "default": null
-              }
-            ],
-            "subcommands": [
-              {
-                "name": "add",
-                "options": [
-                  {
-                    "name": "--sku",
-                    "short": "-s",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--name",
-                    "short": "-n",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--category",
-                    "short": "-c",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--price",
-                    "short": "-p",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--stock",
-                    "short": "-q",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "list",
-                "options": [
-                  {
-                    "name": "--category",
-                    "short": "-c",
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--low-only",
-                    "short": "-l",
-                    "type": "bool",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "update",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": "-i",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--name",
-                    "short": "-n",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--price",
-                    "short": "-p",
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--category",
-                    "short": "-c",
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "delete",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": "-i",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "restock",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": "-i",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--qty",
-                    "short": "-q",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "report low-stock",
-                "options": []
-              },
-              {
-                "name": "report value",
-                "options": []
-              }
-            ]
-          },
-          {
-            "name": "category",
-            "options": [
-              {
-                "name": "--help",
-                "short": "-h",
-                "type": "bool",
-                "required": false,
-                "default": null
-              }
-            ],
-            "subcommands": [
-              {
-                "name": "add",
-                "options": [
-                  {
-                    "name": "--name",
-                    "short": "-n",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--description",
-                    "short": "-d",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--threshold",
-                    "short": "-t",
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "list",
-                "options": []
-              },
-              {
-                "name": "update",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": "-i",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "--name",
-                    "short": "-n",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--description",
-                    "short": "-d",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "--threshold",
-                    "short": "-t",
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "delete",
-                "options": [
-                  {
-                    "name": "--id",
-                    "short": "-i",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    "persistence": {
-      "required": true,
-      "technology": "sqlite"
-    },
-    "external_access": [],
     "crud_services": [
       {
         "entity": "Category",
@@ -277,6 +21,262 @@
           "delete"
         ]
       }
-    ]
+    ],
+    "external_access": [],
+    "facade": {
+      "invocation": {
+        "commands": [
+          {
+            "name": "product",
+            "options": [
+              {
+                "default": null,
+                "name": "--version",
+                "required": false,
+                "short": "-v",
+                "type": "bool"
+              },
+              {
+                "default": null,
+                "name": "--help",
+                "required": false,
+                "short": "-h",
+                "type": "bool"
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--sku",
+                    "required": true,
+                    "short": "-s",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": true,
+                    "short": "-n",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--category",
+                    "required": true,
+                    "short": "-c",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--price",
+                    "required": true,
+                    "short": "-p",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--stock",
+                    "required": true,
+                    "short": "-q",
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--category",
+                    "required": false,
+                    "short": "-c",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--low-only",
+                    "required": false,
+                    "short": "-l",
+                    "type": "bool"
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": "-i",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": false,
+                    "short": "-n",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--price",
+                    "required": false,
+                    "short": "-p",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--category",
+                    "required": false,
+                    "short": "-c",
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": "-i",
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "restock",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": "-i",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--qty",
+                    "required": true,
+                    "short": "-q",
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "report low-stock",
+                "options": []
+              },
+              {
+                "name": "report value",
+                "options": []
+              }
+            ]
+          },
+          {
+            "name": "category",
+            "options": [
+              {
+                "default": null,
+                "name": "--help",
+                "required": false,
+                "short": "-h",
+                "type": "bool"
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": true,
+                    "short": "-n",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--description",
+                    "required": false,
+                    "short": "-d",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--threshold",
+                    "required": false,
+                    "short": "-t",
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": []
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": "-i",
+                    "type": "int"
+                  },
+                  {
+                    "default": null,
+                    "name": "--name",
+                    "required": false,
+                    "short": "-n",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--description",
+                    "required": false,
+                    "short": "-d",
+                    "type": "str"
+                  },
+                  {
+                    "default": null,
+                    "name": "--threshold",
+                    "required": false,
+                    "short": "-t",
+                    "type": "int"
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "default": null,
+                    "name": "--id",
+                    "required": true,
+                    "short": "-i",
+                    "type": "int"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "options": [],
+        "positional": []
+      },
+      "technology": "click",
+      "type": "cli"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    }
   }
 }

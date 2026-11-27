@@ -1,83 +1,83 @@
 {
   "data_models": [
     {
-      "name": "Product",
       "fields": [
         {
-          "name": "product_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "product_id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "name",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "name",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
         },
         {
-          "name": "price",
-          "type": "decimal",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "price",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "decimal",
+          "unique": false
         }
-      ]
+      ],
+      "name": "Product"
     },
     {
-      "name": "SalesRecord",
       "fields": [
         {
-          "name": "sales_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "sales_id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "product_id",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": {
+            "relationship": "one_to_many",
             "target_entity": "Product",
-            "target_field": "product_id",
-            "relationship": "one_to_many"
+            "target_field": "product_id"
           },
-          "status": "explicit"
-        },
-        {
-          "name": "quantity",
+          "name": "product_id",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
           "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "unique": false
         },
         {
-          "name": "sale_date",
-          "type": "datetime",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "quantity",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "sale_date",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "datetime",
+          "unique": false
         }
-      ]
+      ],
+      "name": "SalesRecord"
     }
   ]
 }

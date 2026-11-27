@@ -1,76 +1,76 @@
 {
   "invariants": [
     {
-      "text": "Employee.employee_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A department must have at least one employee assigned to it."
     },
     {
-      "text": "Employee.first_name must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An employee must belong to exactly one department."
     },
     {
-      "text": "Employee.first_name must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An employee's email must be unique across all employees."
     },
     {
-      "text": "Employee.last_name must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An employee's first name and last name together must uniquely identify the employee."
     },
     {
-      "text": "Employee.last_name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Department.department_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Employee.email must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Department.department_name must be a string"
     },
     {
-      "text": "Employee.email must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Department.department_name must not be null"
     },
     {
-      "text": "Employee.department_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.department_id must be an integer"
     },
     {
-      "text": "Employee.department_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.department_id must not be null"
     },
     {
-      "text": "Employee.department_id must reference an existing Department.department_id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.department_id must reference an existing Department.department_id"
     },
     {
-      "text": "Department.department_id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.email must be a string"
     },
     {
-      "text": "Department.department_name must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.email must not be null"
     },
     {
-      "text": "Department.department_name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Employee.employee_id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "An employee must belong to exactly one department.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Employee.first_name must be a string"
     },
     {
-      "text": "The department name must be unique across all departments.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Employee.first_name must not be null"
     },
     {
-      "text": "An employee's email must be unique across all employees.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Employee.last_name must be a string"
     },
     {
-      "text": "An employee's first name and last name together must uniquely identify the employee.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Employee.last_name must not be null"
     },
     {
-      "text": "A department must have at least one employee assigned to it.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The department name must be unique across all departments."
     }
   ]
 }

@@ -58,7 +58,7 @@ class AuthorRepository:
         self._store = store
 
 
-    def create(self, name: str = None, email: str = None) -> Any:
+    def create(self, name: str = None, email: str = None) -> models.Author:
         """Creates a new Author. [crud:create: STANDARD_CRUD]"""
         values = {}
         if name is not None:
@@ -69,42 +69,6 @@ class AuthorRepository:
         if unknown:
             raise ValueError(f"cannot create Author from {unknown}")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Author(**record)
-
-    def read_one(self, author_id: int = None) -> Any:
-        """Reads one Author by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', author_id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Author(**record)
-
-    def read_all(self, name: str = None, email: str = None) -> list[models.Author]:
-        """Lists every Author; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if email is not None:
-            criteria.append(('email', 'eq', email))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Author(**r) for r in found]
-
-    def update(self, author_id: int = None, name: str = None, email: str = None) -> Any:
-        """Updates an existing Author. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if author_id is not None:
-            criteria.append(('author_id', 'eq', author_id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Author update matched {len(found)} records")
-        patch = {}
-        if author_id is not None and 'author_id' in ['author_id', 'name', 'email']:
-            patch['author_id'] = author_id
-        if name is not None and 'name' in ['author_id', 'name', 'email']:
-            patch['name'] = name
-        if email is not None and 'email' in ['author_id', 'name', 'email']:
-            patch['email'] = email
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Author(**record)
 
     def delete(self, author_id: int = None, name: str = None, email: str = None) -> None:
@@ -123,6 +87,42 @@ class AuthorRepository:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
 
+    def read_all(self, name: str = None, email: str = None) -> list[models.Author]:
+        """Lists every Author; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if email is not None:
+            criteria.append(('email', 'eq', email))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Author(**r) for r in found]
+
+    def read_one(self, author_id: int = None) -> models.Author:
+        """Reads one Author by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', author_id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Author(**record)
+
+    def update(self, author_id: int = None, name: str = None, email: str = None) -> models.Author:
+        """Updates an existing Author. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if author_id is not None:
+            criteria.append(('author_id', 'eq', author_id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Author update matched {len(found)} records")
+        patch = {}
+        if author_id is not None and 'author_id' in ['author_id', 'name', 'email']:
+            patch['author_id'] = author_id
+        if name is not None and 'name' in ['author_id', 'name', 'email']:
+            patch['name'] = name
+        if email is not None and 'email' in ['author_id', 'name', 'email']:
+            patch['email'] = email
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.Author(**record)
+
 
 class PostRepository:
     ENTITY = "Post"
@@ -132,7 +132,7 @@ class PostRepository:
         self._store = store
 
 
-    def create(self, title: str = None, content: str = None, author_id: int = None) -> Any:
+    def create(self, title: str = None, content: str = None, author_id: int = None) -> models.Post:
         """Creates a new Post. [crud:create: STANDARD_CRUD]"""
         values = {}
         if title is not None:
@@ -145,46 +145,6 @@ class PostRepository:
         if unknown:
             raise ValueError(f"cannot create Post from {unknown}")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("author_id", "Author", "author_id", None)])
-        return models.Post(**record)
-
-    def read_one(self, post_id: int = None) -> Any:
-        """Reads one Post by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', post_id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Post(**record)
-
-    def read_all(self, title: str = None, content: str = None, author_id: int = None) -> list[models.Post]:
-        """Lists every Post; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if title is not None:
-            criteria.append(('title', 'eq', title))
-        if content is not None:
-            criteria.append(('content', 'eq', content))
-        if author_id is not None:
-            criteria.append(('author_id', 'eq', author_id))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Post(**r) for r in found]
-
-    def update(self, post_id: int = None, title: str = None, content: str = None, author_id: int = None) -> Any:
-        """Updates an existing Post. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if post_id is not None:
-            criteria.append(('post_id', 'eq', post_id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Post update matched {len(found)} records")
-        patch = {}
-        if post_id is not None and 'post_id' in ['post_id', 'title', 'content', 'author_id']:
-            patch['post_id'] = post_id
-        if title is not None and 'title' in ['post_id', 'title', 'content', 'author_id']:
-            patch['title'] = title
-        if content is not None and 'content' in ['post_id', 'title', 'content', 'author_id']:
-            patch['content'] = content
-        if author_id is not None and 'author_id' in ['post_id', 'title', 'content', 'author_id']:
-            patch['author_id'] = author_id
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Post(**record)
 
     def delete(self, post_id: int = None, title: str = None, content: str = None, author_id: int = None) -> None:
@@ -213,6 +173,108 @@ class PostRepository:
         found = self._store.select(self.ENTITY, criteria)
         return _model_list([models.Post(**row) for row in found], models.Post)
 
+    def read_all(self, title: str = None, content: str = None, author_id: int = None) -> list[models.Post]:
+        """Lists every Post; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if title is not None:
+            criteria.append(('title', 'eq', title))
+        if content is not None:
+            criteria.append(('content', 'eq', content))
+        if author_id is not None:
+            criteria.append(('author_id', 'eq', author_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Post(**r) for r in found]
+
+    def read_one(self, post_id: int = None) -> models.Post:
+        """Reads one Post by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', post_id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Post(**record)
+
+    def update(self, post_id: int = None, title: str = None, content: str = None, author_id: int = None) -> models.Post:
+        """Updates an existing Post. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if post_id is not None:
+            criteria.append(('post_id', 'eq', post_id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Post update matched {len(found)} records")
+        patch = {}
+        if post_id is not None and 'post_id' in ['post_id', 'title', 'content', 'author_id']:
+            patch['post_id'] = post_id
+        if title is not None and 'title' in ['post_id', 'title', 'content', 'author_id']:
+            patch['title'] = title
+        if content is not None and 'content' in ['post_id', 'title', 'content', 'author_id']:
+            patch['content'] = content
+        if author_id is not None and 'author_id' in ['post_id', 'title', 'content', 'author_id']:
+            patch['author_id'] = author_id
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.Post(**record)
+
+
+class PostTagRepository:
+    ENTITY = "PostTag"
+    PK = "post_tag_id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def associate_tag_with_post(self, post_id: int = None, tag_id: int = None) -> None:
+        """Associates a Tag with a Post. [mechanical join association]"""
+        values = {}
+        if post_id is not None: values['post_id'] = post_id
+        if tag_id is not None: values['tag_id'] = tag_id
+        self._store.add(self.ENTITY, self.PK, values, check_fk=[('post_id', 'Post', 'post_id', None), ('tag_id', 'Tag', 'tag_id', None)])
+        return None
+
+    def create(self, tag_id: int = None, post_id: int = None) -> models.PostTag:
+        """Creates a new PostTag. [crud:create: STANDARD_CRUD]"""
+        values = {}
+        if tag_id is not None:
+            values['tag_id'] = tag_id
+        if post_id is not None:
+            values['post_id'] = post_id
+        unknown = [k for k in values if k not in ['post_tag_id', 'post_id', 'tag_id']]
+        if unknown:
+            raise ValueError(f"cannot create PostTag from {unknown}")
+        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("post_id", "Post", "post_id", None), ("tag_id", "Tag", "tag_id", None)])
+        return models.PostTag(**record)
+
+    def get_post_tags_by_post_id(self, post_id: int = None) -> list[models.PostTag]:
+        """Lists the PostTag records belonging to one Post. [mechanical contained-name filter]"""
+        criteria = []
+        if post_id is not None:
+            criteria.append(('post_id', 'eq', post_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.PostTag(**row) for row in found], models.PostTag)
+
+    def get_post_tags_by_tag_id(self, tag_id: int = None) -> list[models.PostTag]:
+        """Lists the PostTag records belonging to one Tag. [mechanical contained-name filter]"""
+        criteria = []
+        if tag_id is not None:
+            criteria.append(('tag_id', 'eq', tag_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.PostTag(**row) for row in found], models.PostTag)
+
+    def read_all(self, tag_id: int = None) -> list[models.PostTag]:
+        """Lists every PostTag; optional fields narrow the result. [mechanical contained-name filter]"""
+        criteria = []
+        if tag_id is not None:
+            criteria.append(('tag_id', 'eq', tag_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.PostTag(**row) for row in found], models.PostTag)
+
+    def read_one(self, post_tag_id: int = None) -> models.PostTag:
+        """Reads one PostTag by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', post_tag_id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.PostTag(**record)
+
 
 class TagRepository:
     ENTITY = "Tag"
@@ -222,7 +284,7 @@ class TagRepository:
         self._store = store
 
 
-    def create(self, name: str = None) -> Any:
+    def create(self, name: str = None) -> models.Tag:
         """Creates a new Tag. [crud:create: STANDARD_CRUD]"""
         values = {}
         if name is not None:
@@ -231,38 +293,6 @@ class TagRepository:
         if unknown:
             raise ValueError(f"cannot create Tag from {unknown}")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Tag(**record)
-
-    def read_one(self, tag_id: int = None) -> Any:
-        """Reads one Tag by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', tag_id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Tag(**record)
-
-    def read_all(self, name: str = None) -> list[models.Tag]:
-        """Lists every Tag; optional fields narrow the result. [mechanical contained-name filter]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        found = self._store.select(self.ENTITY, criteria)
-        return _model_list([models.Tag(**row) for row in found], models.Tag)
-
-    def update(self, tag_id: int = None, name: str = None) -> Any:
-        """Updates an existing Tag. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if tag_id is not None:
-            criteria.append(('tag_id', 'eq', tag_id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Tag update matched {len(found)} records")
-        patch = {}
-        if tag_id is not None and 'tag_id' in ['tag_id', 'name']:
-            patch['tag_id'] = tag_id
-        if name is not None and 'name' in ['tag_id', 'name']:
-            patch['name'] = name
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Tag(**record)
 
     def delete(self, tag_id: int = None, name: str = None) -> None:
@@ -279,64 +309,34 @@ class TagRepository:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
 
+    def read_all(self, name: str = None) -> list[models.Tag]:
+        """Lists every Tag; optional fields narrow the result. [mechanical contained-name filter]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Tag(**row) for row in found], models.Tag)
 
-class PostTagRepository:
-    ENTITY = "PostTag"
-    PK = "post_tag_id"
-
-    def __init__(self, store):
-        self._store = store
-
-
-    def create(self, tag_id: int = None, post_id: int = None) -> Any:
-        """Creates a new PostTag. [crud:create: STANDARD_CRUD]"""
-        values = {}
-        if tag_id is not None:
-            values['tag_id'] = tag_id
-        if post_id is not None:
-            values['post_id'] = post_id
-        unknown = [k for k in values if k not in ['post_tag_id', 'post_id', 'tag_id']]
-        if unknown:
-            raise ValueError(f"cannot create PostTag from {unknown}")
-        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("post_id", "Post", "post_id", None), ("tag_id", "Tag", "tag_id", None)])
-        return models.PostTag(**record)
-
-    def read_one(self, post_tag_id: int = None) -> Any:
-        """Reads one PostTag by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', post_tag_id)])
+    def read_one(self, tag_id: int = None) -> models.Tag:
+        """Reads one Tag by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', tag_id)])
         if not found:
             return None
         record = found[0]
-        return models.PostTag(**record)
+        return models.Tag(**record)
 
-    def read_all(self, tag_id: int = None) -> list[models.PostTag]:
-        """Lists every PostTag; optional fields narrow the result. [mechanical contained-name filter]"""
+    def update(self, tag_id: int = None, name: str = None) -> models.Tag:
+        """Updates an existing Tag. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if tag_id is not None:
             criteria.append(('tag_id', 'eq', tag_id))
         found = self._store.select(self.ENTITY, criteria)
-        return _model_list([models.PostTag(**row) for row in found], models.PostTag)
-
-    def get_post_tags_by_tag_id(self, tag_id: int = None) -> list[models.PostTag]:
-        """Lists the PostTag records belonging to one Tag. [mechanical contained-name filter]"""
-        criteria = []
-        if tag_id is not None:
-            criteria.append(('tag_id', 'eq', tag_id))
-        found = self._store.select(self.ENTITY, criteria)
-        return _model_list([models.PostTag(**row) for row in found], models.PostTag)
-
-    def get_post_tags_by_post_id(self, post_id: int = None) -> list[models.PostTag]:
-        """Lists the PostTag records belonging to one Post. [mechanical contained-name filter]"""
-        criteria = []
-        if post_id is not None:
-            criteria.append(('post_id', 'eq', post_id))
-        found = self._store.select(self.ENTITY, criteria)
-        return _model_list([models.PostTag(**row) for row in found], models.PostTag)
-
-    def associate_tag_with_post(self, post_id: int = None, tag_id: int = None) -> None:
-        """Associates a Tag with a Post. [mechanical join association]"""
-        values = {}
-        if post_id is not None: values['post_id'] = post_id
-        if tag_id is not None: values['tag_id'] = tag_id
-        self._store.add(self.ENTITY, self.PK, values, check_fk=[('post_id', 'Post', 'post_id', None), ('tag_id', 'Tag', 'tag_id', None)])
-        return None
+        if len(found) != 1:
+            raise LookupError(f"Tag update matched {len(found)} records")
+        patch = {}
+        if tag_id is not None and 'tag_id' in ['tag_id', 'name']:
+            patch['tag_id'] = tag_id
+        if name is not None and 'name' in ['tag_id', 'name']:
+            patch['name'] = name
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.Tag(**record)

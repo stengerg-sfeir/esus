@@ -1,136 +1,136 @@
 {
   "invariants": [
     {
-      "text": "Book.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A book can have at most one active loan at any time."
     },
     {
-      "text": "Book.title must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A book is considered available if no active loan exists for it."
     },
     {
-      "text": "Book.title must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A loan cannot be created if the book is already in an active loan."
     },
     {
-      "text": "Book.isbn must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A loan must be associated with a book and a member."
     },
     {
-      "text": "Book.isbn must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A loan's due date must be after the loan date."
     },
     {
-      "text": "Book.available must be a boolean",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A member can have multiple loans, each involving a different book."
     },
     {
-      "text": "Book.available must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.available must be a boolean"
     },
     {
-      "text": "Member.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.available must not be null"
     },
     {
-      "text": "Member.name must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Member.name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.isbn must be a string"
     },
     {
-      "text": "Member.email must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.isbn must not be null"
     },
     {
-      "text": "Member.email must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.title must be a string"
     },
     {
-      "text": "Loan.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.title must not be null"
     },
     {
-      "text": "Loan.book_id must be an integer",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Closing a loan must result in the removal of the loan record and the book's availability status being updated."
     },
     {
-      "text": "Loan.book_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.book_id must be an integer"
     },
     {
-      "text": "Loan.book_id must reference an existing Book.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.book_id must not be null"
     },
     {
-      "text": "Loan.member_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.book_id must reference an existing Book.id"
     },
     {
-      "text": "Loan.member_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.closed must be a boolean"
     },
     {
-      "text": "Loan.member_id must reference an existing Member.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.closed must not be null"
     },
     {
-      "text": "Loan.loan_date must be a datetime",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.due_date must be a datetime"
     },
     {
-      "text": "Loan.loan_date must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.due_date must not be null"
     },
     {
-      "text": "Loan.due_date must be a datetime",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Loan.due_date must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.loan_date must be a datetime"
     },
     {
-      "text": "Loan.closed must be a boolean",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.loan_date must not be null"
     },
     {
-      "text": "Loan.closed must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.member_id must be an integer"
     },
     {
-      "text": "A book can have at most one active loan at any time.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Loan.member_id must not be null"
     },
     {
-      "text": "A loan must be associated with a book and a member.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Loan.member_id must reference an existing Member.id"
     },
     {
-      "text": "When a loan is closed, the book becomes available again if it was previously loaned out.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Member.email must be a string"
     },
     {
-      "text": "A member can have multiple loans, each involving a different book.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Member.email must not be null"
     },
     {
-      "text": "A loan's due date must be after the loan date.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Member.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "A book is considered available if no active loan exists for it.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Member.name must be a string"
     },
     {
-      "text": "A loan cannot be created if the book is already in an active loan.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Member.name must not be null"
     },
     {
-      "text": "Closing a loan must result in the removal of the loan record and the book's availability status being updated.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When a loan is closed, the book becomes available again if it was previously loaned out."
     }
   ]
 }

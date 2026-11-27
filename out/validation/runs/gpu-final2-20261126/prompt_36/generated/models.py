@@ -12,17 +12,17 @@ from typing import Any, Dict, List, Literal, Optional
 
 
 @dataclass
-class Product:
-    product_id: int = None
-    name: str = None
+class Category:
     category_id: int = None
+    name: str = None
     created_at: datetime.datetime = None
     updated_at: datetime.datetime = None
 
 
 @dataclass
-class Category:
-    category_id: int = None
+class Product:
+    product_id: int = None
     name: str = None
+    category_id: int = None
     created_at: datetime.datetime = None
     updated_at: datetime.datetime = None

@@ -23,22 +23,6 @@
       }
     },
     {
-      "name": "cli:Employee update",
-      "when": {
-        "cli_variants": [
-          [
-            "Employee",
-            "update",
-            "--id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Employee delete",
       "when": {
         "cli_variants": [
@@ -51,6 +35,22 @@
           [
             "Employee",
             "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Employee update",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "update",
             "--id",
             "1"
           ]

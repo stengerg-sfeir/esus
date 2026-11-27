@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Customer', 'Room', 'Reservation']
-REPOSITORIES = ['CustomerRepository', 'RoomRepository', 'ReservationRepository']
+MODELS = ['Customer', 'Reservation', 'Room']
+REPOSITORIES = ['CustomerRepository', 'ReservationRepository', 'RoomRepository']
 SERVICES = []
 
 
@@ -221,12 +221,6 @@ def build_parser():
     p_Customer_add.add_argument('--name', type=str, required=True, dest='name')
     p_Customer_add.add_argument('--email', type=str, required=True, dest='email')
     p_Customer_add.set_defaults(_binding=('Customer', 'add'))
-    p_Room = sub.add_parser('Room')
-    sub_Room = p_Room.add_subparsers(dest='subcommand')
-    p_Room_add = sub_Room.add_parser('add')
-    p_Room_add.add_argument('--room-number', type=str, required=True, dest='room_number')
-    p_Room_add.add_argument('--capacity', type=int, required=True, dest='capacity')
-    p_Room_add.set_defaults(_binding=('Room', 'add'))
     p_Reservation = sub.add_parser('Reservation')
     sub_Reservation = p_Reservation.add_subparsers(dest='subcommand')
     p_Reservation_add = sub_Reservation.add_parser('add')
@@ -235,13 +229,6 @@ def build_parser():
     p_Reservation_add.add_argument('--start-time', type=str, required=True, dest='start_time')
     p_Reservation_add.add_argument('--end-time', type=str, required=True, dest='end_time')
     p_Reservation_add.set_defaults(_binding=('Reservation', 'add'))
-    p_Reservation_update = sub_Reservation.add_parser('update')
-    p_Reservation_update.add_argument('--reservation-id', type=int, required=True, dest='reservation_id')
-    p_Reservation_update.add_argument('--customer-id', type=int, required=True, dest='customer_id')
-    p_Reservation_update.add_argument('--room-id', type=int, required=True, dest='room_id')
-    p_Reservation_update.add_argument('--start-time', type=str, required=True, dest='start_time')
-    p_Reservation_update.add_argument('--end-time', type=str, required=True, dest='end_time')
-    p_Reservation_update.set_defaults(_binding=('Reservation', 'update'))
     p_Reservation_delete = sub_Reservation.add_parser('delete')
     p_Reservation_delete.add_argument('--reservation-id', type=int, required=True, dest='reservation_id')
     p_Reservation_delete.add_argument('--customer-id', type=int, required=False, dest='customer_id')
@@ -249,6 +236,19 @@ def build_parser():
     p_Reservation_delete.add_argument('--start-time', type=str, required=False, dest='start_time')
     p_Reservation_delete.add_argument('--end-time', type=str, required=False, dest='end_time')
     p_Reservation_delete.set_defaults(_binding=('Reservation', 'delete'))
+    p_Reservation_update = sub_Reservation.add_parser('update')
+    p_Reservation_update.add_argument('--reservation-id', type=int, required=True, dest='reservation_id')
+    p_Reservation_update.add_argument('--customer-id', type=int, required=True, dest='customer_id')
+    p_Reservation_update.add_argument('--room-id', type=int, required=True, dest='room_id')
+    p_Reservation_update.add_argument('--start-time', type=str, required=True, dest='start_time')
+    p_Reservation_update.add_argument('--end-time', type=str, required=True, dest='end_time')
+    p_Reservation_update.set_defaults(_binding=('Reservation', 'update'))
+    p_Room = sub.add_parser('Room')
+    sub_Room = p_Room.add_subparsers(dest='subcommand')
+    p_Room_add = sub_Room.add_parser('add')
+    p_Room_add.add_argument('--room-number', type=str, required=True, dest='room_number')
+    p_Room_add.add_argument('--capacity', type=int, required=True, dest='capacity')
+    p_Room_add.set_defaults(_binding=('Room', 'add'))
     return parser
 
 

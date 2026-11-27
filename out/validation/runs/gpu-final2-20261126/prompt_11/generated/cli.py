@@ -212,6 +212,13 @@ def build_parser():
     p_Book_add.add_argument('--isbn', type=str, required=True, dest='isbn')
     p_Book_add.add_argument('--publication-year', type=int, required=True, dest='publication_year')
     p_Book_add.set_defaults(_binding=('Book', 'add'))
+    p_Book_delete = sub_Book.add_parser('delete')
+    p_Book_delete.add_argument('--id', type=int, required=True, dest='id')
+    p_Book_delete.add_argument('--title', type=str, required=False, dest='title')
+    p_Book_delete.add_argument('--author', type=str, required=False, dest='author')
+    p_Book_delete.add_argument('--isbn', type=str, required=False, dest='isbn')
+    p_Book_delete.add_argument('--publication-year', type=int, required=False, dest='publication_year')
+    p_Book_delete.set_defaults(_binding=('Book', 'delete'))
     p_Book_list = sub_Book.add_parser('list')
     p_Book_list.add_argument('--title', type=str, required=False, dest='title')
     p_Book_list.add_argument('--author', type=str, required=False, dest='author')
@@ -225,13 +232,6 @@ def build_parser():
     p_Book_update.add_argument('--isbn', type=str, required=False, dest='isbn')
     p_Book_update.add_argument('--publication-year', type=int, required=False, dest='publication_year')
     p_Book_update.set_defaults(_binding=('Book', 'update'))
-    p_Book_delete = sub_Book.add_parser('delete')
-    p_Book_delete.add_argument('--id', type=int, required=True, dest='id')
-    p_Book_delete.add_argument('--title', type=str, required=False, dest='title')
-    p_Book_delete.add_argument('--author', type=str, required=False, dest='author')
-    p_Book_delete.add_argument('--isbn', type=str, required=False, dest='isbn')
-    p_Book_delete.add_argument('--publication-year', type=int, required=False, dest='publication_year')
-    p_Book_delete.set_defaults(_binding=('Book', 'delete'))
     return parser
 
 

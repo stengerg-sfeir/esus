@@ -30,22 +30,6 @@
       }
     },
     {
-      "name": "cli:Book update",
-      "when": {
-        "cli_variants": [
-          [
-            "Book",
-            "update",
-            "--id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Book delete",
       "when": {
         "cli_variants": [
@@ -81,6 +65,96 @@
       }
     },
     {
+      "name": "cli:Book update",
+      "when": {
+        "cli_variants": [
+          [
+            "Book",
+            "update",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Loan add",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "add",
+            "--member-id",
+            "1",
+            "--book-id",
+            "1",
+            "--loan-date",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Loan delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "delete",
+            "--id",
+            "1",
+            "--member-id",
+            "1",
+            "--book-id",
+            "1",
+            "--loan-date",
+            "2024-01-01T00:00:00",
+            "--return-date",
+            "2024-01-01"
+          ],
+          [
+            "Loan",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Loan": {
+            "member_id": 1,
+            "book_id": 1,
+            "loan_date": "2024-01-01T00:00:00",
+            "return_date": "2024-01-01"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Loan update",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "update",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
       "name": "cli:Member add",
       "when": {
         "cli_variants": [
@@ -102,22 +176,6 @@
             "value1",
             "--membership-status",
             "true"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Member update",
-      "when": {
-        "cli_variants": [
-          [
-            "Member",
-            "update",
-            "--id",
-            "1"
           ]
         ]
       },
@@ -161,74 +219,16 @@
       }
     },
     {
-      "name": "cli:Loan add",
+      "name": "cli:Member update",
       "when": {
         "cli_variants": [
           [
-            "Loan",
-            "add",
-            "--member-id",
-            "1",
-            "--book-id",
-            "1",
-            "--loan-date",
-            "2024-01-01T00:00:00"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Loan update",
-      "when": {
-        "cli_variants": [
-          [
-            "Loan",
+            "Member",
             "update",
             "--id",
             "1"
           ]
         ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Loan delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Loan",
-            "delete",
-            "--id",
-            "1",
-            "--member-id",
-            "1",
-            "--book-id",
-            "1",
-            "--loan-date",
-            "2024-01-01T00:00:00",
-            "--return-date",
-            "2024-01-01"
-          ],
-          [
-            "Loan",
-            "delete",
-            "--id",
-            "1"
-          ]
-        ],
-        "seed_overrides": {
-          "Loan": {
-            "member_id": 1,
-            "book_id": 1,
-            "loan_date": "2024-01-01T00:00:00",
-            "return_date": "2024-01-01"
-          }
-        }
       },
       "expect": {
         "exit": 0

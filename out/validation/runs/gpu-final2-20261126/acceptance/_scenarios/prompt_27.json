@@ -19,24 +19,6 @@
       }
     },
     {
-      "name": "cli:Room add",
-      "when": {
-        "cli_variants": [
-          [
-            "Room",
-            "add",
-            "--room-number",
-            "value1",
-            "--capacity",
-            "100"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Reservation add",
       "when": {
         "cli_variants": [
@@ -53,38 +35,6 @@
             "2024-01-01T00:00:00"
           ]
         ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Reservation update",
-      "when": {
-        "cli_variants": [
-          [
-            "Reservation",
-            "update",
-            "--reservation-id",
-            "1",
-            "--customer-id",
-            "1",
-            "--room-id",
-            "1",
-            "--start-time",
-            "2024-01-01T00:00:00",
-            "--end-time",
-            "2024-01-01T00:00:00"
-          ]
-        ],
-        "seed_overrides": {
-          "Reservation": {
-            "customer_id": 1,
-            "room_id": 1,
-            "start_time": "2024-01-01T00:00:00",
-            "end_time": "2024-01-01T00:00:00"
-          }
-        }
       },
       "expect": {
         "exit": 0
@@ -123,6 +73,56 @@
             "end_time": "2024-01-01T00:00:00"
           }
         }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Reservation update",
+      "when": {
+        "cli_variants": [
+          [
+            "Reservation",
+            "update",
+            "--reservation-id",
+            "1",
+            "--customer-id",
+            "1",
+            "--room-id",
+            "1",
+            "--start-time",
+            "2024-01-01T00:00:00",
+            "--end-time",
+            "2024-01-01T00:00:00"
+          ]
+        ],
+        "seed_overrides": {
+          "Reservation": {
+            "customer_id": 1,
+            "room_id": 1,
+            "start_time": "2024-01-01T00:00:00",
+            "end_time": "2024-01-01T00:00:00"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room add",
+      "when": {
+        "cli_variants": [
+          [
+            "Room",
+            "add",
+            "--room-number",
+            "value1",
+            "--capacity",
+            "100"
+          ]
+        ]
       },
       "expect": {
         "exit": 0

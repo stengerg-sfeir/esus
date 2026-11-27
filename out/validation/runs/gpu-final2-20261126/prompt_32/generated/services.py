@@ -45,20 +45,6 @@ class OrderService:
         self._repos = repos
 
 
-    def confirm_order(self, order_id: int = None) -> None:
-        """Transitions an order from pending to confirmed state. The order must be in pending state; cannot confirm a confirmed, shipped, or cancelled order. [closed contract: closed scalar contract]"""
-        order = self._repos['OrderRepository'].read_one(order_id)
-        if not (order.state == 'pending'):
-            raise errors.OrderStateException("order.state == 'pending'")
-        self._repos['OrderRepository'].update(order.id, state='confirmed')
-
-    def ship_order(self, order_id: int = None) -> None:
-        """Transitions an order from confirmed to shipped state. The order must be in confirmed state; cannot ship a pending, cancelled, or shipped order. [closed contract: closed scalar contract]"""
-        order = self._repos['OrderRepository'].read_one(order_id)
-        if not (order.state == 'confirmed'):
-            raise errors.OrderStateException("order.state == 'confirmed'")
-        self._repos['OrderRepository'].update(order.id, state='shipped')
-
     def cancel_order(self, order_id: int = None) -> None:
         """Transitions an order from pending or confirmed to cancelled state. A cancelled order cannot be shipped. The order must be in pending or confirmed state; cannot cancel a shipped order. [closed contract: closed scalar contract]"""
         order = self._repos['OrderRepository'].read_one(order_id)
@@ -66,9 +52,23 @@ class OrderService:
             raise errors.OrderStateException("order.state in ('pending', 'confirmed')")
         self._repos['OrderRepository'].update(order.id, state='cancelled')
 
+    def confirm_order(self, order_id: int = None) -> None:
+        """Transitions an order from pending to confirmed state. The order must be in pending state; cannot confirm a confirmed, shipped, or cancelled order. [closed contract: closed scalar contract]"""
+        order = self._repos['OrderRepository'].read_one(order_id)
+        if not (order.state == 'pending'):
+            raise errors.OrderStateException("order.state == 'pending'")
+        self._repos['OrderRepository'].update(order.id, state='confirmed')
+
     def read_order_by_id(self, id: int = None) -> models.Order | None:
         """Reads one Order by its key. [mechanical standard read]"""
         return self._repos['OrderRepository'].read_one(id)
+
+    def ship_order(self, order_id: int = None) -> None:
+        """Transitions an order from confirmed to shipped state. The order must be in confirmed state; cannot ship a pending, cancelled, or shipped order. [closed contract: closed scalar contract]"""
+        order = self._repos['OrderRepository'].read_one(order_id)
+        if not (order.state == 'confirmed'):
+            raise errors.OrderStateException("order.state == 'confirmed'")
+        self._repos['OrderRepository'].update(order.id, state='shipped')
 
     def update_order(self, id: int = None, state: str = None, created_at: Any = None, updated_at: Any = None) -> None:
         """Updates an existing Order. [mechanical CRUD wrapper]"""

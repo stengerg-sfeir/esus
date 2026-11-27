@@ -1740,6 +1740,29 @@ def _read_one_names_entity_error(ctx, method, entity):
                if isinstance(name, str))
 
 
+def _product_foreign_key(fields):
+    """The field that points at a Product, not a join row's own key.
+
+    A join model with a surrogate key (`order_product_id`) has a column whose
+    name also ends in `productid`.  Prefer the declared foreign key; fall back
+    to an unkeyed `*_product_id` column only when no FK metadata exists.
+    """
+    preferred = next(
+        (field for field in fields
+         if isinstance(field, dict)
+         and isinstance(field.get("foreign_key"), dict)
+         and normalize(field["foreign_key"].get("target_entity") or "")
+         == "product"),
+        None)
+    if preferred is not None:
+        return preferred
+    return next(
+        (field for field in fields
+         if isinstance(field, dict) and not field.get("primary_key")
+         and normalize(field.get("name") or "").endswith("productid")),
+        None)
+
+
 def _cancel_stock_plan(ctx, entity, method):
     """The model graph for a cancel operation that restores child stock.
 
@@ -1768,11 +1791,7 @@ def _cancel_stock_plan(ctx, entity, method):
                               and normalize(field["foreign_key"].get("target_entity") or "")
                               == normalize(entity))
                           or normalize(field.get("name") or "") == normalize(entity) + "id"), None)
-        product_fk = next((field for field in fields
-                           if normalize(field.get("name") or "").endswith("productid")
-                           or (isinstance(field.get("foreign_key"), dict)
-                               and normalize(field["foreign_key"].get("target_entity") or "")
-                               == "product")), None)
+        product_fk = _product_foreign_key(fields)
         quantity = next((field for field in fields
                          if normalize(field.get("name") or "") == "quantity"), None)
         if parent_fk and product_fk and quantity:
@@ -2039,6 +2058,11 @@ def _repo_mark_state_body(ctx, entity, method):
     parts = str(method.get("name") or "").lower().split("_")
     verb = parts[0] if parts else ""
     target = entity
+    # A cancel that must restore stock has a more specific mechanical body;
+    # leaving it here would emit only the status write and silently drop the
+    # restoration the prompt names.
+    if _cancel_stock_plan(ctx, target, method) is not None:
+        return None
     field = None
     value = None
     if name.startswith("mark") and "as" in name:
@@ -4552,8 +4576,7 @@ def _service_place_order_body(ctx, method, params, returns):
         fields = [f for f in candidate.get("fields") or [] if isinstance(f, dict)]
         if any(isinstance(f.get("foreign_key"), dict)
                and normalize(f["foreign_key"].get("target_entity") or "") == normalize(order)
-               for f in fields) and any(
-                   normalize(f.get("name") or "").endswith("productid") for f in fields) \
+               for f in fields) and _product_foreign_key(fields) is not None \
                 and any(normalize(f.get("name") or "") == "quantity" for f in fields):
             line_model = candidate
             break
@@ -4570,9 +4593,7 @@ def _service_place_order_body(ctx, method, params, returns):
                         and normalize(m.get("name") or "") == "create"), None)
     if create_line is None:
         return None
-    product_fk = next((f for f in line_model.get("fields") or []
-                       if isinstance(f, dict)
-                       and normalize(f.get("name") or "").endswith("productid")), None)
+    product_fk = _product_foreign_key(line_model.get("fields") or [])
     product_name = None
     if product_fk and isinstance(product_fk.get("foreign_key"), dict):
         product_name = product_fk["foreign_key"].get("target_entity")
@@ -4945,7 +4966,7 @@ def emit_services(ctx, repo_index, stats):
                             f"plan:{plan.get('pattern')}")
                     continue
             low_stock_body = _service_low_stock_body(
-                ctx, method, params, returns)
+                ctx, method, params, returns, name)
             if low_stock_body is not None:
                 lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
                           f'        """{_docstring(method.get("description"))} '
@@ -5421,7 +5442,7 @@ def _program_body(ctx, program):
     return lines
 
 
-def _service_low_stock_body(ctx, method, params, returns):
+def _service_low_stock_body(ctx, method, params, returns, service_name=None):
     """A list/report of products below their category's reorder threshold.
 
     The data model carries the whole rule: the product's stock field, its
@@ -5441,6 +5462,33 @@ def _service_low_stock_body(ctx, method, params, returns):
              re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns or "")}
     entity = next((item for item in ctx["entity_names"]
                    if normalize(item) in words), None)
+    if entity is None:
+        # A service may type a report as `list[dict]` even though the body is
+        # a scan over one entity.  The method name and its description name
+        # the entity the same way the prompt does; use that evidence rather
+        # than falling back to an unguarded LLM body.
+        text = normalize(
+            str(method.get("name") or "") + " "
+            + str(method.get("description") or ""))
+        candidates = [item for item in ctx["entity_names"]
+                      if normalize(item) in text]
+        # A low-stock sentence mentions both the product and its category.
+        # The entity being scanned is the one that owns the stock field.
+        stocked = [item for item in candidates
+                   if any("stock" in normalize(field_name)
+                          for field_name, _field in fields_of(ctx, item))]
+        if len(stocked) == 1:
+            entity = stocked[0]
+        elif len(candidates) == 1:
+            entity = candidates[0]
+    if entity is None and service_name:
+        base = normalize(service_name)
+        for suffix in ("service", "repository"):
+            if base.endswith(suffix):
+                base = base[:-len(suffix)]
+                break
+        entity = next((item for item in ctx["entity_names"]
+                       if normalize(item) == base), None)
     if entity is None:
         return None
     fields = fields_of(ctx, entity)

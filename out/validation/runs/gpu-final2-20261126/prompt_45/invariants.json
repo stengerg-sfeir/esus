@@ -1,136 +1,136 @@
 {
   "invariants": [
     {
-      "text": "Room.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A booking must have a valid guest_id that corresponds to an existing guest in the system."
     },
     {
-      "text": "Room.room_number must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A booking must have a valid room_id that corresponds to an existing room in the system."
     },
     {
-      "text": "Room.room_number must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A booking must not overlap with another existing booking for the same room during the check-in to check-out period."
     },
     {
-      "text": "Room.availability_status must be a boolean",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A booking status must be set to 'confirmed' only after the room and guest details are validated and the booking period is non-overlapping."
     },
     {
-      "text": "Room.availability_status must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A guest must be uniquely identified by their first name, last name, and email, and cannot be duplicated with the same combination."
     },
     {
-      "text": "Guest.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A room's availability status must be updated to 'booked' during the check-in to check-out period and back to 'available' after the check-out date."
     },
     {
-      "text": "Guest.first_name must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Booking.booking_status must be a string"
     },
     {
-      "text": "Guest.first_name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Booking.booking_status must not be null"
     },
     {
-      "text": "Guest.last_name must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Booking.check_in_date must be a date"
     },
     {
-      "text": "Guest.last_name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Booking.check_in_date must not be null"
     },
     {
-      "text": "Guest.email must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Booking.check_out_date must be a date"
     },
     {
-      "text": "Guest.email must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Booking.check_out_date must not be null"
     },
     {
-      "text": "Guest.phone_number must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Booking.guest_id must be an integer"
     },
     {
-      "text": "Booking.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Booking.guest_id must not be null"
     },
     {
-      "text": "Booking.room_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Booking.guest_id must reference an existing Guest.id"
     },
     {
-      "text": "Booking.room_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Booking.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Booking.room_id must reference an existing Room.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Booking.room_id must be an integer"
     },
     {
-      "text": "Booking.guest_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Booking.room_id must not be null"
     },
     {
-      "text": "Booking.guest_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Booking.room_id must reference an existing Room.id"
     },
     {
-      "text": "Booking.guest_id must reference an existing Guest.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Guest.email must be a string"
     },
     {
-      "text": "Booking.check_in_date must be a date",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Guest.email must not be null"
     },
     {
-      "text": "Booking.check_in_date must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Guest.first_name must be a string"
     },
     {
-      "text": "Booking.check_out_date must be a date",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Guest.first_name must not be null"
     },
     {
-      "text": "Booking.check_out_date must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Guest.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Booking.booking_status must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Guest.last_name must be a string"
     },
     {
-      "text": "Booking.booking_status must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Guest.last_name must not be null"
     },
     {
-      "text": "A booking must not overlap with another existing booking for the same room during the check-in to check-out period.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Guest.phone_number must be a string"
     },
     {
-      "text": "If a room is booked for a period, it cannot be booked again for the same room during overlapping dates.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "If a room is booked for a period, it cannot be booked again for the same room during overlapping dates."
     },
     {
-      "text": "A booking status must be set to 'confirmed' only after the room and guest details are validated and the booking period is non-overlapping.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Room.availability_status must be a boolean"
     },
     {
-      "text": "A room's availability status must be updated to 'booked' during the check-in to check-out period and back to 'available' after the check-out date.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Room.availability_status must not be null"
     },
     {
-      "text": "A guest must be uniquely identified by their first name, last name, and email, and cannot be duplicated with the same combination.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Room.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "A booking must have a valid room_id that corresponds to an existing room in the system.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Room.room_number must be a string"
     },
     {
-      "text": "A booking must have a valid guest_id that corresponds to an existing guest in the system.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Room.room_number must not be null"
     }
   ]
 }

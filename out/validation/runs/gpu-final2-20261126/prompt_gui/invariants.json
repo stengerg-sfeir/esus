@@ -1,136 +1,136 @@
 {
   "invariants": [
     {
-      "text": "Wine.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A wine's stock quantity can never drop below zero."
     },
     {
-      "text": "Wine.name must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "All wine names must be unique in the system."
     },
     {
-      "text": "Wine.name must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Prevent the removal of a storage location if wine bottles are currently assigned to it."
     },
     {
-      "text": "Wine.name must be unique",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "StorageLocation.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Wine.vintage_year must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "StorageLocation.max_capacity must be an integer"
     },
     {
-      "text": "Wine.vintage_year must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "StorageLocation.max_capacity must not be null"
     },
     {
-      "text": "Wine.wine_type must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "StorageLocation.row_number must be an integer"
     },
     {
-      "text": "Wine.wine_type must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "StorageLocation.row_number must not be null"
     },
     {
-      "text": "Wine.country_of_origin must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "StorageLocation.shelf_number must be an integer"
     },
     {
-      "text": "Wine.country_of_origin must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "StorageLocation.shelf_number must not be null"
     },
     {
-      "text": "Wine.cost_price must be a number",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "StorageLocation.zone_name must be a string"
     },
     {
-      "text": "Wine.cost_price must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "StorageLocation.zone_name must not be null"
     },
     {
-      "text": "Wine.selling_price must be a number",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "The selling price of a wine bottle must be strictly greater than its cost price."
     },
     {
-      "text": "Wine.selling_price must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "The total number of bottles assigned to a specific storage location cannot exceed that location's defined maximum bottle capacity."
     },
     {
-      "text": "Wine.stock_quantity must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Wine.cost_price must be a number"
     },
     {
-      "text": "Wine.stock_quantity must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Wine.cost_price must not be null"
     },
     {
-      "text": "Wine.storage_location_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Wine.country_of_origin must be a string"
     },
     {
-      "text": "Wine.storage_location_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Wine.country_of_origin must not be null"
     },
     {
-      "text": "Wine.storage_location_id must reference an existing StorageLocation.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Wine.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "StorageLocation.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Wine.name must be a string"
     },
     {
-      "text": "StorageLocation.zone_name must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Wine.name must be unique"
     },
     {
-      "text": "StorageLocation.zone_name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Wine.name must not be null"
     },
     {
-      "text": "StorageLocation.row_number must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Wine.selling_price must be a number"
     },
     {
-      "text": "StorageLocation.row_number must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Wine.selling_price must not be null"
     },
     {
-      "text": "StorageLocation.shelf_number must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Wine.stock_quantity must be an integer"
     },
     {
-      "text": "StorageLocation.shelf_number must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Wine.stock_quantity must not be null"
     },
     {
-      "text": "StorageLocation.max_capacity must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Wine.storage_location_id must be an integer"
     },
     {
-      "text": "StorageLocation.max_capacity must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Wine.storage_location_id must not be null"
     },
     {
-      "text": "The selling price of a wine bottle must be strictly greater than its cost price.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Wine.storage_location_id must reference an existing StorageLocation.id"
     },
     {
-      "text": "A wine's stock quantity can never drop below zero.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Wine.vintage_year must be an integer"
     },
     {
-      "text": "The total number of bottles assigned to a specific storage location cannot exceed that location's defined maximum bottle capacity.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Wine.vintage_year must not be null"
     },
     {
-      "text": "All wine names must be unique in the system.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Wine.wine_type must be a string"
     },
     {
-      "text": "Prevent the removal of a storage location if wine bottles are currently assigned to it.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Wine.wine_type must not be null"
     }
   ]
 }

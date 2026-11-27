@@ -58,7 +58,7 @@ class BookRepository:
         self._store = store
 
 
-    def create(self, title: str = None, author: str = None, isbn: str = None, publication_year: int = None) -> Any:
+    def create(self, title: str = None, author: str = None, isbn: str = None, publication_year: int = None) -> models.Book:
         """Creates a new Book. [crud:create: STANDARD_CRUD]"""
         values = {}
         if title is not None:
@@ -79,6 +79,26 @@ class BookRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
         return models.Book(**record)
 
+    def delete(self, id: int = None, title: str = None, author: str = None, isbn: str = None, publication_year: int = None) -> None:
+        """Deletes an existing Book. [crud:delete: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        if title is not None:
+            criteria.append(('title', 'eq', title))
+        if author is not None:
+            criteria.append(('author', 'eq', author))
+        if isbn is not None:
+            criteria.append(('isbn', 'eq', isbn))
+        if publication_year is not None:
+            criteria.append(('publication_year', 'eq', publication_year))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            raise errors.BookNotFoundError(f"Book delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
+
     def read_all(self, title: str = None, author: str = None, isbn: str = None, publication_year: int = None) -> list[models.Book]:
         """Lists every Book; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
         criteria = []
@@ -93,12 +113,24 @@ class BookRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Book(**r) for r in found]
 
-    def read_one(self, id: int = None) -> Any:
+    def read_one(self, id: int = None) -> models.Book:
         """Reads one Book by its key. [crud:read_one: READ_ONE_BY_ID]"""
         record = self._store.get(self.ENTITY, self.PK, id, error=errors.BookNotFoundError)
         return models.Book(**record)
 
-    def update(self, id: int = None, title: str = None, author: str = None, isbn: str = None, publication_year: int = None) -> Any:
+    def search_books(self, query: str = None) -> list[models.Book]:
+        """Searches Book records across their text fields. [mechanical text search]"""
+        if not query:
+            return []
+        query = str(query).lower()
+        result = []
+        for row in self._store.select(self.ENTITY, []):
+            values = [row.get('title'), row.get('author'), row.get('isbn')]
+            if any(value is not None and query in str(value).lower() for value in values):
+                result.append(row)
+        return _model_list([models.Book(**row) for row in result], models.Book)
+
+    def update(self, id: int = None, title: str = None, author: str = None, isbn: str = None, publication_year: int = None) -> models.Book:
         """Updates an existing Book. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if id is not None:
@@ -123,23 +155,3 @@ class BookRepository:
                 raise errors.BookIsbnDuplicateError(f"Book with {unique_field}={value!r} already exists")
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.BookNotFoundError)
         return models.Book(**record)
-
-    def delete(self, id: int = None, title: str = None, author: str = None, isbn: str = None, publication_year: int = None) -> None:
-        """Deletes an existing Book. [crud:delete: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        if title is not None:
-            criteria.append(('title', 'eq', title))
-        if author is not None:
-            criteria.append(('author', 'eq', author))
-        if isbn is not None:
-            criteria.append(('isbn', 'eq', isbn))
-        if publication_year is not None:
-            criteria.append(('publication_year', 'eq', publication_year))
-        found = self._store.select(self.ENTITY, criteria)
-        if not found:
-            raise errors.BookNotFoundError(f"Book delete matched no records")
-        for record in found:
-            self._store.delete(self.ENTITY, self.PK, record[self.PK])
-        return None

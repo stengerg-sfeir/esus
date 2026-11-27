@@ -58,7 +58,7 @@ class TaskRepository:
         self._store = store
 
 
-    def create(self, title: str = None, description: str = None, due_date: Any = None, status: str = None, priority: str = None) -> Any:
+    def create(self, title: str = None, description: str = None, due_date: Any = None, status: str = None, priority: str = None) -> models.Task:
         """Creates a new Task. [crud:create: STANDARD_CRUD]"""
         values = {}
         if title is not None:
@@ -77,54 +77,6 @@ class TaskRepository:
         if values.get('status') is None:
             values['status'] = 'pending'
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Task(**record)
-
-    def read_one(self, task_id: int = None) -> Any:
-        """Reads one Task by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', task_id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Task(**record)
-
-    def read_all(self, title: str = None, description: str = None, due_date: Any = None, status: str = None, priority: str = None) -> list[models.Task]:
-        """Lists every Task; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if title is not None:
-            criteria.append(('title', 'eq', title))
-        if description is not None:
-            criteria.append(('description', 'eq', description))
-        if due_date is not None:
-            criteria.append(('due_date', 'eq', due_date))
-        if status is not None:
-            criteria.append(('status', 'eq', status))
-        if priority is not None:
-            criteria.append(('priority', 'eq', priority))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Task(**r) for r in found]
-
-    def update(self, task_id: int = None, title: str = None, description: str = None, due_date: Any = None, status: str = None, priority: str = None) -> Any:
-        """Updates an existing Task. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if task_id is not None:
-            criteria.append(('task_id', 'eq', task_id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Task update matched {len(found)} records")
-        patch = {}
-        if task_id is not None and 'task_id' in ['task_id', 'title', 'description', 'due_date', 'status', 'priority']:
-            patch['task_id'] = task_id
-        if title is not None and 'title' in ['task_id', 'title', 'description', 'due_date', 'status', 'priority']:
-            patch['title'] = title
-        if description is not None and 'description' in ['task_id', 'title', 'description', 'due_date', 'status', 'priority']:
-            patch['description'] = description
-        if due_date is not None and 'due_date' in ['task_id', 'title', 'description', 'due_date', 'status', 'priority']:
-            patch['due_date'] = due_date
-        if status is not None and 'status' in ['task_id', 'title', 'description', 'due_date', 'status', 'priority']:
-            patch['status'] = status
-        if priority is not None and 'priority' in ['task_id', 'title', 'description', 'due_date', 'status', 'priority']:
-            patch['priority'] = priority
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Task(**record)
 
     def delete(self, task_id: int = None, title: str = None, description: str = None, due_date: Any = None, status: str = None, priority: str = None) -> None:
@@ -148,3 +100,51 @@ class TaskRepository:
         for record in found:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
+
+    def read_all(self, title: str = None, description: str = None, due_date: Any = None, status: str = None, priority: str = None) -> list[models.Task]:
+        """Lists every Task; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if title is not None:
+            criteria.append(('title', 'eq', title))
+        if description is not None:
+            criteria.append(('description', 'eq', description))
+        if due_date is not None:
+            criteria.append(('due_date', 'eq', due_date))
+        if status is not None:
+            criteria.append(('status', 'eq', status))
+        if priority is not None:
+            criteria.append(('priority', 'eq', priority))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Task(**r) for r in found]
+
+    def read_one(self, task_id: int = None) -> models.Task:
+        """Reads one Task by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', task_id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Task(**record)
+
+    def update(self, task_id: int = None, title: str = None, description: str = None, due_date: Any = None, status: str = None, priority: str = None) -> models.Task:
+        """Updates an existing Task. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if task_id is not None:
+            criteria.append(('task_id', 'eq', task_id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Task update matched {len(found)} records")
+        patch = {}
+        if task_id is not None and 'task_id' in ['task_id', 'title', 'description', 'due_date', 'status', 'priority']:
+            patch['task_id'] = task_id
+        if title is not None and 'title' in ['task_id', 'title', 'description', 'due_date', 'status', 'priority']:
+            patch['title'] = title
+        if description is not None and 'description' in ['task_id', 'title', 'description', 'due_date', 'status', 'priority']:
+            patch['description'] = description
+        if due_date is not None and 'due_date' in ['task_id', 'title', 'description', 'due_date', 'status', 'priority']:
+            patch['due_date'] = due_date
+        if status is not None and 'status' in ['task_id', 'title', 'description', 'due_date', 'status', 'priority']:
+            patch['status'] = status
+        if priority is not None and 'priority' in ['task_id', 'title', 'description', 'due_date', 'status', 'priority']:
+            patch['priority'] = priority
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.Task(**record)

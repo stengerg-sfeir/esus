@@ -22,23 +22,6 @@
       }
     },
     {
-      "name": "cli:Task list",
-      "when": {
-        "cli_variants": [
-          [
-            "Task",
-            "list",
-            "--description",
-            "value1",
-            "--is-complete"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Task update",
       "when": {
         "cli_variants": [
@@ -70,6 +53,23 @@
             "delete",
             "--id",
             "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task list",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "list",
+            "--description",
+            "value1",
+            "--is-complete"
           ]
         ]
       },

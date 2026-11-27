@@ -2,255 +2,255 @@
   "interaction_adapters": [
     {
       "action_name": "clientadd",
-      "target_service": "ClientRepository",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "email",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "email",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "phone",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "phone",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "account_status",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "account_status",
+          "transform": "DIRECT"
+        }
+      ],
       "target_method": "create",
-      "input_fields": [
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "phone",
-          "target_param": "phone",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "account_status",
-          "target_param": "account_status",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "clientupdate",
-      "target_service": "ClientRepository",
-      "target_method": "update",
-      "input_fields": [
-        {
-          "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Client",
-          "required": true
-        },
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "phone",
-          "target_param": "phone",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "account_status",
-          "target_param": "account_status",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
+      "target_service": "ClientRepository"
     },
     {
       "action_name": "clientdelete",
-      "target_service": "ClientRepository",
-      "target_method": "delete",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Client",
-          "required": true
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
         }
-      ]
+      ],
+      "target_method": "delete",
+      "target_service": "ClientRepository"
+    },
+    {
+      "action_name": "clientupdate",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "lookup_entity": "Client",
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "name",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "email",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "email",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "phone",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "phone",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "account_status",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "account_status",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "ClientRepository"
     },
     {
       "action_name": "invoiceadd",
-      "target_service": "InvoiceRepository",
+      "input_fields": [
+        {
+          "field_name": "client_id",
+          "lookup_entity": "Client",
+          "required": true,
+          "target_param": "client_id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "due_date",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "due_date",
+          "transform": "ISO_DATE"
+        },
+        {
+          "field_name": "amount",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "amount",
+          "transform": "DECIMAL_TO_CENTS"
+        },
+        {
+          "field_name": "description",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "description",
+          "transform": "DIRECT"
+        }
+      ],
       "target_method": "create",
-      "input_fields": [
-        {
-          "field_name": "client_id",
-          "target_param": "client_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Client",
-          "required": true
-        },
-        {
-          "field_name": "due_date",
-          "target_param": "due_date",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "amount",
-          "target_param": "amount",
-          "transform": "DECIMAL_TO_CENTS",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "invoiceupdate",
-      "target_service": "InvoiceRepository",
-      "target_method": "update",
-      "input_fields": [
-        {
-          "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Invoice",
-          "required": true
-        },
-        {
-          "field_name": "client_id",
-          "target_param": "client_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Client",
-          "required": false
-        },
-        {
-          "field_name": "due_date",
-          "target_param": "due_date",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "amount",
-          "target_param": "amount",
-          "transform": "DECIMAL_TO_CENTS",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
+      "target_service": "InvoiceRepository"
     },
     {
       "action_name": "invoicedelete",
-      "target_service": "InvoiceRepository",
-      "target_method": "delete",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Invoice",
-          "required": true
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
         }
-      ]
+      ],
+      "target_method": "delete",
+      "target_service": "InvoiceRepository"
+    },
+    {
+      "action_name": "invoiceupdate",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "lookup_entity": "Invoice",
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "client_id",
+          "lookup_entity": "Client",
+          "required": false,
+          "target_param": "client_id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "due_date",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "due_date",
+          "transform": "ISO_DATE"
+        },
+        {
+          "field_name": "amount",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "amount",
+          "transform": "DECIMAL_TO_CENTS"
+        },
+        {
+          "field_name": "description",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "description",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "InvoiceRepository"
     },
     {
       "action_name": "paymentadd",
-      "target_service": "PaymentRepository",
-      "target_method": "create",
       "input_fields": [
         {
           "field_name": "invoice_id",
-          "target_param": "invoice_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Invoice",
-          "required": true
+          "required": true,
+          "target_param": "invoice_id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "payment_date",
-          "target_param": "payment_date",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "payment_date",
+          "transform": "DIRECT"
         },
         {
           "field_name": "amount",
+          "lookup_entity": null,
+          "required": true,
           "target_param": "amount",
-          "transform": "DECIMAL_TO_CENTS",
-          "lookup_entity": null,
-          "required": true
+          "transform": "DECIMAL_TO_CENTS"
         }
-      ]
-    },
-    {
-      "action_name": "paymentupdate",
-      "target_service": "PaymentRepository",
-      "target_method": "update",
-      "input_fields": [
-        {
-          "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Payment",
-          "required": true
-        },
-        {
-          "field_name": "payment_date",
-          "target_param": "payment_date",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "amount",
-          "target_param": "amount",
-          "transform": "DECIMAL_TO_CENTS",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "PaymentRepository"
     },
     {
       "action_name": "paymentdelete",
-      "target_service": "PaymentRepository",
-      "target_method": "delete",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Payment",
-          "required": true
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
         }
-      ]
+      ],
+      "target_method": "delete",
+      "target_service": "PaymentRepository"
+    },
+    {
+      "action_name": "paymentupdate",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "lookup_entity": "Payment",
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "payment_date",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "payment_date",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "amount",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "amount",
+          "transform": "DECIMAL_TO_CENTS"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "PaymentRepository"
     }
   ]
 }

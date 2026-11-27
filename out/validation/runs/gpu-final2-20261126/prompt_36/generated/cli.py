@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Product', 'Category']
-REPOSITORIES = ['ProductRepository', 'CategoryRepository']
+MODELS = ['Category', 'Product']
+REPOSITORIES = ['CategoryRepository', 'ProductRepository']
 SERVICES = []
 
 
@@ -222,6 +222,20 @@ def build_parser():
     parser.add_argument('--db', default=None,
                         help=('SQLite file for record storage (default: ' + DEFAULT_DB + ' in the working directory; use :memory: to stay in memory)'))
     sub = parser.add_subparsers(dest='command')
+    p_Category = sub.add_parser('Category')
+    sub_Category = p_Category.add_subparsers(dest='subcommand')
+    p_Category_add = sub_Category.add_parser('add')
+    p_Category_add.add_argument('--name', type=str, required=True, dest='name')
+    p_Category_add.add_argument('--created-at', type=str, required=True, dest='created_at')
+    p_Category_add.add_argument('--updated-at', type=str, required=True, dest='updated_at')
+    p_Category_add.set_defaults(_binding=('Category', 'add'))
+    p_Category_delete = sub_Category.add_parser('delete')
+    p_Category_delete.add_argument('--category-id', type=int, required=True, dest='category_id')
+    p_Category_delete.set_defaults(_binding=('Category', 'delete'))
+    p_Category_update = sub_Category.add_parser('update')
+    p_Category_update.add_argument('--category-id', type=int, required=True, dest='category_id')
+    p_Category_update.add_argument('--name', type=str, required=False, dest='name')
+    p_Category_update.set_defaults(_binding=('Category', 'update'))
     p_Product = sub.add_parser('Product')
     sub_Product = p_Product.add_subparsers(dest='subcommand')
     p_Product_add = sub_Product.add_parser('add')
@@ -230,28 +244,14 @@ def build_parser():
     p_Product_add.add_argument('--created-at', type=str, required=True, dest='created_at')
     p_Product_add.add_argument('--updated-at', type=str, required=True, dest='updated_at')
     p_Product_add.set_defaults(_binding=('Product', 'add'))
+    p_Product_delete = sub_Product.add_parser('delete')
+    p_Product_delete.add_argument('--product-id', type=int, required=True, dest='product_id')
+    p_Product_delete.set_defaults(_binding=('Product', 'delete'))
     p_Product_update = sub_Product.add_parser('update')
     p_Product_update.add_argument('--product-id', type=int, required=True, dest='product_id')
     p_Product_update.add_argument('--name', type=str, required=False, dest='name')
     p_Product_update.add_argument('--category-id', type=int, required=False, dest='category_id')
     p_Product_update.set_defaults(_binding=('Product', 'update'))
-    p_Product_delete = sub_Product.add_parser('delete')
-    p_Product_delete.add_argument('--product-id', type=int, required=True, dest='product_id')
-    p_Product_delete.set_defaults(_binding=('Product', 'delete'))
-    p_Category = sub.add_parser('Category')
-    sub_Category = p_Category.add_subparsers(dest='subcommand')
-    p_Category_add = sub_Category.add_parser('add')
-    p_Category_add.add_argument('--name', type=str, required=True, dest='name')
-    p_Category_add.add_argument('--created-at', type=str, required=True, dest='created_at')
-    p_Category_add.add_argument('--updated-at', type=str, required=True, dest='updated_at')
-    p_Category_add.set_defaults(_binding=('Category', 'add'))
-    p_Category_update = sub_Category.add_parser('update')
-    p_Category_update.add_argument('--category-id', type=int, required=True, dest='category_id')
-    p_Category_update.add_argument('--name', type=str, required=False, dest='name')
-    p_Category_update.set_defaults(_binding=('Category', 'update'))
-    p_Category_delete = sub_Category.add_parser('delete')
-    p_Category_delete.add_argument('--category-id', type=int, required=True, dest='category_id')
-    p_Category_delete.set_defaults(_binding=('Category', 'delete'))
     return parser
 
 

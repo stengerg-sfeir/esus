@@ -192,17 +192,17 @@ def build_parser():
     p_Product_add.add_argument('--category', type=str, required=True, dest='category')
     p_Product_add.add_argument('--stock-quantity', type=int, required=True, dest='stock_quantity')
     p_Product_add.set_defaults(_binding=('Product', 'add'))
+    p_Product_delete = sub_Product.add_parser('delete')
+    p_Product_delete.add_argument('--product-id', type=int, required=True, dest='product_id')
+    p_Product_delete.add_argument('--name', type=str, required=False, dest='name')
+    p_Product_delete.add_argument('--category', type=str, required=False, dest='category')
+    p_Product_delete.set_defaults(_binding=('Product', 'delete'))
     p_Product_update = sub_Product.add_parser('update')
     p_Product_update.add_argument('--product-id', type=int, required=True, dest='product_id')
     p_Product_update.add_argument('--name', type=str, required=False, dest='name')
     p_Product_update.add_argument('--category', type=str, required=False, dest='category')
     p_Product_update.add_argument('--stock-quantity', type=int, required=False, dest='stock_quantity')
     p_Product_update.set_defaults(_binding=('Product', 'update'))
-    p_Product_delete = sub_Product.add_parser('delete')
-    p_Product_delete.add_argument('--product-id', type=int, required=True, dest='product_id')
-    p_Product_delete.add_argument('--name', type=str, required=False, dest='name')
-    p_Product_delete.add_argument('--category', type=str, required=False, dest='category')
-    p_Product_delete.set_defaults(_binding=('Product', 'delete'))
     return parser
 
 

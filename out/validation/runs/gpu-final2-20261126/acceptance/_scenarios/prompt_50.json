@@ -23,22 +23,6 @@
       }
     },
     {
-      "name": "cli:Event update",
-      "when": {
-        "cli_variants": [
-          [
-            "Event",
-            "update",
-            "--event-id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Event delete",
       "when": {
         "cli_variants": [
@@ -71,6 +55,22 @@
             "current_registration_count": 2
           }
         }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Event update",
+      "when": {
+        "cli_variants": [
+          [
+            "Event",
+            "update",
+            "--event-id",
+            "1"
+          ]
+        ]
       },
       "expect": {
         "exit": 0

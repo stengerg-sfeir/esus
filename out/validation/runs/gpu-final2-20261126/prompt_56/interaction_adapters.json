@@ -1,256 +1,264 @@
 {
   "interaction_adapters": [
     {
-      "action_name": "ordercancel",
-      "target_service": "OrderService",
-      "target_method": "cancel_order",
-      "input_fields": [
-        {
-          "field_name": "order_id",
-          "target_param": "order_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Order",
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "orderadd",
-      "target_service": "OrderService",
-      "target_method": "create_order",
-      "input_fields": [
-        {
-          "field_name": "customer_id",
-          "target_param": "customer_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Customer",
-          "required": true
-        },
-        {
-          "field_name": "order_date",
-          "target_param": "order_date",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "status",
-          "target_param": "status",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "orderupdate",
-      "target_service": "OrderService",
-      "target_method": "update_order",
-      "input_fields": [
-        {
-          "field_name": "order_id",
-          "target_param": "order_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Order",
-          "required": false
-        },
-        {
-          "field_name": "customer_id",
-          "target_param": "customer_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Customer",
-          "required": false
-        },
-        {
-          "field_name": "order_date",
-          "target_param": "order_date",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "status",
-          "target_param": "status",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "orderdelete",
-      "target_service": "OrderService",
-      "target_method": "delete_order",
-      "input_fields": [
-        {
-          "field_name": "order_id",
-          "target_param": "order_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Order",
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "productadd",
-      "target_service": "ProductService",
-      "target_method": "create_product",
-      "input_fields": [
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "stock_quantity",
-          "target_param": "stock_quantity",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "productupdate",
-      "target_service": "ProductService",
-      "target_method": "update_product",
-      "input_fields": [
-        {
-          "field_name": "product_id",
-          "target_param": "product_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Product",
-          "required": false
-        },
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "stock_quantity",
-          "target_param": "stock_quantity",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "productdelete",
-      "target_service": "ProductService",
-      "target_method": "delete_product",
-      "input_fields": [
-        {
-          "field_name": "product_id",
-          "target_param": "product_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Product",
-          "required": true
-        }
-      ]
-    },
-    {
       "action_name": "customeradd",
-      "target_service": "CustomerService",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "email",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "email",
+          "transform": "DIRECT"
+        }
+      ],
       "target_method": "create_customer",
-      "input_fields": [
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "customerupdate",
-      "target_service": "CustomerService",
-      "target_method": "update_customer",
-      "input_fields": [
-        {
-          "field_name": "customer_id",
-          "target_param": "customer_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Customer",
-          "required": false
-        },
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
+      "target_service": "CustomerService"
     },
     {
       "action_name": "customerdelete",
-      "target_service": "CustomerService",
-      "target_method": "delete_customer",
       "input_fields": [
         {
           "field_name": "customer_id",
-          "target_param": "customer_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Customer",
-          "required": true
+          "required": true,
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID"
         }
-      ]
+      ],
+      "target_method": "delete_customer",
+      "target_service": "CustomerService"
+    },
+    {
+      "action_name": "customerupdate",
+      "input_fields": [
+        {
+          "field_name": "customer_id",
+          "lookup_entity": "Customer",
+          "required": false,
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "name",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "email",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "email",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update_customer",
+      "target_service": "CustomerService"
+    },
+    {
+      "action_name": "orderadd",
+      "input_fields": [
+        {
+          "field_name": "customer_id",
+          "lookup_entity": "Customer",
+          "required": true,
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "order_date",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "order_date",
+          "transform": "ISO_DATE"
+        },
+        {
+          "field_name": "status",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "status",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "create_order",
+      "target_service": "OrderService"
+    },
+    {
+      "action_name": "ordercancel",
+      "input_fields": [
+        {
+          "field_name": "order_id",
+          "lookup_entity": "Order",
+          "required": true,
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID"
+        }
+      ],
+      "target_method": "cancel_order",
+      "target_service": "OrderService"
+    },
+    {
+      "action_name": "orderdelete",
+      "input_fields": [
+        {
+          "field_name": "order_id",
+          "lookup_entity": "Order",
+          "required": true,
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID"
+        }
+      ],
+      "target_method": "delete_order",
+      "target_service": "OrderService"
     },
     {
       "action_name": "orderproductadd",
-      "target_service": "OrderProductRepository",
-      "target_method": "create",
       "input_fields": [
         {
           "field_name": "product_id",
-          "target_param": "product_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Product",
-          "required": false
+          "required": false,
+          "target_param": "product_id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "quantity",
-          "target_param": "quantity",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "quantity",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "order_id",
+          "lookup_entity": "Order",
+          "required": true,
+          "status": "deduced",
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID"
         }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "OrderProductRepository"
+    },
+    {
+      "action_name": "orderupdate",
+      "input_fields": [
+        {
+          "field_name": "order_id",
+          "lookup_entity": "Order",
+          "required": false,
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "customer_id",
+          "lookup_entity": "Customer",
+          "required": false,
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "order_date",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "order_date",
+          "transform": "ISO_DATE"
+        },
+        {
+          "field_name": "status",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "status",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update_order",
+      "target_service": "OrderService"
+    },
+    {
+      "action_name": "productadd",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "description",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "description",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "stock_quantity",
+          "lookup_entity": null,
+          "required": true,
+          "target_param": "stock_quantity",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "create_product",
+      "target_service": "ProductService"
+    },
+    {
+      "action_name": "productdelete",
+      "input_fields": [
+        {
+          "field_name": "product_id",
+          "lookup_entity": "Product",
+          "required": true,
+          "target_param": "product_id",
+          "transform": "LOOKUP_ID"
+        }
+      ],
+      "target_method": "delete_product",
+      "target_service": "ProductService"
+    },
+    {
+      "action_name": "productupdate",
+      "input_fields": [
+        {
+          "field_name": "product_id",
+          "lookup_entity": "Product",
+          "required": false,
+          "target_param": "product_id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "name",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "description",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "description",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "stock_quantity",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "stock_quantity",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update_product",
+      "target_service": "ProductService"
     }
   ]
 }

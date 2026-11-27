@@ -25,6 +25,28 @@
       }
     },
     {
+      "name": "cli:Booking delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Booking",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Booking",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
       "name": "cli:Booking update",
       "when": {
         "cli_variants": [
@@ -60,101 +82,6 @@
       }
     },
     {
-      "name": "cli:Booking delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Booking",
-            "delete",
-            "--id",
-            "1"
-          ],
-          [
-            "Booking",
-            "delete",
-            "--id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Room add",
-      "when": {
-        "cli_variants": [
-          [
-            "Room",
-            "add",
-            "--room-number",
-            "value1",
-            "--availability-status"
-          ],
-          [
-            "Room",
-            "add",
-            "--room-number",
-            "value1",
-            "--availability-status",
-            "true"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Room update",
-      "when": {
-        "cli_variants": [
-          [
-            "Room",
-            "update",
-            "--id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Room delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Room",
-            "delete",
-            "--id",
-            "1",
-            "--room-number",
-            "value1",
-            "--availability-status",
-            "false"
-          ],
-          [
-            "Room",
-            "delete",
-            "--id",
-            "1"
-          ]
-        ],
-        "seed_overrides": {
-          "Room": {
-            "room_number": "value1",
-            "availability_status": false
-          }
-        }
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Guest add",
       "when": {
         "cli_variants": [
@@ -169,22 +96,6 @@
             "cli1@example.test",
             "--phone-number",
             "value1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Guest update",
-      "when": {
-        "cli_variants": [
-          [
-            "Guest",
-            "update",
-            "--id",
-            "1"
           ]
         ]
       },
@@ -225,6 +136,95 @@
             "phone_number": "value1"
           }
         }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Guest update",
+      "when": {
+        "cli_variants": [
+          [
+            "Guest",
+            "update",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room add",
+      "when": {
+        "cli_variants": [
+          [
+            "Room",
+            "add",
+            "--room-number",
+            "value1",
+            "--availability-status"
+          ],
+          [
+            "Room",
+            "add",
+            "--room-number",
+            "value1",
+            "--availability-status",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Room",
+            "delete",
+            "--id",
+            "1",
+            "--room-number",
+            "value1",
+            "--availability-status",
+            "false"
+          ],
+          [
+            "Room",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Room": {
+            "room_number": "value1",
+            "availability_status": false
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room update",
+      "when": {
+        "cli_variants": [
+          [
+            "Room",
+            "update",
+            "--id",
+            "1"
+          ]
+        ]
       },
       "expect": {
         "exit": 0

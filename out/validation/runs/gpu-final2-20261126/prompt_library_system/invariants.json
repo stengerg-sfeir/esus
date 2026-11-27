@@ -1,220 +1,220 @@
 {
   "invariants": [
     {
-      "text": "Book.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A book must have exactly one author, identified by author_id, and deleting an author cascades to remove all books associated with that author."
     },
     {
-      "text": "Book.title must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A book's available_copies cannot be negative; borrowing the last copy sets it to zero, and no negative values are allowed."
     },
     {
-      "text": "Book.title must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A loan is considered overdue if its due_date is earlier than today and return_date is null."
     },
     {
-      "text": "Book.isbn must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A member's is_active field defaults to True when created, and renewing membership toggles its value between True and False."
     },
     {
-      "text": "Book.isbn must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Attempting to return a loan that is already marked as returned raises an AlreadyReturnedLoanError and does not modify any data."
     },
     {
-      "text": "Book.isbn must be unique",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Author.biography must be a string"
     },
     {
-      "text": "Book.published_year must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Author.birth_year must be an integer"
     },
     {
-      "text": "Book.published_year must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Author.birth_year must not be null"
     },
     {
-      "text": "Book.available_copies must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Author.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Book.available_copies must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Author.name must be a string"
     },
     {
-      "text": "Book.author_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Author.name must not be null"
     },
     {
-      "text": "Book.author_id must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Book search by query performs case-insensitive substring matching across title, author name, and ISBN, and returns each matching book only once even if multiple fields match."
     },
     {
-      "text": "Book.author_id must reference an existing Author.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.author_id must be an integer"
     },
     {
-      "text": "Author.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.author_id must not be null"
     },
     {
-      "text": "Author.name must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.author_id must reference an existing Author.id"
     },
     {
-      "text": "Author.name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.available_copies must be an integer"
     },
     {
-      "text": "Author.birth_year must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.available_copies must not be null"
     },
     {
-      "text": "Author.birth_year must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Author.biography must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.isbn must be a string"
     },
     {
-      "text": "Member.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.isbn must be unique"
     },
     {
-      "text": "Member.name must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.isbn must not be null"
     },
     {
-      "text": "Member.name must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.published_year must be an integer"
     },
     {
-      "text": "Member.email must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.published_year must not be null"
     },
     {
-      "text": "Member.email must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.title must be a string"
     },
     {
-      "text": "Member.email must be unique",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.title must not be null"
     },
     {
-      "text": "Member.membership_date must be a date",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Deleting a book cascades to remove all loans associated with that book."
     },
     {
-      "text": "Member.membership_date must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.book_id must be an integer"
     },
     {
-      "text": "Member.is_active must be a boolean",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.book_id must not be null"
     },
     {
-      "text": "Member.is_active must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.book_id must reference an existing Book.id"
     },
     {
-      "text": "Loan.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.due_date must be a date"
     },
     {
-      "text": "Loan.book_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.due_date must not be null"
     },
     {
-      "text": "Loan.book_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Loan.book_id must reference an existing Book.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.loan_date must be a date"
     },
     {
-      "text": "Loan.member_id must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.loan_date must not be null"
     },
     {
-      "text": "Loan.member_id must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.member_id must be an integer"
     },
     {
-      "text": "Loan.member_id must reference an existing Member.id",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.member_id must not be null"
     },
     {
-      "text": "Loan.loan_date must be a date",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.member_id must reference an existing Member.id"
     },
     {
-      "text": "Loan.loan_date must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.return_date must be a date"
     },
     {
-      "text": "Loan.due_date must be a date",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.status must be a string"
     },
     {
-      "text": "Loan.due_date must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.status must be one of 'active', 'returned', 'overdue'"
     },
     {
-      "text": "Loan.return_date must be a date",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Loan.status must not be null"
     },
     {
-      "text": "Loan.status must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Member.email must be a string"
     },
     {
-      "text": "Loan.status must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Member.email must be unique"
     },
     {
-      "text": "Loan.status must be one of 'active', 'returned', 'overdue'",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Member.email must not be null"
     },
     {
-      "text": "A book must have exactly one author, identified by author_id, and deleting an author cascades to remove all books associated with that author.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Member.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Deleting a book cascades to remove all loans associated with that book.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Member.is_active must be a boolean"
     },
     {
-      "text": "A loan is considered overdue if its due_date is earlier than today and return_date is null.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Member.is_active must not be null"
     },
     {
-      "text": "When a book is borrowed, its available_copies field is decremented by one, and if it reaches zero, the book still remains in the system with zero available copies.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Member.membership_date must be a date"
     },
     {
-      "text": "When a book is returned, its available_copies field is incremented by one, and the loan status is set to 'returned' with return_date set to today.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Member.membership_date must not be null"
     },
     {
-      "text": "Attempting to return a loan that is already marked as returned raises an AlreadyReturnedLoanError and does not modify any data.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Member.name must be a string"
     },
     {
-      "text": "The due date for a loan is calculated as 14 calendar days after the loan_date, and is computed by the LibraryService, not derived from book published_year.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Member.name must not be null"
     },
     {
-      "text": "A book's available_copies cannot be negative; borrowing the last copy sets it to zero, and no negative values are allowed.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The due date for a loan is calculated as 14 calendar days after the loan_date, and is computed by the LibraryService, not derived from book published_year."
     },
     {
-      "text": "A member's is_active field defaults to True when created, and renewing membership toggles its value between True and False.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When a book is borrowed, its available_copies field is decremented by one, and if it reaches zero, the book still remains in the system with zero available copies."
     },
     {
-      "text": "Book search by query performs case-insensitive substring matching across title, author name, and ISBN, and returns each matching book only once even if multiple fields match.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When a book is returned, its available_copies field is incremented by one, and the loan status is set to 'returned' with return_date set to today."
     }
   ]
 }

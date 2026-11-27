@@ -27,7 +27,7 @@ import services
 
 
 MODELS = ['Order', 'OrderLine']
-REPOSITORIES = ['OrderRepository', 'OrderLineRepository']
+REPOSITORIES = ['OrderLineRepository', 'OrderRepository']
 SERVICES = ['OrderService']
 
 
@@ -237,14 +237,14 @@ def build_parser():
     p_Order_add.add_argument('--created-at', type=str, required=True, dest='created_at')
     p_Order_add.add_argument('--updated-at', type=str, required=True, dest='updated_at')
     p_Order_add.set_defaults(_binding=('Order', 'add'))
+    p_Order_delete = sub_Order.add_parser('delete')
+    p_Order_delete.add_argument('--order-id', type=int, required=True, dest='order_id')
+    p_Order_delete.set_defaults(_binding=('Order', 'delete'))
     p_Order_update = sub_Order.add_parser('update')
     p_Order_update.add_argument('--order-id', type=int, required=False, dest='order_id')
     p_Order_update.add_argument('--created-at', type=str, required=False, dest='created_at')
     p_Order_update.add_argument('--updated-at', type=str, required=False, dest='updated_at')
     p_Order_update.set_defaults(_binding=('Order', 'update'))
-    p_Order_delete = sub_Order.add_parser('delete')
-    p_Order_delete.add_argument('--order-id', type=int, required=True, dest='order_id')
-    p_Order_delete.set_defaults(_binding=('Order', 'delete'))
     p_OrderLine = sub.add_parser('OrderLine')
     sub_OrderLine = p_OrderLine.add_subparsers(dest='subcommand')
     p_OrderLine_add = sub_OrderLine.add_parser('add')
@@ -254,14 +254,6 @@ def build_parser():
     p_OrderLine_add.add_argument('--unit-price', type=int, required=False, dest='unit_price')
     p_OrderLine_add.add_argument('--total-price', type=int, required=False, dest='total_price')
     p_OrderLine_add.set_defaults(_binding=('OrderLine', 'add'))
-    p_OrderLine_update = sub_OrderLine.add_parser('update')
-    p_OrderLine_update.add_argument('--order-line-id', type=int, required=True, dest='order_line_id')
-    p_OrderLine_update.add_argument('--order-id', type=int, required=False, dest='order_id')
-    p_OrderLine_update.add_argument('--product-id', type=str, required=False, dest='product_id')
-    p_OrderLine_update.add_argument('--quantity', type=int, required=False, dest='quantity')
-    p_OrderLine_update.add_argument('--unit-price', type=int, required=False, dest='unit_price')
-    p_OrderLine_update.add_argument('--total-price', type=int, required=False, dest='total_price')
-    p_OrderLine_update.set_defaults(_binding=('OrderLine', 'update'))
     p_OrderLine_delete = sub_OrderLine.add_parser('delete')
     p_OrderLine_delete.add_argument('--order-line-id', type=int, required=True, dest='order_line_id')
     p_OrderLine_delete.add_argument('--order-id', type=int, required=False, dest='order_id')
@@ -270,6 +262,14 @@ def build_parser():
     p_OrderLine_delete.add_argument('--unit-price', type=int, required=False, dest='unit_price')
     p_OrderLine_delete.add_argument('--total-price', type=int, required=False, dest='total_price')
     p_OrderLine_delete.set_defaults(_binding=('OrderLine', 'delete'))
+    p_OrderLine_update = sub_OrderLine.add_parser('update')
+    p_OrderLine_update.add_argument('--order-line-id', type=int, required=True, dest='order_line_id')
+    p_OrderLine_update.add_argument('--order-id', type=int, required=False, dest='order_id')
+    p_OrderLine_update.add_argument('--product-id', type=str, required=False, dest='product_id')
+    p_OrderLine_update.add_argument('--quantity', type=int, required=False, dest='quantity')
+    p_OrderLine_update.add_argument('--unit-price', type=int, required=False, dest='unit_price')
+    p_OrderLine_update.add_argument('--total-price', type=int, required=False, dest='total_price')
+    p_OrderLine_update.set_defaults(_binding=('OrderLine', 'update'))
     return parser
 
 

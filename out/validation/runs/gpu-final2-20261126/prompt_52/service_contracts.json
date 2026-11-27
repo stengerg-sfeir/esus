@@ -1,11 +1,10 @@
 {
   "service_contracts": [
     {
-      "service_name": "BorrowService",
       "methods": [
         {
-          "name": "return_book",
-          "description": "Returns a borrowed book to the library. The book's borrow status is updated to available, and the return date is set. If the return date is earlier than the borrow date, an InvalidReturnDateError is raised. If the book was not borrowed, a BorrowRecordNotFoundError is raised.",
+          "description": "Borrows a Book.",
+          "name": "borrow_book",
           "params": [
             {
               "name": "book_id",
@@ -14,42 +13,16 @@
             {
               "name": "member_id",
               "type": "int"
-            },
-            {
-              "name": "return_date",
-              "type": "datetime"
             }
           ],
-          "return_type": "void",
-          "raises": [
-            "BookNotFoundError",
-            "MemberNotFoundError",
-            "BorrowRecordNotFoundError",
-            "InvalidReturnDateError"
-          ]
-        }
-      ]
-    },
-    {
-      "service_name": "BookRepository",
-      "methods": [
-        {
-          "name": "read_one",
-          "description": "Reads one Book by its key.",
-          "params": [
-            {
-              "name": "book_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Book",
-          "raises": [
-            "BookNotFoundError"
-          ]
+          "provenance": "prose_state_action",
+          "raises": [],
+          "return_type": "None",
+          "review_required": true
         },
         {
-          "name": "read_all",
           "description": "Lists every Book; optional fields narrow the result.",
+          "name": "read_all",
           "params": [
             {
               "name": "title",
@@ -72,46 +45,32 @@
               "type": "str"
             }
           ],
-          "return_type": "list[Book]",
-          "raises": []
+          "raises": [],
+          "return_type": "list[Book]"
         },
         {
-          "name": "update",
-          "description": "Updates an existing Book.",
+          "description": "Returns a list of all books that are currently available (not currently borrowed).",
+          "name": "read_all_available",
+          "params": [],
+          "return_type": "list[models.Book]"
+        },
+        {
+          "description": "Reads one Book by its key.",
+          "name": "read_one",
           "params": [
             {
               "name": "book_id",
               "type": "int"
-            },
-            {
-              "name": "title",
-              "type": "str"
-            },
-            {
-              "name": "author",
-              "type": "str"
-            },
-            {
-              "name": "isbn",
-              "type": "str"
-            },
-            {
-              "name": "available_status",
-              "type": "bool"
-            },
-            {
-              "name": "borrow_status",
-              "type": "str"
             }
           ],
-          "return_type": "models.Book",
           "raises": [
             "BookNotFoundError"
-          ]
+          ],
+          "return_type": "models.Book"
         },
         {
-          "name": "read_one_by_title",
           "description": "Fetches a book by its title, returning the book entity if found, otherwise null.",
+          "name": "read_one_by_title",
           "params": [
             {
               "name": "title",
@@ -121,136 +80,48 @@
           "return_type": "Book | null"
         },
         {
-          "name": "read_all_available",
-          "description": "Returns a list of all books that are currently available (not currently borrowed).",
-          "params": [],
-          "return_type": "list[models.Book]"
-        },
-        {
-          "name": "borrow_book",
-          "description": "Borrows a Book.",
-          "params": [
-            {
-              "name": "book_id",
-              "type": "int"
-            },
-            {
-              "name": "member_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "None",
-          "raises": [],
-          "provenance": "prose_state_action",
-          "review_required": true
-        }
-      ]
-    },
-    {
-      "service_name": "MemberRepository",
-      "methods": [
-        {
-          "name": "read_one",
-          "description": "Reads one Member by its key.",
-          "params": [
-            {
-              "name": "member_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Member",
-          "raises": [
-            "MemberNotFoundError"
-          ]
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Member; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Member]",
-          "raises": []
-        },
-        {
-          "name": "read_one_by_email",
-          "description": "Fetches a member by their email address, returning the member entity if found, otherwise null.",
-          "params": [
-            {
-              "name": "email",
-              "type": "str"
-            }
-          ],
-          "return_type": "Member | null"
-        }
-      ]
-    },
-    {
-      "service_name": "BorrowRecordRepository",
-      "methods": [
-        {
-          "name": "create",
-          "description": "Creates a new BorrowRecord.",
-          "params": [
-            {
-              "name": "book_id",
-              "type": "int"
-            },
-            {
-              "name": "member_id",
-              "type": "int"
-            },
-            {
-              "name": "borrow_date",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "return_date",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "models.BorrowRecord",
-          "raises": []
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every BorrowRecord; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "book_id",
-              "type": "int"
-            },
-            {
-              "name": "member_id",
-              "type": "int"
-            },
-            {
-              "name": "borrow_date",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "return_date",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "list[BorrowRecord]",
-          "raises": []
-        },
-        {
+          "description": "Updates an existing Book.",
           "name": "update",
-          "description": "Updates an existing BorrowRecord.",
           "params": [
             {
-              "name": "borrow_id",
+              "name": "book_id",
               "type": "int"
             },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "author",
+              "type": "str"
+            },
+            {
+              "name": "isbn",
+              "type": "str"
+            },
+            {
+              "name": "available_status",
+              "type": "bool"
+            },
+            {
+              "name": "borrow_status",
+              "type": "str"
+            }
+          ],
+          "raises": [
+            "BookNotFoundError"
+          ],
+          "return_type": "models.Book"
+        }
+      ],
+      "service_name": "BookRepository"
+    },
+    {
+      "methods": [
+        {
+          "description": "Creates a new BorrowRecord.",
+          "name": "create",
+          "params": [
             {
               "name": "book_id",
               "type": "int"
@@ -268,70 +139,12 @@
               "type": "datetime.datetime"
             }
           ],
-          "return_type": "models.BorrowRecord",
-          "raises": [
-            "BorrowRecordNotFoundError"
-          ]
+          "raises": [],
+          "return_type": "models.BorrowRecord"
         },
         {
-          "name": "delete",
-          "description": "Deletes an existing BorrowRecord.",
-          "params": [
-            {
-              "name": "borrow_id",
-              "type": "int"
-            },
-            {
-              "name": "book_id",
-              "type": "int"
-            },
-            {
-              "name": "member_id",
-              "type": "int"
-            },
-            {
-              "name": "borrow_date",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "return_date",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "None",
-          "raises": [
-            "BorrowRecordNotFoundError"
-          ]
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one BorrowRecord by its key.",
-          "params": [
-            {
-              "name": "borrow_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.BorrowRecord",
-          "raises": [
-            "BorrowRecordNotFoundError"
-          ]
-        },
-        {
-          "name": "get_borrow_records_by_book_id",
-          "description": "Lists the BorrowRecord records belonging to one Book.",
-          "params": [
-            {
-              "name": "book_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[BorrowRecord]",
-          "raises": []
-        },
-        {
-          "name": "create_borrow_record",
           "description": "Creates a new borrow record linking a book to a member with a borrow date. Returns the created record if successful.",
+          "name": "create_borrow_record",
           "params": [
             {
               "name": "book_id",
@@ -353,8 +166,74 @@
           "return_type": "models.BorrowRecord"
         },
         {
-          "name": "read_all_borrow_records_by_member",
+          "description": "Deletes an existing BorrowRecord.",
+          "name": "delete",
+          "params": [
+            {
+              "name": "borrow_id",
+              "type": "int"
+            },
+            {
+              "name": "book_id",
+              "type": "int"
+            },
+            {
+              "name": "member_id",
+              "type": "int"
+            },
+            {
+              "name": "borrow_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "return_date",
+              "type": "datetime.datetime"
+            }
+          ],
+          "raises": [
+            "BorrowRecordNotFoundError"
+          ],
+          "return_type": "None"
+        },
+        {
+          "description": "Lists the BorrowRecord records belonging to one Book.",
+          "name": "get_borrow_records_by_book_id",
+          "params": [
+            {
+              "name": "book_id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[BorrowRecord]"
+        },
+        {
+          "description": "Lists every BorrowRecord; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "book_id",
+              "type": "int"
+            },
+            {
+              "name": "member_id",
+              "type": "int"
+            },
+            {
+              "name": "borrow_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "return_date",
+              "type": "datetime.datetime"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[BorrowRecord]"
+        },
+        {
           "description": "Returns all borrow records for a specific member, including both borrowed and returned books.",
+          "name": "read_all_borrow_records_by_member",
           "params": [
             {
               "name": "member_id",
@@ -364,8 +243,63 @@
           "return_type": "list[models.BorrowRecord]"
         },
         {
-          "name": "update_return_date",
+          "description": "Reads one BorrowRecord by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "borrow_id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "BorrowRecordNotFoundError"
+          ],
+          "return_type": "models.BorrowRecord"
+        },
+        {
+          "description": "Fetches a borrow record by its borrow_id, returning the record if found, otherwise null.",
+          "name": "read_one_by_borrow_id",
+          "params": [
+            {
+              "name": "borrow_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "BorrowRecord | null"
+        },
+        {
+          "description": "Updates an existing BorrowRecord.",
+          "name": "update",
+          "params": [
+            {
+              "name": "borrow_id",
+              "type": "int"
+            },
+            {
+              "name": "book_id",
+              "type": "int"
+            },
+            {
+              "name": "member_id",
+              "type": "int"
+            },
+            {
+              "name": "borrow_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "return_date",
+              "type": "datetime.datetime"
+            }
+          ],
+          "raises": [
+            "BorrowRecordNotFoundError"
+          ],
+          "return_type": "models.BorrowRecord"
+        },
+        {
           "description": "Updates the return date of a borrow record to indicate the book has been returned.",
+          "name": "update_return_date",
           "params": [
             {
               "name": "borrow_id",
@@ -377,19 +311,85 @@
             }
           ],
           "return_type": "models.BorrowRecord"
-        },
+        }
+      ],
+      "service_name": "BorrowRecordRepository"
+    },
+    {
+      "methods": [
         {
-          "name": "read_one_by_borrow_id",
-          "description": "Fetches a borrow record by its borrow_id, returning the record if found, otherwise null.",
+          "description": "Returns a borrowed book to the library. The book's borrow status is updated to available, and the return date is set. If the return date is earlier than the borrow date, an InvalidReturnDateError is raised. If the book was not borrowed, a BorrowRecordNotFoundError is raised.",
+          "name": "return_book",
           "params": [
             {
-              "name": "borrow_id",
+              "name": "book_id",
+              "type": "int"
+            },
+            {
+              "name": "member_id",
+              "type": "int"
+            },
+            {
+              "name": "return_date",
+              "type": "datetime"
+            }
+          ],
+          "raises": [
+            "BookNotFoundError",
+            "MemberNotFoundError",
+            "BorrowRecordNotFoundError",
+            "InvalidReturnDateError"
+          ],
+          "return_type": "void"
+        }
+      ],
+      "service_name": "BorrowService"
+    },
+    {
+      "methods": [
+        {
+          "description": "Lists every Member; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Member]"
+        },
+        {
+          "description": "Reads one Member by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "member_id",
               "type": "int"
             }
           ],
-          "return_type": "BorrowRecord | null"
+          "raises": [
+            "MemberNotFoundError"
+          ],
+          "return_type": "models.Member"
+        },
+        {
+          "description": "Fetches a member by their email address, returning the member entity if found, otherwise null.",
+          "name": "read_one_by_email",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "Member | null"
         }
-      ]
+      ],
+      "service_name": "MemberRepository"
     }
   ]
 }

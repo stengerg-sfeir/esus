@@ -58,7 +58,7 @@ class BookRepository:
         self._store = store
 
 
-    def create(self, title: str = None, isbn: str = None, available: bool = None) -> Any:
+    def create(self, title: str = None, isbn: str = None, available: bool = None) -> models.Book:
         """Creates a new Book. [crud:create: STANDARD_CRUD]"""
         values = {}
         if title is not None:
@@ -87,51 +87,14 @@ class BookRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Book(**r) for r in found]
 
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Book by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, id, error=errors.BookNotFoundError)
-        return models.Book(**record)
-
     def read_all_available(self) -> List[models.Book]:
         """Returns a list of all books that are currently available (not currently loaned out). [mechanical boolean filter]"""
         return _model_list(self._store.select(self.ENTITY, [('available', 'eq', True)]), models.Book)
 
-
-class MemberRepository:
-    ENTITY = "Member"
-    PK = "id"
-
-    def __init__(self, store):
-        self._store = store
-
-
-    def create(self, name: str = None, email: str = None) -> Any:
-        """Creates a new Member. [crud:create: STANDARD_CRUD]"""
-        values = {}
-        if name is not None:
-            values['name'] = name
-        if email is not None:
-            values['email'] = email
-        unknown = [k for k in values if k not in ['id', 'name', 'email']]
-        if unknown:
-            raise ValueError(f"cannot create Member from {unknown}")
-        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Member(**record)
-
-    def read_all(self, name: str = None, email: str = None) -> list[models.Member]:
-        """Lists every Member; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if email is not None:
-            criteria.append(('email', 'eq', email))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Member(**r) for r in found]
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Member by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, id, error=errors.MemberNotFoundError)
-        return models.Member(**record)
+    def read_one(self, id: int = None) -> models.Book:
+        """Reads one Book by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, id, error=errors.BookNotFoundError)
+        return models.Book(**record)
 
 
 class LoanRepository:
@@ -142,7 +105,25 @@ class LoanRepository:
         self._store = store
 
 
-    def create(self, book_id: int = None, member_id: int = None, loan_date: Any = None, due_date: Any = None, closed: bool = None) -> Any:
+    def close_loan_by_id(self, loan_id: int = None) -> bool:
+        """Closes a loan record by its ID, marking it as closed and updating the book's availability status accordingly. [llm-written by server — review]"""
+        record = self._store.get(self.ENTITY, self.PK, loan_id, error=errors.LoanNotFoundError)
+        if record.get('closed'):
+            return False
+        book_id = record.get('book_id')
+        if book_id is None:
+            return False
+        book_record = self._store.get("Book", "id", book_id, error=errors.BookNotFoundError)
+        book_available = book_record.get('available')
+        if book_available is None:
+            book_available = False
+        if book_available:
+            book_available = False
+        self._store.update("Book", "id", book_id, {"available": book_available})
+        self._store.update(self.ENTITY, self.PK, loan_id, {"closed": True})
+        return True
+
+    def create(self, book_id: int = None, member_id: int = None, loan_date: Any = None, due_date: Any = None, closed: bool = None) -> models.Loan:
         """Creates a new Loan. [crud:create: STANDARD_CRUD]"""
         values = {}
         if book_id is not None:
@@ -161,11 +142,6 @@ class LoanRepository:
         if values.get('closed') is None:
             values['closed'] = False
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("book_id", "Book", "id", errors.BookNotFoundError), ("member_id", "Member", "id", errors.MemberNotFoundError)])
-        return models.Loan(**record)
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Loan by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, id, error=errors.LoanNotFoundError)
         return models.Loan(**record)
 
     def delete(self, id: int = None, book_id: int = None, member_id: int = None, loan_date: Any = None, due_date: Any = None, closed: bool = None) -> None:
@@ -190,25 +166,52 @@ class LoanRepository:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
 
-    def close_loan_by_id(self, loan_id: int = None) -> bool:
-        """Closes a loan record by its ID, marking it as closed and updating the book's availability status accordingly. [llm-written by server — review]"""
-        record = self._store.get(self.ENTITY, self.PK, loan_id, error=errors.LoanNotFoundError)
-        if record is None:
-            return False
-        record['closed'] = True
-        self._store.update(self.ENTITY, self.PK, loan_id, record)
-        book_id = record.get('book_id')
-        if book_id is not None:
-            book_record = self._store.get("Book", "id", book_id, error=errors.BookNotFoundError)
-            if book_record is not None:
-                book_record['available'] = True
-                self._store.update("Book", "id", book_id, book_record)
-        return True
-
     def get_active_loans_for_member(self, member_id: int = None) -> List[models.Loan]:
-        """Returns a list of active loan records for a specific member, including book title and loan date. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
+        """Returns a list of active loan records for a specific member, including book title and loan date. [mechanical contained-name filter]"""
         criteria = []
         if member_id is not None:
             criteria.append(('member_id', 'eq', member_id))
         found = self._store.select(self.ENTITY, criteria)
-        return [models.Loan(**r) for r in found]
+        return _model_list([models.Loan(**row) for row in found], models.Loan)
+
+    def read_one(self, id: int = None) -> models.Loan:
+        """Reads one Loan by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, id, error=errors.LoanNotFoundError)
+        return models.Loan(**record)
+
+
+class MemberRepository:
+    ENTITY = "Member"
+    PK = "id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def create(self, name: str = None, email: str = None) -> models.Member:
+        """Creates a new Member. [crud:create: STANDARD_CRUD]"""
+        values = {}
+        if name is not None:
+            values['name'] = name
+        if email is not None:
+            values['email'] = email
+        unknown = [k for k in values if k not in ['id', 'name', 'email']]
+        if unknown:
+            raise ValueError(f"cannot create Member from {unknown}")
+        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
+        return models.Member(**record)
+
+    def read_all(self, name: str = None, email: str = None) -> list[models.Member]:
+        """Lists every Member; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if email is not None:
+            criteria.append(('email', 'eq', email))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Member(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Member:
+        """Reads one Member by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, id, error=errors.MemberNotFoundError)
+        return models.Member(**record)

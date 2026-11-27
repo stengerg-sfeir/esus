@@ -26,8 +26,8 @@ import repositories
 import services
 
 
-MODELS = ['Product', 'Customer', 'Sale']
-REPOSITORIES = ['ProductRepository', 'CustomerRepository', 'SaleRepository']
+MODELS = ['Customer', 'Product', 'Sale']
+REPOSITORIES = ['CustomerRepository', 'ProductRepository', 'SaleRepository']
 SERVICES = []
 
 
@@ -242,6 +242,22 @@ def build_parser():
     parser.add_argument('--db', default=None,
                         help=('SQLite file for record storage (default: ' + DEFAULT_DB + ' in the working directory; use :memory: to stay in memory)'))
     sub = parser.add_subparsers(dest='command')
+    p_Customer = sub.add_parser('Customer')
+    sub_Customer = p_Customer.add_subparsers(dest='subcommand')
+    p_Customer_add = sub_Customer.add_parser('add')
+    p_Customer_add.add_argument('--name', type=str, required=True, dest='name')
+    p_Customer_add.add_argument('--email', type=str, required=True, dest='email')
+    p_Customer_add.add_argument('--phone', type=str, required=False, dest='phone')
+    p_Customer_add.set_defaults(_binding=('Customer', 'add'))
+    p_Customer_delete = sub_Customer.add_parser('delete')
+    p_Customer_delete.add_argument('--customer-id', type=int, required=True, dest='customer_id')
+    p_Customer_delete.set_defaults(_binding=('Customer', 'delete'))
+    p_Customer_update = sub_Customer.add_parser('update')
+    p_Customer_update.add_argument('--customer-id', type=int, required=True, dest='customer_id')
+    p_Customer_update.add_argument('--name', type=str, required=False, dest='name')
+    p_Customer_update.add_argument('--email', type=str, required=False, dest='email')
+    p_Customer_update.add_argument('--phone', type=str, required=False, dest='phone')
+    p_Customer_update.set_defaults(_binding=('Customer', 'update'))
     p_Product = sub.add_parser('Product')
     sub_Product = p_Product.add_subparsers(dest='subcommand')
     p_Product_add = sub_Product.add_parser('add')
@@ -250,6 +266,9 @@ def build_parser():
     p_Product_add.add_argument('--price', type=int, required=True, dest='price')
     p_Product_add.add_argument('--stock-quantity', type=int, required=True, dest='stock_quantity')
     p_Product_add.set_defaults(_binding=('Product', 'add'))
+    p_Product_delete = sub_Product.add_parser('delete')
+    p_Product_delete.add_argument('--product-id', type=int, required=True, dest='product_id')
+    p_Product_delete.set_defaults(_binding=('Product', 'delete'))
     p_Product_update = sub_Product.add_parser('update')
     p_Product_update.add_argument('--product-id', type=int, required=True, dest='product_id')
     p_Product_update.add_argument('--name', type=str, required=False, dest='name')
@@ -257,25 +276,6 @@ def build_parser():
     p_Product_update.add_argument('--price', type=int, required=False, dest='price')
     p_Product_update.add_argument('--stock-quantity', type=int, required=False, dest='stock_quantity')
     p_Product_update.set_defaults(_binding=('Product', 'update'))
-    p_Product_delete = sub_Product.add_parser('delete')
-    p_Product_delete.add_argument('--product-id', type=int, required=True, dest='product_id')
-    p_Product_delete.set_defaults(_binding=('Product', 'delete'))
-    p_Customer = sub.add_parser('Customer')
-    sub_Customer = p_Customer.add_subparsers(dest='subcommand')
-    p_Customer_add = sub_Customer.add_parser('add')
-    p_Customer_add.add_argument('--name', type=str, required=True, dest='name')
-    p_Customer_add.add_argument('--email', type=str, required=True, dest='email')
-    p_Customer_add.add_argument('--phone', type=str, required=False, dest='phone')
-    p_Customer_add.set_defaults(_binding=('Customer', 'add'))
-    p_Customer_update = sub_Customer.add_parser('update')
-    p_Customer_update.add_argument('--customer-id', type=int, required=True, dest='customer_id')
-    p_Customer_update.add_argument('--name', type=str, required=False, dest='name')
-    p_Customer_update.add_argument('--email', type=str, required=False, dest='email')
-    p_Customer_update.add_argument('--phone', type=str, required=False, dest='phone')
-    p_Customer_update.set_defaults(_binding=('Customer', 'update'))
-    p_Customer_delete = sub_Customer.add_parser('delete')
-    p_Customer_delete.add_argument('--customer-id', type=int, required=True, dest='customer_id')
-    p_Customer_delete.set_defaults(_binding=('Customer', 'delete'))
     p_Sale = sub.add_parser('Sale')
     sub_Sale = p_Sale.add_subparsers(dest='subcommand')
     p_Sale_add = sub_Sale.add_parser('add')

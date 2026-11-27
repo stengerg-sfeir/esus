@@ -1,13 +1,33 @@
 {
   "persistence_ports": {
+    "entity_mappings": [
+      {
+        "entity": "Customer",
+        "indexes": [
+          "email"
+        ],
+        "primary_key": "customer_id",
+        "table": "customers"
+      },
+      {
+        "entity": "Order",
+        "indexes": [
+          "customer_id",
+          "order_date",
+          "status"
+        ],
+        "primary_key": "order_id",
+        "table": "orders"
+      }
+    ],
     "repositories": [
       {
         "entity": "Customer",
         "interface_name": "CustomerRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new Customer.",
+            "name": "create",
             "params": [
               {
                 "name": "name",
@@ -18,60 +38,12 @@
                 "type": "str"
               }
             ],
-            "return_type": "models.Customer",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Customer"
           },
           {
-            "name": "read_one",
-            "description": "Reads one Customer by its key.",
-            "params": [
-              {
-                "name": "customer_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Customer",
-            "raises": []
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every Customer; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              }
-            ],
-            "return_type": "list[Customer]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Customer.",
-            "params": [
-              {
-                "name": "customer_id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              }
-            ],
-            "return_type": "models.Customer",
-            "raises": []
-          },
-          {
-            "name": "delete",
             "description": "Deletes an existing Customer.",
+            "name": "delete",
             "params": [
               {
                 "name": "customer_id",
@@ -86,8 +58,56 @@
                 "type": "str"
               }
             ],
-            "return_type": "None",
-            "raises": []
+            "raises": [],
+            "return_type": "None"
+          },
+          {
+            "description": "Lists every Customer; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Customer]"
+          },
+          {
+            "description": "Reads one Customer by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Customer"
+          },
+          {
+            "description": "Updates an existing Customer.",
+            "name": "update",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Customer"
           }
         ]
       },
@@ -96,8 +116,8 @@
         "interface_name": "OrderRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new Order.",
+            "name": "create",
             "params": [
               {
                 "name": "customer_id",
@@ -112,68 +132,12 @@
                 "type": "str"
               }
             ],
-            "return_type": "models.Order",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Order"
           },
           {
-            "name": "read_one",
-            "description": "Reads one Order by its key.",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Order",
-            "raises": []
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every Order; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "customer_id",
-                "type": "int"
-              },
-              {
-                "name": "order_date",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "status",
-                "type": "str"
-              }
-            ],
-            "return_type": "list[Order]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Order.",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
-              },
-              {
-                "name": "customer_id",
-                "type": "int"
-              },
-              {
-                "name": "order_date",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "status",
-                "type": "str"
-              }
-            ],
-            "return_type": "models.Order",
-            "raises": []
-          },
-          {
-            "name": "delete",
             "description": "Deletes an existing Order.",
+            "name": "delete",
             "params": [
               {
                 "name": "order_id",
@@ -192,41 +156,77 @@
                 "type": "str"
               }
             ],
-            "return_type": "None",
-            "raises": []
+            "raises": [],
+            "return_type": "None"
           },
           {
-            "name": "get_orders_by_customer_id",
             "description": "Lists the Order records belonging to one Customer.",
+            "name": "get_orders_by_customer_id",
             "params": [
               {
                 "name": "customer_id",
                 "type": "int"
               }
             ],
-            "return_type": "list[Order]",
-            "raises": []
+            "raises": [],
+            "return_type": "list[Order]"
+          },
+          {
+            "description": "Lists every Order; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "order_date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Order]"
+          },
+          {
+            "description": "Reads one Order by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Order"
+          },
+          {
+            "description": "Updates an existing Order.",
+            "name": "update",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "order_date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Order"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Customer",
-        "table": "customers",
-        "primary_key": "customer_id",
-        "indexes": [
-          "email"
-        ]
-      },
-      {
-        "entity": "Order",
-        "table": "orders",
-        "primary_key": "order_id",
-        "indexes": [
-          "customer_id",
-          "order_date",
-          "status"
         ]
       }
     ]

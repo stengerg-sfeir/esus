@@ -1,14 +1,18 @@
 {
   "scenarios": [
     {
-      "name": "cli:Note update",
+      "name": "cli:Note add",
       "when": {
         "cli_variants": [
           [
             "Note",
-            "update",
-            "--id",
-            "1"
+            "add",
+            "--title",
+            "value1",
+            "--content",
+            "value1",
+            "--creation-date",
+            "2024-01-01T00:00:00"
           ]
         ]
       },
@@ -52,18 +56,14 @@
       }
     },
     {
-      "name": "cli:Note add",
+      "name": "cli:Note update",
       "when": {
         "cli_variants": [
           [
             "Note",
-            "add",
-            "--title",
-            "value1",
-            "--content",
-            "value1",
-            "--creation-date",
-            "2024-01-01T00:00:00"
+            "update",
+            "--id",
+            "1"
           ]
         ]
       },

@@ -61,6 +61,92 @@
       }
     },
     {
+      "name": "cli:Customer add",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "delete",
+            "--customer-id",
+            "1"
+          ],
+          [
+            "Customer",
+            "delete",
+            "--customer-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer update",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "update",
+            "--customer-id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ],
+        "seed_overrides": {
+          "Customer": {
+            "name": "value1",
+            "email": "cli1@example.test"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order add",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "add",
+            "--customer-id",
+            "1",
+            "--order-date",
+            "2024-01-01T00:00:00",
+            "--status",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
       "name": "cli:Order cancel",
       "when": {
         "cli_variants": [
@@ -82,18 +168,20 @@
       }
     },
     {
-      "name": "cli:Order add",
+      "name": "cli:Order delete",
       "when": {
         "cli_variants": [
           [
             "Order",
-            "add",
-            "--customer-id",
-            "1",
-            "--order-date",
-            "2024-01-01T00:00:00",
-            "--status",
-            "value1"
+            "delete",
+            "--order-id",
+            "1"
+          ],
+          [
+            "Order",
+            "delete",
+            "--order-id",
+            "1"
           ]
         ]
       },
@@ -131,20 +219,18 @@
       }
     },
     {
-      "name": "cli:Order delete",
+      "name": "cli:OrderProduct add",
       "when": {
         "cli_variants": [
           [
-            "Order",
-            "delete",
+            "OrderProduct",
+            "add",
             "--order-id",
-            "1"
-          ],
-          [
-            "Order",
-            "delete",
-            "--order-id",
-            "1"
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2"
           ]
         ]
       },
@@ -165,6 +251,28 @@
             "value1",
             "--stock-quantity",
             "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ],
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
           ]
         ]
       },
@@ -196,112 +304,6 @@
             "stock_quantity": 2
           }
         }
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Product delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Product",
-            "delete",
-            "--product-id",
-            "1"
-          ],
-          [
-            "Product",
-            "delete",
-            "--product-id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Customer add",
-      "when": {
-        "cli_variants": [
-          [
-            "Customer",
-            "add",
-            "--name",
-            "value1",
-            "--email",
-            "cli1@example.test"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Customer update",
-      "when": {
-        "cli_variants": [
-          [
-            "Customer",
-            "update",
-            "--customer-id",
-            "1",
-            "--name",
-            "value1",
-            "--email",
-            "cli1@example.test"
-          ]
-        ],
-        "seed_overrides": {
-          "Customer": {
-            "name": "value1",
-            "email": "cli1@example.test"
-          }
-        }
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Customer delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Customer",
-            "delete",
-            "--customer-id",
-            "1"
-          ],
-          [
-            "Customer",
-            "delete",
-            "--customer-id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:OrderProduct add",
-      "when": {
-        "cli_variants": [
-          [
-            "OrderProduct",
-            "add",
-            "--product-id",
-            "1",
-            "--quantity",
-            "2"
-          ]
-        ]
       },
       "expect": {
         "exit": 0

@@ -271,6 +271,17 @@ def main(argv=None):
         leaves = worker._leaf_entries(docs.get("components")) if cli_path.is_file() else []
         for number, (path, node) in enumerate(leaves, start=1):
             flags = _help_flags(cli_path, path)
+            # An import/input leaf needs a real file, not the placeholder the
+            # generic seeder supplies. Auto-generating `--file-path value1`
+            # tests JSON parsing of a non-file, not the import; the explicit
+            # scenario owns that command.
+            file_flags = {
+                "filepath", "inputfile", "csvfile", "jsonfile",
+                "inputpath", "sourcefile", "file",
+            }
+            if any(worker.normalize(str(flag).lstrip("-")) in file_flags
+                   for flag in flags):
+                continue
             args = (_args_from_flags(docs, flags, node, path) if flags
                     else worker._cli_args(docs, node, 1))
             if str(path[-1]).lower() in ("delete", "remove") and flags:

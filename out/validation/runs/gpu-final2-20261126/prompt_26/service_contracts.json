@@ -1,82 +1,10 @@
 {
   "service_contracts": [
     {
-      "service_name": "LoanService",
       "methods": [
         {
-          "name": "get_available_books",
-          "description": "Returns a list of books that are not currently loaned out.",
-          "params": [],
-          "return_type": "list[Book]",
-          "raises": []
-        },
-        {
-          "name": "create_loan",
-          "description": "Creates a new Loan.",
-          "params": [
-            {
-              "name": "book_id",
-              "type": "int"
-            },
-            {
-              "name": "member_id",
-              "type": "int"
-            },
-            {
-              "name": "loan_date",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "due_date",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "closed",
-              "type": "bool"
-            }
-          ],
-          "return_type": "None",
-          "raises": [],
-          "mechanical": true
-        },
-        {
-          "name": "read_loan_by_id",
-          "description": "Reads one Loan by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "Loan | None",
-          "raises": [
-            "LoanNotFoundError"
-          ],
-          "mechanical": true
-        },
-        {
-          "name": "delete_loan",
-          "description": "Deletes an existing Loan.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "None",
-          "raises": [
-            "LoanNotFoundError"
-          ],
-          "mechanical": true
-        }
-      ]
-    },
-    {
-      "service_name": "BookRepository",
-      "methods": [
-        {
-          "name": "create",
           "description": "Creates a new Book.",
+          "name": "create",
           "params": [
             {
               "name": "title",
@@ -91,12 +19,12 @@
               "type": "bool"
             }
           ],
-          "return_type": "models.Book",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Book"
         },
         {
-          "name": "read_all",
           "description": "Lists every Book; optional fields narrow the result.",
+          "name": "read_all",
           "params": [
             {
               "name": "title",
@@ -111,164 +39,37 @@
               "type": "bool"
             }
           ],
-          "return_type": "list[Book]",
-          "raises": []
+          "raises": [],
+          "return_type": "list[Book]"
         },
         {
-          "name": "read_one",
-          "description": "Reads one Book by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Book",
-          "raises": [
-            "BookNotFoundError"
-          ]
-        },
-        {
-          "name": "read_all_available",
           "description": "Returns a list of all books that are currently available (not currently loaned out).",
+          "name": "read_all_available",
           "params": [],
           "return_type": "List[Book]"
+        },
+        {
+          "description": "Reads one Book by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "BookNotFoundError"
+          ],
+          "return_type": "models.Book"
         }
-      ]
+      ],
+      "service_name": "BookRepository"
     },
     {
-      "service_name": "MemberRepository",
       "methods": [
         {
-          "name": "create",
-          "description": "Creates a new Member.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            }
-          ],
-          "return_type": "models.Member",
-          "raises": []
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Member; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Member]",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Member by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Member",
-          "raises": [
-            "MemberNotFoundError"
-          ]
-        }
-      ]
-    },
-    {
-      "service_name": "LoanRepository",
-      "methods": [
-        {
-          "name": "create",
-          "description": "Creates a new Loan.",
-          "params": [
-            {
-              "name": "book_id",
-              "type": "int"
-            },
-            {
-              "name": "member_id",
-              "type": "int"
-            },
-            {
-              "name": "loan_date",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "due_date",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "closed",
-              "type": "bool"
-            }
-          ],
-          "return_type": "models.Loan",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Loan by its key.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Loan",
-          "raises": [
-            "LoanNotFoundError"
-          ]
-        },
-        {
-          "name": "delete",
-          "description": "Deletes an existing Loan.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            },
-            {
-              "name": "book_id",
-              "type": "int"
-            },
-            {
-              "name": "member_id",
-              "type": "int"
-            },
-            {
-              "name": "loan_date",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "due_date",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "closed",
-              "type": "bool"
-            }
-          ],
-          "return_type": "None",
-          "raises": [
-            "LoanNotFoundError"
-          ]
-        },
-        {
-          "name": "close_loan_by_id",
           "description": "Closes a loan record by its ID, marking it as closed and updating the book's availability status accordingly.",
+          "name": "close_loan_by_id",
           "params": [
             {
               "name": "loan_id",
@@ -278,8 +79,70 @@
           "return_type": "bool"
         },
         {
-          "name": "get_active_loans_for_member",
+          "description": "Creates a new Loan.",
+          "name": "create",
+          "params": [
+            {
+              "name": "book_id",
+              "type": "int"
+            },
+            {
+              "name": "member_id",
+              "type": "int"
+            },
+            {
+              "name": "loan_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "closed",
+              "type": "bool"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Loan"
+        },
+        {
+          "description": "Deletes an existing Loan.",
+          "name": "delete",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "book_id",
+              "type": "int"
+            },
+            {
+              "name": "member_id",
+              "type": "int"
+            },
+            {
+              "name": "loan_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "closed",
+              "type": "bool"
+            }
+          ],
+          "raises": [
+            "LoanNotFoundError"
+          ],
+          "return_type": "None"
+        },
+        {
           "description": "Returns a list of active loan records for a specific member, including book title and loan date.",
+          "name": "get_active_loans_for_member",
           "params": [
             {
               "name": "member_id",
@@ -287,8 +150,145 @@
             }
           ],
           "return_type": "List[Loan]"
+        },
+        {
+          "description": "Reads one Loan by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "LoanNotFoundError"
+          ],
+          "return_type": "models.Loan"
         }
-      ]
+      ],
+      "service_name": "LoanRepository"
+    },
+    {
+      "methods": [
+        {
+          "description": "Creates a new Loan.",
+          "mechanical": true,
+          "name": "create_loan",
+          "params": [
+            {
+              "name": "book_id",
+              "type": "int"
+            },
+            {
+              "name": "member_id",
+              "type": "int"
+            },
+            {
+              "name": "loan_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "closed",
+              "type": "bool"
+            }
+          ],
+          "raises": [],
+          "return_type": "None"
+        },
+        {
+          "description": "Deletes an existing Loan.",
+          "mechanical": true,
+          "name": "delete_loan",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "LoanNotFoundError"
+          ],
+          "return_type": "None"
+        },
+        {
+          "description": "Returns a list of books that are not currently loaned out.",
+          "name": "get_available_books",
+          "params": [],
+          "raises": [],
+          "return_type": "list[Book]"
+        },
+        {
+          "description": "Reads one Loan by its key.",
+          "mechanical": true,
+          "name": "read_loan_by_id",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "LoanNotFoundError"
+          ],
+          "return_type": "Loan | None"
+        }
+      ],
+      "service_name": "LoanService"
+    },
+    {
+      "methods": [
+        {
+          "description": "Creates a new Member.",
+          "name": "create",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Member"
+        },
+        {
+          "description": "Lists every Member; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Member]"
+        },
+        {
+          "description": "Reads one Member by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "raises": [
+            "MemberNotFoundError"
+          ],
+          "return_type": "models.Member"
+        }
+      ],
+      "service_name": "MemberRepository"
     }
   ]
 }

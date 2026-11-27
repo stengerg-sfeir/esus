@@ -1,305 +1,80 @@
 {
   "persistence_ports": {
-    "repositories": [
+    "entity_mappings": [
+      {
+        "entity": "Category",
+        "indexes": [],
+        "primary_key": "category_id",
+        "table": "categories"
+      },
       {
         "entity": "Customer",
-        "interface_name": "CustomerRepository",
-        "methods": [
-          {
-            "name": "read_all",
-            "description": "Lists every Customer; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              }
-            ],
-            "return_type": "list[Customer]",
-            "raises": []
-          },
-          {
-            "name": "read_one",
-            "description": "Reads one Customer by its key.",
-            "params": [
-              {
-                "name": "customer_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Customer",
-            "raises": [
-              "CustomerNotFoundError"
-            ]
-          },
-          {
-            "name": "create",
-            "description": "Creates a new Customer.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              }
-            ],
-            "return_type": "models.Customer",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Customer.",
-            "params": [
-              {
-                "name": "customer_id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              }
-            ],
-            "return_type": "models.Customer",
-            "raises": [
-              "CustomerNotFoundError"
-            ]
-          },
-          {
-            "name": "delete",
-            "description": "Deletes an existing Customer.",
-            "params": [
-              {
-                "name": "customer_id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              }
-            ],
-            "return_type": "None",
-            "raises": [
-              "CustomerNotFoundError"
-            ]
-          }
-        ]
+        "indexes": [
+          "email"
+        ],
+        "primary_key": "customer_id",
+        "table": "customers"
+      },
+      {
+        "entity": "Invoice",
+        "indexes": [
+          "order_id",
+          "generated_at"
+        ],
+        "primary_key": "invoice_id",
+        "table": "invoices"
+      },
+      {
+        "entity": "Order",
+        "indexes": [
+          "customer_id",
+          "status",
+          "created_at",
+          "confirmed_at",
+          "shipped_at",
+          "cancelled_at"
+        ],
+        "primary_key": "order_id",
+        "table": "orders"
+      },
+      {
+        "entity": "OrderItem",
+        "indexes": [
+          "order_id",
+          "product_id"
+        ],
+        "primary_key": "order_item_id",
+        "table": "order_items"
       },
       {
         "entity": "Product",
-        "interface_name": "ProductRepository",
-        "methods": [
-          {
-            "name": "read_all",
-            "description": "Lists every Product; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "category_id",
-                "type": "int"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              },
-              {
-                "name": "price",
-                "type": "int"
-              }
-            ],
-            "return_type": "list[Product]",
-            "raises": []
-          },
-          {
-            "name": "read_one",
-            "description": "Reads one Product by its key.",
-            "params": [
-              {
-                "name": "product_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Product",
-            "raises": [
-              "ProductNotFoundError"
-            ]
-          },
-          {
-            "name": "create",
-            "description": "Creates a new Product.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "category_id",
-                "type": "int"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              },
-              {
-                "name": "price",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Product",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Product.",
-            "params": [
-              {
-                "name": "product_id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "category_id",
-                "type": "int"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              },
-              {
-                "name": "price",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Product",
-            "raises": [
-              "ProductNotFoundError"
-            ]
-          },
-          {
-            "name": "delete",
-            "description": "Deletes an existing Product.",
-            "params": [
-              {
-                "name": "product_id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "category_id",
-                "type": "int"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              },
-              {
-                "name": "price",
-                "type": "int"
-              }
-            ],
-            "return_type": "None",
-            "raises": [
-              "ProductNotFoundError"
-            ]
-          },
-          {
-            "name": "get_products_by_category_id",
-            "description": "Lists the Product records belonging to one Category.",
-            "params": [
-              {
-                "name": "category_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "list[Product]",
-            "raises": []
-          }
-        ]
-      },
+        "indexes": [
+          "category_id"
+        ],
+        "primary_key": "product_id",
+        "table": "products"
+      }
+    ],
+    "repositories": [
       {
         "entity": "Category",
         "interface_name": "CategoryRepository",
         "methods": [
           {
-            "name": "read_all",
-            "description": "Lists every Category; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              }
-            ],
-            "return_type": "list[Category]",
-            "raises": []
-          },
-          {
-            "name": "read_one",
-            "description": "Reads one Category by its key.",
-            "params": [
-              {
-                "name": "category_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Category",
-            "raises": [
-              "CategoryNotFoundError"
-            ]
-          },
-          {
-            "name": "create",
             "description": "Creates a new Category.",
+            "name": "create",
             "params": [
               {
                 "name": "name",
                 "type": "str"
               }
             ],
-            "return_type": "models.Category",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Category"
           },
           {
-            "name": "update",
-            "description": "Updates an existing Category.",
-            "params": [
-              {
-                "name": "category_id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              }
-            ],
-            "return_type": "models.Category",
-            "raises": [
-              "CategoryNotFoundError"
-            ]
-          },
-          {
-            "name": "delete",
             "description": "Deletes an existing Category.",
+            "name": "delete",
             "params": [
               {
                 "name": "category_id",
@@ -310,10 +85,351 @@
                 "type": "str"
               }
             ],
-            "return_type": "None",
             "raises": [
               "CategoryNotFoundError"
-            ]
+            ],
+            "return_type": "None"
+          },
+          {
+            "description": "Lists every Category; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Category]"
+          },
+          {
+            "description": "Reads one Category by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "CategoryNotFoundError"
+            ],
+            "return_type": "models.Category"
+          },
+          {
+            "description": "Updates an existing Category.",
+            "name": "update",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              }
+            ],
+            "raises": [
+              "CategoryNotFoundError"
+            ],
+            "return_type": "models.Category"
+          }
+        ]
+      },
+      {
+        "entity": "Customer",
+        "interface_name": "CustomerRepository",
+        "methods": [
+          {
+            "description": "Creates a new Customer.",
+            "name": "create",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Customer"
+          },
+          {
+            "description": "Deletes an existing Customer.",
+            "name": "delete",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "raises": [
+              "CustomerNotFoundError"
+            ],
+            "return_type": "None"
+          },
+          {
+            "description": "Lists every Customer; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Customer]"
+          },
+          {
+            "description": "Reads one Customer by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "CustomerNotFoundError"
+            ],
+            "return_type": "models.Customer"
+          },
+          {
+            "description": "Updates an existing Customer.",
+            "name": "update",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "raises": [
+              "CustomerNotFoundError"
+            ],
+            "return_type": "models.Customer"
+          }
+        ]
+      },
+      {
+        "entity": "Invoice",
+        "interface_name": "InvoiceRepository",
+        "methods": [
+          {
+            "description": "Creates a new Invoice.",
+            "name": "create",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "total_amount",
+                "type": "int"
+              },
+              {
+                "name": "generated_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "customer_id",
+                "status": "deduced",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Invoice"
+          },
+          {
+            "description": "Retrieve all invoices for a given customer by customer_id.",
+            "name": "find_invoices_by_customer",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Invoice]"
+          },
+          {
+            "description": "Retrieve the invoice associated with a specific order by order_id.",
+            "name": "find_invoices_by_order",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Invoice | None"
+          },
+          {
+            "description": "Lists the Invoice records belonging to one Order.",
+            "name": "get_invoices_by_order_id",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Invoice]"
+          },
+          {
+            "description": "Lists every Invoice; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "total_amount",
+                "type": "int"
+              },
+              {
+                "name": "generated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Invoice]"
+          },
+          {
+            "description": "Reads one Invoice by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "invoice_id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "InvoiceNotFoundError"
+            ],
+            "return_type": "models.Invoice"
+          }
+        ]
+      },
+      {
+        "entity": "OrderItem",
+        "interface_name": "OrderItemRepository",
+        "methods": [
+          {
+            "description": "Creates a new OrderItem.",
+            "name": "create",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "unit_price",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.OrderItem"
+          },
+          {
+            "description": "Retrieve all order items belonging to a specific order by order_id.",
+            "name": "find_order_items_by_order",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[OrderItem]"
+          },
+          {
+            "description": "Retrieve all order items containing a specific product by product_id.",
+            "name": "find_order_items_by_product",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[OrderItem]"
+          },
+          {
+            "description": "Lists the OrderItem records belonging to one Order.",
+            "name": "get_order_items_by_order_id",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[OrderItem]"
+          },
+          {
+            "description": "Lists every OrderItem; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "unit_price",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[OrderItem]"
+          },
+          {
+            "description": "Reads one OrderItem by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "order_item_id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "OrderItemNotFoundError"
+            ],
+            "return_type": "models.OrderItem"
           }
         ]
       },
@@ -322,54 +438,8 @@
         "interface_name": "OrderRepository",
         "methods": [
           {
-            "name": "read_all",
-            "description": "Lists every Order; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "customer_id",
-                "type": "int"
-              },
-              {
-                "name": "status",
-                "type": "str"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "confirmed_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "shipped_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "cancelled_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "list[Order]",
-            "raises": []
-          },
-          {
-            "name": "read_one",
-            "description": "Reads one Order by its key.",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Order",
-            "raises": [
-              "OrderNotFoundError"
-            ]
-          },
-          {
-            "name": "create",
             "description": "Creates a new Order.",
+            "name": "create",
             "params": [
               {
                 "name": "customer_id",
@@ -396,50 +466,12 @@
                 "type": "datetime.datetime"
               }
             ],
-            "return_type": "models.Order",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Order"
           },
           {
-            "name": "update",
-            "description": "Updates an existing Order.",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
-              },
-              {
-                "name": "customer_id",
-                "type": "int"
-              },
-              {
-                "name": "status",
-                "type": "str"
-              },
-              {
-                "name": "created_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "confirmed_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "shipped_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "cancelled_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "models.Order",
-            "raises": [
-              "OrderNotFoundError"
-            ]
-          },
-          {
-            "name": "delete",
             "description": "Deletes an existing Order.",
+            "name": "delete",
             "params": [
               {
                 "name": "order_id",
@@ -470,26 +502,14 @@
                 "type": "datetime.datetime"
               }
             ],
-            "return_type": "None",
             "raises": [
               "OrderNotFoundError"
-            ]
-          },
-          {
-            "name": "get_orders_by_customer_id",
-            "description": "Lists the Order records belonging to one Customer.",
-            "params": [
-              {
-                "name": "customer_id",
-                "type": "int"
-              }
             ],
-            "return_type": "list[Order]",
-            "raises": []
+            "return_type": "None"
           },
           {
-            "name": "find_orders_by_customer",
             "description": "Retrieve all orders for a given customer by customer_id.",
+            "name": "find_orders_by_customer",
             "params": [
               {
                 "name": "customer_id",
@@ -499,19 +519,8 @@
             "return_type": "list[Order]"
           },
           {
-            "name": "find_orders_by_status",
-            "description": "Retrieve all orders with a specific status (pending, confirmed, shipped, cancelled).",
-            "params": [
-              {
-                "name": "status",
-                "type": "str"
-              }
-            ],
-            "return_type": "list[Order]"
-          },
-          {
-            "name": "find_orders_by_date_range",
             "description": "Retrieve orders created within a given date range (start and end dates).",
+            "name": "find_orders_by_date_range",
             "params": [
               {
                 "name": "start_date",
@@ -523,263 +532,254 @@
               }
             ],
             "return_type": "list[Order]"
-          }
-        ]
-      },
-      {
-        "entity": "Invoice",
-        "interface_name": "InvoiceRepository",
-        "methods": [
-          {
-            "name": "read_all",
-            "description": "Lists every Invoice; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
-              },
-              {
-                "name": "total_amount",
-                "type": "int"
-              },
-              {
-                "name": "generated_at",
-                "type": "datetime.datetime"
-              }
-            ],
-            "return_type": "list[Invoice]",
-            "raises": []
           },
           {
-            "name": "read_one",
-            "description": "Reads one Invoice by its key.",
+            "description": "Retrieve all orders with a specific status (pending, confirmed, shipped, cancelled).",
+            "name": "find_orders_by_status",
             "params": [
               {
-                "name": "invoice_id",
-                "type": "int"
+                "name": "status",
+                "type": "str"
               }
             ],
-            "return_type": "models.Invoice",
-            "raises": [
-              "InvoiceNotFoundError"
-            ]
+            "return_type": "list[Order]"
           },
           {
-            "name": "create",
-            "description": "Creates a new Invoice.",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
-              },
-              {
-                "name": "total_amount",
-                "type": "int"
-              },
-              {
-                "name": "generated_at",
-                "type": "datetime.datetime"
-              },
-              {
-                "name": "customer_id",
-                "type": "int",
-                "status": "deduced"
-              }
-            ],
-            "return_type": "models.Invoice",
-            "raises": []
-          },
-          {
-            "name": "get_invoices_by_order_id",
-            "description": "Lists the Invoice records belonging to one Order.",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "list[Invoice]",
-            "raises": []
-          },
-          {
-            "name": "find_invoices_by_order",
-            "description": "Retrieve the invoice associated with a specific order by order_id.",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "Invoice | None"
-          },
-          {
-            "name": "find_invoices_by_customer",
-            "description": "Retrieve all invoices for a given customer by customer_id.",
+            "description": "Lists the Order records belonging to one Customer.",
+            "name": "get_orders_by_customer_id",
             "params": [
               {
                 "name": "customer_id",
                 "type": "int"
               }
             ],
-            "return_type": "list[Invoice]"
-          }
-        ]
-      },
-      {
-        "entity": "OrderItem",
-        "interface_name": "OrderItemRepository",
-        "methods": [
-          {
-            "name": "create",
-            "description": "Creates a new OrderItem.",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
-              },
-              {
-                "name": "product_id",
-                "type": "int"
-              },
-              {
-                "name": "quantity",
-                "type": "int"
-              },
-              {
-                "name": "unit_price",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.OrderItem",
-            "raises": []
+            "raises": [],
+            "return_type": "list[Order]"
           },
           {
-            "name": "read_one",
-            "description": "Reads one OrderItem by its key.",
-            "params": [
-              {
-                "name": "order_item_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.OrderItem",
-            "raises": [
-              "OrderItemNotFoundError"
-            ]
-          },
-          {
+            "description": "Lists every Order; optional fields narrow the result.",
             "name": "read_all",
-            "description": "Lists every OrderItem; optional fields narrow the result.",
             "params": [
               {
-                "name": "order_id",
+                "name": "customer_id",
                 "type": "int"
               },
               {
-                "name": "product_id",
-                "type": "int"
+                "name": "status",
+                "type": "str"
               },
               {
-                "name": "quantity",
-                "type": "int"
+                "name": "created_at",
+                "type": "datetime.datetime"
               },
               {
-                "name": "unit_price",
-                "type": "int"
+                "name": "confirmed_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "shipped_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "cancelled_at",
+                "type": "datetime.datetime"
               }
             ],
-            "return_type": "list[OrderItem]",
-            "raises": []
+            "raises": [],
+            "return_type": "list[Order]"
           },
           {
-            "name": "get_order_items_by_order_id",
-            "description": "Lists the OrderItem records belonging to one Order.",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "list[OrderItem]",
-            "raises": []
-          },
-          {
-            "name": "find_order_items_by_order",
-            "description": "Retrieve all order items belonging to a specific order by order_id.",
+            "description": "Reads one Order by its key.",
+            "name": "read_one",
             "params": [
               {
                 "name": "order_id",
                 "type": "int"
               }
             ],
-            "return_type": "list[OrderItem]"
+            "raises": [
+              "OrderNotFoundError"
+            ],
+            "return_type": "models.Order"
           },
           {
-            "name": "find_order_items_by_product",
-            "description": "Retrieve all order items containing a specific product by product_id.",
+            "description": "Updates an existing Order.",
+            "name": "update",
             "params": [
               {
-                "name": "product_id",
+                "name": "order_id",
                 "type": "int"
+              },
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "confirmed_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "shipped_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "cancelled_at",
+                "type": "datetime.datetime"
               }
             ],
-            "return_type": "list[OrderItem]"
+            "raises": [
+              "OrderNotFoundError"
+            ],
+            "return_type": "models.Order"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Customer",
-        "table": "customers",
-        "primary_key": "customer_id",
-        "indexes": [
-          "email"
         ]
       },
       {
         "entity": "Product",
-        "table": "products",
-        "primary_key": "product_id",
-        "indexes": [
-          "category_id"
-        ]
-      },
-      {
-        "entity": "Category",
-        "table": "categories",
-        "primary_key": "category_id",
-        "indexes": []
-      },
-      {
-        "entity": "Order",
-        "table": "orders",
-        "primary_key": "order_id",
-        "indexes": [
-          "customer_id",
-          "status",
-          "created_at",
-          "confirmed_at",
-          "shipped_at",
-          "cancelled_at"
-        ]
-      },
-      {
-        "entity": "Invoice",
-        "table": "invoices",
-        "primary_key": "invoice_id",
-        "indexes": [
-          "order_id",
-          "generated_at"
-        ]
-      },
-      {
-        "entity": "OrderItem",
-        "table": "order_items",
-        "primary_key": "order_item_id",
-        "indexes": [
-          "order_id",
-          "product_id"
+        "interface_name": "ProductRepository",
+        "methods": [
+          {
+            "description": "Creates a new Product.",
+            "name": "create",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Product"
+          },
+          {
+            "description": "Deletes an existing Product.",
+            "name": "delete",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "ProductNotFoundError"
+            ],
+            "return_type": "None"
+          },
+          {
+            "description": "Lists the Product records belonging to one Category.",
+            "name": "get_products_by_category_id",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Product]"
+          },
+          {
+            "description": "Lists every Product; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Product]"
+          },
+          {
+            "description": "Reads one Product by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "ProductNotFoundError"
+            ],
+            "return_type": "models.Product"
+          },
+          {
+            "description": "Updates an existing Product.",
+            "name": "update",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "ProductNotFoundError"
+            ],
+            "return_type": "models.Product"
+          }
         ]
       }
     ]

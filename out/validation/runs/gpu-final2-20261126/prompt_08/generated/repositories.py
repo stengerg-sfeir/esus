@@ -58,7 +58,7 @@ class ProductRepository:
         self._store = store
 
 
-    def create(self, name: str = None, category: str = None, price: int = None, quantity: int = None) -> Any:
+    def create(self, name: str = None, category: str = None, price: int = None, quantity: int = None) -> models.Product:
         """Creates a new Product. [crud:create: STANDARD_CRUD]"""
         values = {}
         if name is not None:
@@ -76,53 +76,6 @@ class ProductRepository:
         if value is not None and value < 0:
             raise ValueError(f"Product.quantity must be >= 0, got {value!r}")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
-        return models.Product(**record)
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Product(**record)
-
-    def read_all(self, name: str = None, category: str = None, price: int = None, quantity: int = None) -> list[models.Product]:
-        """Lists every Product; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if category is not None:
-            criteria.append(('category', 'eq', category))
-        if price is not None:
-            criteria.append(('price', 'eq', price))
-        if quantity is not None:
-            criteria.append(('quantity', 'eq', quantity))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Product(**r) for r in found]
-
-    def update(self, id: int = None, name: str = None, category: str = None, price: int = None, quantity: int = None) -> Any:
-        """Updates an existing Product. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Product update matched {len(found)} records")
-        patch = {}
-        if id is not None and 'id' in ['id', 'name', 'category', 'price', 'quantity']:
-            patch['id'] = id
-        if name is not None and 'name' in ['id', 'name', 'category', 'price', 'quantity']:
-            patch['name'] = name
-        if category is not None and 'category' in ['id', 'name', 'category', 'price', 'quantity']:
-            patch['category'] = category
-        if price is not None and 'price' in ['id', 'name', 'category', 'price', 'quantity']:
-            patch['price'] = price
-        if quantity is not None and 'quantity' in ['id', 'name', 'category', 'price', 'quantity']:
-            patch['quantity'] = quantity
-        value = patch.get('quantity')
-        if value is not None and value < 0:
-            raise ValueError(f"Product.quantity must be >= 0, got {value!r}")
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Product(**record)
 
     def delete(self, id: int = None, name: str = None, category: str = None, price: int = None, quantity: int = None) -> None:
@@ -154,3 +107,50 @@ class ProductRepository:
             criteria.append(('quantity', 'lt', below_quantity))
         found = self._store.select(self.ENTITY, criteria)
         return [models.Product(**r) for r in found]
+
+    def read_all(self, name: str = None, category: str = None, price: int = None, quantity: int = None) -> list[models.Product]:
+        """Lists every Product; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if category is not None:
+            criteria.append(('category', 'eq', category))
+        if price is not None:
+            criteria.append(('price', 'eq', price))
+        if quantity is not None:
+            criteria.append(('quantity', 'eq', quantity))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Product(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Product:
+        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Product(**record)
+
+    def update(self, id: int = None, name: str = None, category: str = None, price: int = None, quantity: int = None) -> models.Product:
+        """Updates an existing Product. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Product update matched {len(found)} records")
+        patch = {}
+        if id is not None and 'id' in ['id', 'name', 'category', 'price', 'quantity']:
+            patch['id'] = id
+        if name is not None and 'name' in ['id', 'name', 'category', 'price', 'quantity']:
+            patch['name'] = name
+        if category is not None and 'category' in ['id', 'name', 'category', 'price', 'quantity']:
+            patch['category'] = category
+        if price is not None and 'price' in ['id', 'name', 'category', 'price', 'quantity']:
+            patch['price'] = price
+        if quantity is not None and 'quantity' in ['id', 'name', 'category', 'price', 'quantity']:
+            patch['quantity'] = quantity
+        value = patch.get('quantity')
+        if value is not None and value < 0:
+            raise ValueError(f"Product.quantity must be >= 0, got {value!r}")
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.Product(**record)

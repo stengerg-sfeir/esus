@@ -58,7 +58,7 @@ class EventRepository:
         self._store = store
 
 
-    def create(self, title: str = None, date: Any = None, capacity: int = None, current_registration_count: int = None) -> Any:
+    def create(self, title: str = None, date: Any = None, capacity: int = None, current_registration_count: int = None) -> models.Event:
         """Creates a new Event. [crud:create: STANDARD_CRUD]"""
         values = {}
         if title is not None:
@@ -79,6 +79,44 @@ class EventRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
         return models.Event(**record)
 
+    def delete(self, event_id: int = None, title: str = None, date: Any = None, capacity: int = None, current_registration_count: int = None) -> None:
+        """Deletes an existing Event. [crud:delete: STANDARD_CRUD]"""
+        criteria = []
+        if event_id is not None:
+            criteria.append(('event_id', 'eq', event_id))
+        if title is not None:
+            criteria.append(('title', 'eq', title))
+        if date is not None:
+            criteria.append(('date', 'eq', date))
+        if capacity is not None:
+            criteria.append(('capacity', 'eq', capacity))
+        if current_registration_count is not None:
+            criteria.append(('current_registration_count', 'eq', current_registration_count))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            raise errors.EventNotFoundError(f"Event delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
+
+    def get_event_by_title(self, title: str = None) -> models.Event:
+        """Fetches an event by its title, allowing users to search for events by name. [crud:read_one: READ_ONE_BY_ID]"""
+        criteria = []
+        if title is not None:
+            criteria.append(('title', 'eq', title))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise errors.EventNotFoundError(f"Event lookup matched {len(found)} records")
+        record = found[0]
+        return models.Event(**record)
+
+    def is_event_full(self, event_id: int = None) -> bool:
+        """Checks whether an event is full based on current registration count and capacity. [llm-written by server — review]"""
+        record = self._store.get(self.ENTITY, self.PK, event_id, error=errors.EventNotFoundError)
+        current_count = record.get('current_registration_count', 0)
+        capacity = record.get('capacity', 0)
+        return current_count >= capacity
+
     def read_all(self, title: str = None, date: Any = None, capacity: int = None, current_registration_count: int = None) -> list[models.Event]:
         """Lists every Event; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
         criteria = []
@@ -93,12 +131,12 @@ class EventRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Event(**r) for r in found]
 
-    def read_one(self, event_id: int = None) -> Any:
+    def read_one(self, event_id: int = None) -> models.Event:
         """Reads one Event by its key. [crud:read_one: READ_ONE_BY_ID]"""
         record = self._store.get(self.ENTITY, self.PK, event_id, error=errors.EventNotFoundError)
         return models.Event(**record)
 
-    def update(self, event_id: int = None, title: str = None, date: Any = None, capacity: int = None, current_registration_count: int = None) -> Any:
+    def update(self, event_id: int = None, title: str = None, date: Any = None, capacity: int = None, current_registration_count: int = None) -> models.Event:
         """Updates an existing Event. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if event_id is not None:
@@ -124,46 +162,6 @@ class EventRepository:
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.EventNotFoundError)
         return models.Event(**record)
 
-    def delete(self, event_id: int = None, title: str = None, date: Any = None, capacity: int = None, current_registration_count: int = None) -> None:
-        """Deletes an existing Event. [crud:delete: STANDARD_CRUD]"""
-        criteria = []
-        if event_id is not None:
-            criteria.append(('event_id', 'eq', event_id))
-        if title is not None:
-            criteria.append(('title', 'eq', title))
-        if date is not None:
-            criteria.append(('date', 'eq', date))
-        if capacity is not None:
-            criteria.append(('capacity', 'eq', capacity))
-        if current_registration_count is not None:
-            criteria.append(('current_registration_count', 'eq', current_registration_count))
-        found = self._store.select(self.ENTITY, criteria)
-        if not found:
-            raise errors.EventNotFoundError(f"Event delete matched no records")
-        for record in found:
-            self._store.delete(self.ENTITY, self.PK, record[self.PK])
-        return None
-
-    def get_event_by_title(self, title: str = None) -> Any:
-        """Fetches an event by its title, allowing users to search for events by name. [crud:read_one: READ_ONE_BY_ID]"""
-        criteria = []
-        if title is not None:
-            criteria.append(('title', 'eq', title))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise errors.EventNotFoundError(f"Event lookup matched {len(found)} records")
-        record = found[0]
-        return models.Event(**record)
-
-    def is_event_full(self, event_id: int = None) -> bool:
-        """Checks whether an event is full based on current registration count and capacity. [llm-written by server — review]"""
-        record = self._store.get(self.ENTITY, self.PK, event_id, error=errors.EventNotFoundError)
-        current_count = record.get('current_registration_count', 0)
-        capacity = record.get('capacity')
-        if capacity is None:
-            return False
-        return current_count >= capacity
-
 
 class RegistrationRepository:
     ENTITY = "Registration"
@@ -173,7 +171,7 @@ class RegistrationRepository:
         self._store = store
 
 
-    def create(self, event_id: int = None, user_id: int = None) -> Any:
+    def create(self, event_id: int = None, user_id: int = None) -> models.Registration:
         """Creates a new Registration. [crud:create: STANDARD_CRUD]"""
         values = {}
         if event_id is not None:
@@ -186,43 +184,7 @@ class RegistrationRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("event_id", "Event", "event_id", errors.EventNotFoundError)])
         return models.Registration(**record)
 
-    def read_all(self, event_id: int = None, user_id: int = None) -> list[models.Registration]:
-        """Lists every Registration; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if event_id is not None:
-            criteria.append(('event_id', 'eq', event_id))
-        if user_id is not None:
-            criteria.append(('user_id', 'eq', user_id))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Registration(**r) for r in found]
-
-    def read_one(self, registration_id: int = None) -> Any:
-        """Reads one Registration by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, registration_id, error=errors.RegistrationEventIdNotFoundError)
-        return models.Registration(**record)
-
-    def get_registrations_by_event_id(self, event_id: int = None) -> list[models.Registration]:
-        """Lists the Registration records belonging to one Event. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
-        criteria = []
-        if event_id is not None:
-            criteria.append(('event_id', 'eq', event_id))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Registration(**r) for r in found]
-
-    def register_for_event(self, event_id: int = None, user_id: int = None) -> Any:
-        """Registers a user for an event, only if the event has available capacity. [crud:create: STANDARD_CRUD]"""
-        values = {}
-        if event_id is not None:
-            values['event_id'] = event_id
-        if user_id is not None:
-            values['user_id'] = user_id
-        unknown = [k for k in values if k not in ['registration_id', 'event_id', 'user_id']]
-        if unknown:
-            raise ValueError(f"cannot create Registration from {unknown}")
-        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("event_id", "Event", "event_id", errors.EventNotFoundError)])
-        return models.Registration(**record)
-
-    def get_registration_by_user_and_event(self, user_id: int = None, event_id: int = None) -> Any:
+    def get_registration_by_user_and_event(self, user_id: int = None, event_id: int = None) -> models.Registration:
         """Fetches a registration record for a specific user attending a specific event. [crud:read_one: READ_ONE_BY_ID]"""
         criteria = []
         if user_id is not None:
@@ -233,4 +195,40 @@ class RegistrationRepository:
         if len(found) != 1:
             raise errors.RegistrationEventIdNotFoundError(f"Registration lookup matched {len(found)} records")
         record = found[0]
+        return models.Registration(**record)
+
+    def get_registrations_by_event_id(self, event_id: int = None) -> list[models.Registration]:
+        """Lists the Registration records belonging to one Event. [mechanical contained-name filter]"""
+        criteria = []
+        if event_id is not None:
+            criteria.append(('event_id', 'eq', event_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Registration(**row) for row in found], models.Registration)
+
+    def read_all(self, event_id: int = None, user_id: int = None) -> list[models.Registration]:
+        """Lists every Registration; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if event_id is not None:
+            criteria.append(('event_id', 'eq', event_id))
+        if user_id is not None:
+            criteria.append(('user_id', 'eq', user_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Registration(**r) for r in found]
+
+    def read_one(self, registration_id: int = None) -> models.Registration:
+        """Reads one Registration by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, registration_id, error=errors.RegistrationEventIdNotFoundError)
+        return models.Registration(**record)
+
+    def register_for_event(self, event_id: int = None, user_id: int = None) -> models.Registration:
+        """Registers a user for an event, only if the event has available capacity. [crud:create: STANDARD_CRUD]"""
+        values = {}
+        if event_id is not None:
+            values['event_id'] = event_id
+        if user_id is not None:
+            values['user_id'] = user_id
+        unknown = [k for k in values if k not in ['registration_id', 'event_id', 'user_id']]
+        if unknown:
+            raise ValueError(f"cannot create Registration from {unknown}")
+        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("event_id", "Event", "event_id", errors.EventNotFoundError)])
         return models.Registration(**record)

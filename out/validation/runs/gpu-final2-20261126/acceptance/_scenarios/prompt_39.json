@@ -1,19 +1,20 @@
 {
   "scenarios": [
     {
-      "name": "cli:User add",
+      "name": "cli:Order add",
       "when": {
         "cli_variants": [
           [
-            "User",
+            "Order",
             "add",
-            "--email",
-            "cli1@example.test",
-            "--password-hash",
-            "value1",
-            "--created-at",
+            "--user-id",
+            "1",
+            "--order-date",
             "2024-01-01T00:00:00",
-            "--is-admin"
+            "--total-amount",
+            "2",
+            "--status",
+            "pending"
           ]
         ]
       },
@@ -22,36 +23,20 @@
       }
     },
     {
-      "name": "cli:User update",
+      "name": "cli:OrderItem add",
       "when": {
         "cli_variants": [
           [
-            "User",
-            "update",
-            "--user-id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:User delete",
-      "when": {
-        "cli_variants": [
-          [
-            "User",
-            "delete",
-            "--user-id",
-            "1"
-          ],
-          [
-            "User",
-            "delete",
-            "--user-id",
-            "1"
+            "OrderItem",
+            "add",
+            "--order-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2"
           ]
         ]
       },
@@ -74,6 +59,28 @@
             "2",
             "--created-at",
             "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ],
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
           ]
         ]
       },
@@ -111,19 +118,40 @@
       }
     },
     {
-      "name": "cli:Product delete",
+      "name": "cli:User add",
       "when": {
         "cli_variants": [
           [
-            "Product",
+            "User",
+            "add",
+            "--email",
+            "cli1@example.test",
+            "--password-hash",
+            "value1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--is-admin"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:User delete",
+      "when": {
+        "cli_variants": [
+          [
+            "User",
             "delete",
-            "--product-id",
+            "--user-id",
             "1"
           ],
           [
-            "Product",
+            "User",
             "delete",
-            "--product-id",
+            "--user-id",
             "1"
           ]
         ]
@@ -133,42 +161,14 @@
       }
     },
     {
-      "name": "cli:Order add",
+      "name": "cli:User update",
       "when": {
         "cli_variants": [
           [
-            "Order",
-            "add",
+            "User",
+            "update",
             "--user-id",
-            "1",
-            "--order-date",
-            "2024-01-01T00:00:00",
-            "--total-amount",
-            "2",
-            "--status",
-            "pending"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:OrderItem add",
-      "when": {
-        "cli_variants": [
-          [
-            "OrderItem",
-            "add",
-            "--order-id",
-            "1",
-            "--product-id",
-            "1",
-            "--quantity",
-            "2",
-            "--unit-price",
-            "2"
+            "1"
           ]
         ]
       },

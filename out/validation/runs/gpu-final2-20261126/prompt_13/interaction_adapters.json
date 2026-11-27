@@ -2,130 +2,130 @@
   "interaction_adapters": [
     {
       "action_name": "create_product",
-      "target_service": "ProductRepository",
-      "target_method": "create",
       "input_fields": [
         {
           "field_name": "sku",
-          "target_param": "sku",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "category_id",
-          "target_param": "category",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "price",
-          "target_param": "price",
-          "transform": "DECIMAL_TO_CENTS",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "stock_quantity",
-          "target_param": "stock_quantity",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
           "lookup_entity": null,
           "required": true,
-          "status": "explicit"
-        }
-      ]
-    },
-    {
-      "action_name": "update_product",
-      "target_service": "ProductRepository",
-      "target_method": "update",
-      "input_fields": [
-        {
-          "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Product",
-          "required": true
-        },
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
+          "target_param": "sku",
+          "transform": "DIRECT"
         },
         {
           "field_name": "category_id",
-          "target_param": "category",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": true,
+          "target_param": "category",
+          "transform": "DIRECT"
         },
         {
           "field_name": "price",
-          "target_param": "price",
-          "transform": "DECIMAL_TO_CENTS",
           "lookup_entity": null,
-          "required": false
+          "required": true,
+          "target_param": "price",
+          "transform": "DECIMAL_TO_CENTS"
         },
         {
           "field_name": "stock_quantity",
-          "target_param": "stock_quantity",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": true,
+          "target_param": "stock_quantity",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "name",
+          "lookup_entity": null,
+          "required": true,
+          "status": "explicit",
+          "target_param": "name",
+          "transform": "DIRECT"
         }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "ProductRepository"
     },
     {
       "action_name": "delete_product",
-      "target_service": "ProductRepository",
-      "target_method": "delete",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Product",
-          "required": true
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
         },
         {
           "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "name",
+          "transform": "DIRECT"
         },
         {
           "field_name": "category",
-          "target_param": "category",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "category",
+          "transform": "DIRECT"
         },
         {
           "field_name": "price",
-          "target_param": "price",
-          "transform": "DECIMAL_TO_CENTS",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "price",
+          "transform": "DECIMAL_TO_CENTS"
         },
         {
           "field_name": "stock_quantity",
-          "target_param": "stock_quantity",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": false
+          "required": false,
+          "target_param": "stock_quantity",
+          "transform": "DIRECT"
         }
-      ]
+      ],
+      "target_method": "delete",
+      "target_service": "ProductRepository"
+    },
+    {
+      "action_name": "update_product",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "lookup_entity": "Product",
+          "required": true,
+          "target_param": "id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "name",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "category_id",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "category",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "price",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "price",
+          "transform": "DECIMAL_TO_CENTS"
+        },
+        {
+          "field_name": "stock_quantity",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "stock_quantity",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "ProductRepository"
     }
   ]
 }

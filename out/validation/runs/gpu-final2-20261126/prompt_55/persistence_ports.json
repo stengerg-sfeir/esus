@@ -1,13 +1,30 @@
 {
   "persistence_ports": {
+    "entity_mappings": [
+      {
+        "entity": "Product",
+        "indexes": [],
+        "primary_key": "id",
+        "table": "products"
+      },
+      {
+        "entity": "Sale",
+        "indexes": [
+          "product_id",
+          "sale_date"
+        ],
+        "primary_key": "id",
+        "table": "sales"
+      }
+    ],
     "repositories": [
       {
         "entity": "Product",
         "interface_name": "ProductRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new Product.",
+            "name": "create",
             "params": [
               {
                 "name": "name",
@@ -22,68 +39,12 @@
                 "type": "int"
               }
             ],
-            "return_type": "models.Product",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Product"
           },
           {
-            "name": "read_all",
-            "description": "Lists every Product; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              },
-              {
-                "name": "price",
-                "type": "int"
-              }
-            ],
-            "return_type": "list[Product]",
-            "raises": []
-          },
-          {
-            "name": "read_one",
-            "description": "Reads one Product by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Product",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Product.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              },
-              {
-                "name": "price",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Product",
-            "raises": []
-          },
-          {
-            "name": "createProduct",
             "description": "Creates a new product with the specified name, stock quantity, and price. Ensures that the product is added to the inventory with valid initial values.",
+            "name": "createProduct",
             "params": [
               {
                 "name": "name",
@@ -101,14 +62,46 @@
             "return_type": "models.Product"
           },
           {
-            "name": "readAllProducts",
+            "description": "Lists every Product; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Product]"
+          },
+          {
+            "description": "Reads one Product by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Product"
+          },
+          {
             "description": "Retrieves all products from the inventory, including their name, stock quantity, and price. Used for displaying the full product catalog.",
+            "name": "readAllProducts",
             "params": [],
             "return_type": "List[Product]"
           },
           {
-            "name": "readProductById",
             "description": "Retrieves a product by its unique ID. Ensures the product exists in the inventory and returns its details.",
+            "name": "readProductById",
             "params": [
               {
                 "name": "id",
@@ -118,8 +111,32 @@
             "return_type": "models.Product"
           },
           {
-            "name": "updateProductStock",
+            "description": "Updates an existing Product.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Product"
+          },
+          {
             "description": "Updates the stock quantity of a product by ID. Validates that the new stock quantity is non-negative and updates the inventory accordingly.",
+            "name": "updateProductStock",
             "params": [
               {
                 "name": "id",
@@ -139,8 +156,8 @@
         "interface_name": "SaleRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new Sale.",
+            "name": "create",
             "params": [
               {
                 "name": "product_id",
@@ -159,24 +176,12 @@
                 "type": "str"
               }
             ],
-            "return_type": "models.Sale",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Sale"
           },
           {
-            "name": "read_one",
-            "description": "Reads one Sale by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Sale",
-            "raises": []
-          },
-          {
-            "name": "createSale",
             "description": "Records a sale of a product by updating the product's stock quantity to reflect the sold amount. Ensures that the product has sufficient stock before allowing the sale to proceed.",
+            "name": "createSale",
             "params": [
               {
                 "name": "product_id",
@@ -198,8 +203,20 @@
             "return_type": "models.Sale"
           },
           {
-            "name": "readSaleById",
+            "description": "Reads one Sale by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Sale"
+          },
+          {
             "description": "Retrieves a sale record by its unique ID. Used to view transaction details such as product, quantity, date, and user.",
+            "name": "readSaleById",
             "params": [
               {
                 "name": "id",
@@ -208,23 +225,6 @@
             ],
             "return_type": "models.Sale"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Product",
-        "table": "products",
-        "primary_key": "id",
-        "indexes": []
-      },
-      {
-        "entity": "Sale",
-        "table": "sales",
-        "primary_key": "id",
-        "indexes": [
-          "product_id",
-          "sale_date"
         ]
       }
     ]

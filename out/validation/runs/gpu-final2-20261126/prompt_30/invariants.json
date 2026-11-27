@@ -1,56 +1,56 @@
 {
   "invariants": [
     {
-      "text": "Task.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A task with a status of 'completed' cannot be changed to 'in_progress'."
     },
     {
-      "text": "Task.status must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A task's status must be one of 'pending', 'in_progress', or 'completed'."
     },
     {
-      "text": "Task.status must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "All task status changes must be persisted through the repository implementation."
     },
     {
-      "text": "A task's status must be one of 'pending', 'in_progress', or 'completed'.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "If a task does not exist, attempting to update its status must result in a failure."
     },
     {
-      "text": "When a task is marked as completed, its status must be updated to 'completed' and no further status changes are allowed.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Task.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "The service layer must validate that a task's status transition is valid before updating it in the repository.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Task.status must be a string"
     },
     {
-      "text": "The CLI must not directly query or modify the SQLite database; all operations must go through the service layer.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Task.status must not be null"
     },
     {
-      "text": "A task with a status of 'completed' cannot be changed to 'in_progress'.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The CLI must not directly query or modify the SQLite database; all operations must go through the service layer."
     },
     {
-      "text": "The repository interface must define methods to create, read, update, and delete tasks.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The repository interface must define methods to create, read, update, and delete tasks."
     },
     {
-      "text": "The service layer must ensure that only valid task status transitions are permitted.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The service layer must ensure that only valid task status transitions are permitted."
     },
     {
-      "text": "If a task does not exist, attempting to update its status must result in a failure.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The service layer must reject any attempt to set a task status to 'pending' if the task is already 'completed'."
     },
     {
-      "text": "The service layer must reject any attempt to set a task status to 'pending' if the task is already 'completed'.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The service layer must validate that a task's status transition is valid before updating it in the repository."
     },
     {
-      "text": "All task status changes must be persisted through the repository implementation.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When a task is marked as completed, its status must be updated to 'completed' and no further status changes are allowed."
     }
   ]
 }

@@ -1,244 +1,30 @@
 {
   "persistence_ports": {
-    "repositories": [
+    "entity_mappings": [
+      {
+        "entity": "StorageLocation",
+        "indexes": [],
+        "primary_key": "id",
+        "table": "storage_locations"
+      },
       {
         "entity": "Wine",
-        "interface_name": "WineRepository",
-        "methods": [
-          {
-            "name": "create",
-            "description": "Creates a new Wine.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "vintage_year",
-                "type": "int"
-              },
-              {
-                "name": "wine_type",
-                "type": "str"
-              },
-              {
-                "name": "country_of_origin",
-                "type": "str"
-              },
-              {
-                "name": "cost_price",
-                "type": "int"
-              },
-              {
-                "name": "selling_price",
-                "type": "int"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              },
-              {
-                "name": "storage_location_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Wine",
-            "raises": []
-          },
-          {
-            "name": "read_one",
-            "description": "Reads one Wine by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Wine",
-            "raises": [
-              "WineNotFoundError"
-            ]
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every Wine; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "vintage_year",
-                "type": "int"
-              },
-              {
-                "name": "wine_type",
-                "type": "str"
-              },
-              {
-                "name": "country_of_origin",
-                "type": "str"
-              },
-              {
-                "name": "cost_price",
-                "type": "int"
-              },
-              {
-                "name": "selling_price",
-                "type": "int"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              },
-              {
-                "name": "storage_location_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "list[Wine]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Wine.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "vintage_year",
-                "type": "int"
-              },
-              {
-                "name": "wine_type",
-                "type": "str"
-              },
-              {
-                "name": "country_of_origin",
-                "type": "str"
-              },
-              {
-                "name": "cost_price",
-                "type": "int"
-              },
-              {
-                "name": "selling_price",
-                "type": "int"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              },
-              {
-                "name": "storage_location_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Wine",
-            "raises": [
-              "WineNotFoundError"
-            ]
-          },
-          {
-            "name": "delete",
-            "description": "Deletes an existing Wine.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "vintage_year",
-                "type": "int"
-              },
-              {
-                "name": "wine_type",
-                "type": "str"
-              },
-              {
-                "name": "country_of_origin",
-                "type": "str"
-              },
-              {
-                "name": "cost_price",
-                "type": "int"
-              },
-              {
-                "name": "selling_price",
-                "type": "int"
-              },
-              {
-                "name": "stock_quantity",
-                "type": "int"
-              },
-              {
-                "name": "storage_location_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "None",
-            "raises": [
-              "WineNotFoundError"
-            ]
-          },
-          {
-            "name": "find_wine_by_name",
-            "description": "Retrieves a wine record by its unique name, ensuring name uniqueness in the system.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              }
-            ],
-            "return_type": "Wine | None"
-          },
-          {
-            "name": "find_wine_by_storage_location_id",
-            "description": "Retrieves all wine bottles assigned to a specific storage location by its ID.",
-            "params": [
-              {
-                "name": "location_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "list[Wine]"
-          },
-          {
-            "name": "get_wine_with_lowest_profit_margin",
-            "description": "Returns the wine with the lowest profit margin (selling price minus cost price), used for inventory analysis.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "Wine | None"
-          },
-          {
-            "name": "count_wines_by_type",
-            "description": "Returns a dictionary mapping wine type (red, white, rosé, sparkling) to the total number of bottles of that type.",
-            "params": [],
-            "return_type": "dict[str, int]"
-          }
-        ]
-      },
+        "indexes": [
+          "name",
+          "storage_location_id"
+        ],
+        "primary_key": "id",
+        "table": "wines"
+      }
+    ],
+    "repositories": [
       {
         "entity": "StorageLocation",
         "interface_name": "StorageLocationRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new StorageLocation.",
+            "name": "create",
             "params": [
               {
                 "name": "zone_name",
@@ -257,80 +43,12 @@
                 "type": "int"
               }
             ],
-            "return_type": "models.StorageLocation",
-            "raises": []
+            "raises": [],
+            "return_type": "models.StorageLocation"
           },
           {
-            "name": "read_one",
-            "description": "Reads one StorageLocation by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.StorageLocation",
-            "raises": [
-              "StorageLocationNotFoundError"
-            ]
-          },
-          {
-            "name": "read_all",
-            "description": "Lists every StorageLocation; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "zone_name",
-                "type": "str"
-              },
-              {
-                "name": "row_number",
-                "type": "int"
-              },
-              {
-                "name": "shelf_number",
-                "type": "int"
-              },
-              {
-                "name": "max_capacity",
-                "type": "int"
-              }
-            ],
-            "return_type": "list[StorageLocation]",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing StorageLocation.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "zone_name",
-                "type": "str"
-              },
-              {
-                "name": "row_number",
-                "type": "int"
-              },
-              {
-                "name": "shelf_number",
-                "type": "int"
-              },
-              {
-                "name": "max_capacity",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.StorageLocation",
-            "raises": [
-              "StorageLocationNotFoundError"
-            ]
-          },
-          {
-            "name": "delete",
             "description": "Deletes an existing StorageLocation.",
+            "name": "delete",
             "params": [
               {
                 "name": "id",
@@ -353,14 +71,29 @@
                 "type": "int"
               }
             ],
-            "return_type": "None",
             "raises": [
               "StorageLocationNotFoundError"
-            ]
+            ],
+            "return_type": "None"
           },
           {
-            "name": "find_location_by_zone_name",
+            "description": "Retrieves a storage location by its row number and shelf number for precise physical location access.",
+            "name": "find_location_by_row_shelf",
+            "params": [
+              {
+                "name": "row_number",
+                "type": "int"
+              },
+              {
+                "name": "shelf_number",
+                "type": "int"
+              }
+            ],
+            "return_type": "StorageLocation | None"
+          },
+          {
             "description": "Retrieves a storage location by its zone name (e.g., 'Main Cellar'), used for quick access to display or cellar zones.",
+            "name": "find_location_by_zone_name",
             "params": [
               {
                 "name": "zone_name",
@@ -370,19 +103,8 @@
             "return_type": "StorageLocation | None"
           },
           {
-            "name": "get_total_capacity_utilization",
-            "description": "Returns the total number of bottles currently stored across all locations, as a percentage of total maximum capacity.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "float"
-          },
-          {
-            "name": "get_over_capacity_locations",
             "description": "Returns a list of storage locations where the current bottle count exceeds the defined maximum capacity.",
+            "name": "get_over_capacity_locations",
             "params": [
               {
                 "name": "id",
@@ -392,9 +114,24 @@
             "return_type": "list[StorageLocation]"
           },
           {
-            "name": "find_location_by_row_shelf",
-            "description": "Retrieves a storage location by its row number and shelf number for precise physical location access.",
+            "description": "Returns the total number of bottles currently stored across all locations, as a percentage of total maximum capacity.",
+            "name": "get_total_capacity_utilization",
             "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "float"
+          },
+          {
+            "description": "Lists every StorageLocation; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "zone_name",
+                "type": "str"
+              },
               {
                 "name": "row_number",
                 "type": "int"
@@ -402,28 +139,291 @@
               {
                 "name": "shelf_number",
                 "type": "int"
+              },
+              {
+                "name": "max_capacity",
+                "type": "int"
               }
             ],
-            "return_type": "StorageLocation | None"
+            "raises": [],
+            "return_type": "list[StorageLocation]"
+          },
+          {
+            "description": "Reads one StorageLocation by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "StorageLocationNotFoundError"
+            ],
+            "return_type": "models.StorageLocation"
+          },
+          {
+            "description": "Updates an existing StorageLocation.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "zone_name",
+                "type": "str"
+              },
+              {
+                "name": "row_number",
+                "type": "int"
+              },
+              {
+                "name": "shelf_number",
+                "type": "int"
+              },
+              {
+                "name": "max_capacity",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "StorageLocationNotFoundError"
+            ],
+            "return_type": "models.StorageLocation"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Wine",
-        "table": "wines",
-        "primary_key": "id",
-        "indexes": [
-          "name",
-          "storage_location_id"
         ]
       },
       {
-        "entity": "StorageLocation",
-        "table": "storage_locations",
-        "primary_key": "id",
-        "indexes": []
+        "entity": "Wine",
+        "interface_name": "WineRepository",
+        "methods": [
+          {
+            "description": "Returns a dictionary mapping wine type (red, white, rosé, sparkling) to the total number of bottles of that type.",
+            "name": "count_wines_by_type",
+            "params": [],
+            "return_type": "dict[str, int]"
+          },
+          {
+            "description": "Creates a new Wine.",
+            "name": "create",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "vintage_year",
+                "type": "int"
+              },
+              {
+                "name": "wine_type",
+                "type": "str"
+              },
+              {
+                "name": "country_of_origin",
+                "type": "str"
+              },
+              {
+                "name": "cost_price",
+                "type": "int"
+              },
+              {
+                "name": "selling_price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              },
+              {
+                "name": "storage_location_id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Wine"
+          },
+          {
+            "description": "Deletes an existing Wine.",
+            "name": "delete",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "vintage_year",
+                "type": "int"
+              },
+              {
+                "name": "wine_type",
+                "type": "str"
+              },
+              {
+                "name": "country_of_origin",
+                "type": "str"
+              },
+              {
+                "name": "cost_price",
+                "type": "int"
+              },
+              {
+                "name": "selling_price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              },
+              {
+                "name": "storage_location_id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "WineNotFoundError"
+            ],
+            "return_type": "None"
+          },
+          {
+            "description": "Retrieves a wine record by its unique name, ensuring name uniqueness in the system.",
+            "name": "find_wine_by_name",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              }
+            ],
+            "return_type": "Wine | None"
+          },
+          {
+            "description": "Retrieves all wine bottles assigned to a specific storage location by its ID.",
+            "name": "find_wine_by_storage_location_id",
+            "params": [
+              {
+                "name": "location_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Wine]"
+          },
+          {
+            "description": "Returns the wine with the lowest profit margin (selling price minus cost price), used for inventory analysis.",
+            "name": "get_wine_with_lowest_profit_margin",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Wine | None"
+          },
+          {
+            "description": "Lists every Wine; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "vintage_year",
+                "type": "int"
+              },
+              {
+                "name": "wine_type",
+                "type": "str"
+              },
+              {
+                "name": "country_of_origin",
+                "type": "str"
+              },
+              {
+                "name": "cost_price",
+                "type": "int"
+              },
+              {
+                "name": "selling_price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              },
+              {
+                "name": "storage_location_id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Wine]"
+          },
+          {
+            "description": "Reads one Wine by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "WineNotFoundError"
+            ],
+            "return_type": "models.Wine"
+          },
+          {
+            "description": "Updates an existing Wine.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "vintage_year",
+                "type": "int"
+              },
+              {
+                "name": "wine_type",
+                "type": "str"
+              },
+              {
+                "name": "country_of_origin",
+                "type": "str"
+              },
+              {
+                "name": "cost_price",
+                "type": "int"
+              },
+              {
+                "name": "selling_price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              },
+              {
+                "name": "storage_location_id",
+                "type": "int"
+              }
+            ],
+            "raises": [
+              "WineNotFoundError"
+            ],
+            "return_type": "models.Wine"
+          }
+        ]
       }
     ]
   }

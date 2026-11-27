@@ -1,108 +1,108 @@
 {
   "invariants": [
     {
-      "text": "Book.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A book can only be added if it does not already exist in the collection with the same ISBN."
     },
     {
-      "text": "Book.title must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A book's author must not be empty."
     },
     {
-      "text": "Book.title must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A book's genre must be one of the predefined genres in the system."
     },
     {
-      "text": "Book.author must be a string",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "A user's email must be unique across all users."
     },
     {
-      "text": "Book.author must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.author must be a string"
     },
     {
-      "text": "Book.genre must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.author must not be null"
     },
     {
-      "text": "Book.isbn must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.category must be a string"
     },
     {
-      "text": "Book.publication_year must be an integer",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.genre must be a string"
     },
     {
-      "text": "Book.category must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "User.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.isbn must be a string"
     },
     {
-      "text": "User.email must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.publication_year must be an integer"
     },
     {
-      "text": "User.email must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.title must be a string"
     },
     {
-      "text": "User.username must be a string",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Book.title must not be null"
     },
     {
-      "text": "User.username must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "Each book must have a unique ISBN."
     },
     {
-      "text": "User.created_at must be a datetime",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "The category of a book must match one of the valid categories defined in the system."
     },
     {
-      "text": "User.created_at must not be null",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "The publication year of a book must be a positive integer between 1000 and 3000."
     },
     {
-      "text": "The publication year of a book must be a positive integer between 1000 and 3000.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The system must persist book and user data across application executions."
     },
     {
-      "text": "Each book must have a unique ISBN.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "The title of a book must not be empty."
     },
     {
-      "text": "A book's genre must be one of the predefined genres in the system.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.created_at must be a datetime"
     },
     {
-      "text": "A user's email must be unique across all users.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.created_at must not be null"
     },
     {
-      "text": "The title of a book must not be empty.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.email must be a string"
     },
     {
-      "text": "A book's author must not be empty.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.email must not be null"
     },
     {
-      "text": "The category of a book must match one of the valid categories defined in the system.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "When a book is added, its publication year must be greater than or equal to the earliest possible year (1000) and less than or equal to the latest possible year (3000).",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.username must be a string"
     },
     {
-      "text": "A book can only be added if it does not already exist in the collection with the same ISBN.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "User.username must not be null"
     },
     {
-      "text": "The system must persist book and user data across application executions.",
-      "kind": "rule"
+      "kind": "rule",
+      "text": "When a book is added, its publication year must be greater than or equal to the earliest possible year (1000) and less than or equal to the latest possible year (3000)."
     }
   ]
 }

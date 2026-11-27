@@ -1,13 +1,23 @@
 {
   "persistence_ports": {
+    "entity_mappings": [
+      {
+        "entity": "Product",
+        "indexes": [
+          "name"
+        ],
+        "primary_key": "id",
+        "table": "products"
+      }
+    ],
     "repositories": [
       {
         "entity": "Product",
         "interface_name": "ProductRepository",
         "methods": [
           {
-            "name": "create",
             "description": "Creates a new Product.",
+            "name": "create",
             "params": [
               {
                 "name": "name",
@@ -22,68 +32,12 @@
                 "type": "int"
               }
             ],
-            "return_type": "models.Product",
-            "raises": []
+            "raises": [],
+            "return_type": "models.Product"
           },
           {
-            "name": "read_all",
-            "description": "Lists every Product; optional fields narrow the result.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "price",
-                "type": "int"
-              },
-              {
-                "name": "quantity",
-                "type": "int"
-              }
-            ],
-            "return_type": "list[Product]",
-            "raises": []
-          },
-          {
-            "name": "read_one",
-            "description": "Reads one Product by its key.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Product",
-            "raises": []
-          },
-          {
-            "name": "update",
-            "description": "Updates an existing Product.",
-            "params": [
-              {
-                "name": "id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "price",
-                "type": "int"
-              },
-              {
-                "name": "quantity",
-                "type": "int"
-              }
-            ],
-            "return_type": "models.Product",
-            "raises": []
-          },
-          {
-            "name": "delete",
             "description": "Deletes an existing Product.",
+            "name": "delete",
             "params": [
               {
                 "name": "id",
@@ -102,12 +56,44 @@
                 "type": "int"
               }
             ],
-            "return_type": "None",
-            "raises": []
+            "raises": [],
+            "return_type": "None"
           },
           {
-            "name": "sort_products",
+            "description": "Lists every Product; optional fields narrow the result.",
+            "name": "read_all",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "list[Product]"
+          },
+          {
+            "description": "Reads one Product by its key.",
+            "name": "read_one",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Product"
+          },
+          {
             "description": "Lists Product records sorted by one declared field.",
+            "name": "sort_products",
             "params": [
               {
                 "name": "sort_by",
@@ -118,21 +104,35 @@
                 "type": "str"
               }
             ],
-            "return_type": "list[Product]",
-            "raises": [],
             "provenance": "capability_adapter",
+            "raises": [],
+            "return_type": "list[Product]",
             "review_required": true
+          },
+          {
+            "description": "Updates an existing Product.",
+            "name": "update",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              }
+            ],
+            "raises": [],
+            "return_type": "models.Product"
           }
-        ]
-      }
-    ],
-    "entity_mappings": [
-      {
-        "entity": "Product",
-        "table": "products",
-        "primary_key": "id",
-        "indexes": [
-          "name"
         ]
       }
     ]

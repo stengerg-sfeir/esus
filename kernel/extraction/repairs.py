@@ -91,6 +91,202 @@ def repair_nested_declarations(holders, log, document="document"):
     return holders
 
 
+def _class_name(value):
+    """A deterministic class-style spelling of an identifier.
+
+    `expense_service`, `Expense-Service` and `expense_service` all become
+    `ExpenseService`; an already class-shaped name is returned unchanged.  This
+    is only used for names the grammar should have closed; it is not a general
+    renamer and never touches fields or methods.
+    """
+    if not isinstance(value, str):
+        return ""
+    text = value.strip()
+    if not text:
+        return ""
+    parts = [part for part in re.split(r"[^A-Za-z0-9]+", text) if part]
+    if len(parts) > 1:
+        text = "".join(part[:1].upper() + part[1:] for part in parts)
+    return text[:1].upper() + text[1:]
+
+
+def _with_role_suffix(value, default):
+    """Return `value` with a `Service` or `Repository` suffix.
+
+    A name that already ends in a role word keeps that role; a manager/handler
+    is treated as the supplied default.  The suffix is the part the rest of the
+    pipeline reads, so it is made explicit rather than guessed again later.
+    """
+    text = _class_name(value)
+    if not text:
+        return ""
+    lowered = text.lower()
+    for suffix in ("Repository", "Service"):
+        if lowered.endswith(suffix.lower()) and len(text) > len(suffix):
+            return text[:-len(suffix)] + suffix
+    for suffix in ("Manager", "Handler", "Controller"):
+        if lowered.endswith(suffix.lower()) and len(text) > len(suffix):
+            return text[:-len(suffix)] + default
+    if lowered.endswith("repo") and len(text) > len("repo"):
+        return text[:-len("repo")] + "Repository"
+    return text + default
+
+
+def _with_error_suffix(value):
+    """Return `value` ending in `Error` or `Exception`, preserving either."""
+    text = _class_name(value)
+    if not text:
+        return ""
+    lowered = text.lower()
+    for suffix in ("Error", "Exception"):
+        if lowered.endswith(suffix.lower()) and len(text) > len(suffix):
+            return text[:-len(suffix)] + suffix
+    return text + "Error"
+
+
+def _remap_reference(value, mapping):
+    """Remap a `Holder.method` reference, or a bare holder name."""
+    if not isinstance(value, str) or not mapping:
+        return value
+    head, separator, tail = value.partition(".")
+    renamed = mapping.get(normalize(head))
+    if renamed is None:
+        return value
+    return f"{renamed}{separator}{tail}" if separator else renamed
+
+
+def _service_role(service):
+    """Infer whether a suffix-less holder is a service or a repository.
+
+    The service document is where domain services live; repositories are
+    completed mechanically under `<Entity>Repository` and appear again in the
+    persistence ports.  A bare name here is therefore treated as a service
+    unless its own spelling already says repository.  The ports themselves are
+    always canonicalised with the repository suffix below.
+    """
+    name = service.get("service_name") if isinstance(service, dict) else None
+    if not isinstance(name, str) or not name.strip():
+        return "Service"
+    lowered = name.lower()
+    if lowered.endswith(("repository", "repo")):
+        return "Repository"
+    return "Service"
+
+
+def repair_holder_names(documents, contracts=None, log=None):
+    """Give services, repositories and errors their role suffix and remap refs.
+
+    The extraction grammars now make a suffix-less name unrepresentable, but
+    archived documents and older runs still carry bare names.  Renaming is
+    deterministic and every reference in the same document set is updated:
+    adapter targets, `raises` entries, method-contract holders and repository
+    bindings.  The function mutates `documents` (and `contracts` when supplied)
+    and returns the contracts it was given.
+    """
+    if not isinstance(documents, dict):
+        return contracts
+
+    services = documents.get("service_contracts")
+    errors = documents.get("errors")
+    ports = documents.get("persistence_ports")
+    adapters = documents.get("interaction_adapters")
+
+    repositories = (ports.get("repositories")
+                    if isinstance(ports, dict) else None) or []
+
+    service_map = {}
+    error_map = {}
+    port_map = {}
+
+    if isinstance(services, list):
+        for service in services:
+            if not isinstance(service, dict):
+                continue
+            old = service.get("service_name")
+            if not isinstance(old, str) or not old.strip():
+                continue
+            canonical = _with_role_suffix(old, _service_role(service))
+            if canonical != old:
+                service_map[normalize(old)] = canonical
+                service["service_name"] = canonical
+
+    if isinstance(repositories, list):
+        for repository in repositories:
+            if not isinstance(repository, dict):
+                continue
+            old = repository.get("interface_name")
+            if not isinstance(old, str) or not old.strip():
+                continue
+            canonical = _with_role_suffix(old, "Repository")
+            if canonical != old:
+                port_map[normalize(old)] = canonical
+                repository["interface_name"] = canonical
+
+    if isinstance(errors, list):
+        for error in errors:
+            if not isinstance(error, dict):
+                continue
+            old = error.get("name")
+            if not isinstance(old, str) or not old.strip():
+                continue
+            canonical = _with_error_suffix(old)
+            if canonical != old:
+                error_map[normalize(old)] = canonical
+                error["name"] = canonical
+
+    if error_map and isinstance(services, list):
+        for service in services:
+            if not isinstance(service, dict):
+                continue
+            for method in service.get("methods") or []:
+                if not isinstance(method, dict):
+                    continue
+                raises = method.get("raises")
+                if isinstance(raises, list):
+                    method["raises"] = [
+                        error_map.get(normalize(name), name)
+                        if isinstance(name, str) else name
+                        for name in raises
+                    ]
+
+    if service_map and isinstance(adapters, list):
+        for adapter in adapters:
+            if isinstance(adapter, dict):
+                target = adapter.get("target_service")
+                if isinstance(target, str):
+                    adapter["target_service"] = service_map.get(
+                        normalize(target), target)
+
+    if isinstance(contracts, list):
+        for record in contracts:
+            if not isinstance(record, dict):
+                continue
+            holder = record.get("holder")
+            if isinstance(holder, str):
+                record["holder"] = service_map.get(normalize(holder), holder)
+            for binding in record.get("bindings") or []:
+                if isinstance(binding, dict):
+                    binding["repository"] = _remap_reference(
+                        binding.get("repository"), port_map)
+            for create in record.get("creates") or []:
+                if isinstance(create, dict):
+                    create["call"] = _remap_reference(
+                        create.get("call"), port_map)
+            for effect in record.get("effects") or []:
+                if isinstance(effect, dict):
+                    effect["write"] = _remap_reference(
+                        effect.get("write"), port_map)
+
+    renamed = len(service_map) + len(port_map) + len(error_map)
+    if renamed and log is not None:
+        names = list(service_map.values()) + list(port_map.values()) \
+            + list(error_map.values())
+        log.write(
+            f"[ok] step names: canonicalized {renamed} name suffix(es): "
+            f"{', '.join(names[:8])}")
+    return contracts
+
+
 def repair_errors(errors, services, log):
     """Remove the two error-registry contradictions; return `(errors, services)`.
 
@@ -2376,7 +2572,9 @@ def ungrounded_methods(services, repositories, models, requirements,
         "id", "ids", "page", "pagesize", "limit", "offset", "query", "data",
         "payload", "json", "jsondata", "file", "filepath", "path", "output",
         "start", "startdate", "end", "enddate", "from", "fromdate", "to",
-        "todate", "month", "year", "sort", "order", "filter",
+        "todate", "month", "year", "sort", "sortby", "order", "orderby",
+        "direction", "ascending", "descending", "asc", "desc",
+        "filter", "filterby", "groupby", "searchby",
         "domain", "emaildomain", "threshold",
     }
     model_by_name = {normalize(model.get("name")): model
@@ -3651,6 +3849,16 @@ def _prose_repository(services, model):
     return None
 
 
+def _declared_method_names(services):
+    """Every method name already declared by any service or repository."""
+    return {
+        normalize(method.get("name"))
+        for service in services or [] if isinstance(service, dict)
+        for method in service.get("methods") or [] if isinstance(method, dict)
+        and method.get("name")
+    }
+
+
 def _prose_field(model, noun):
     wanted = normalize(noun)
     if not wanted:
@@ -3796,6 +4004,16 @@ def repair_named_service_methods(services, models, errors, requirements,
             continue
         name, tail, description = match.group(1), match.group(2).strip(), match.group(3).strip()
         if not current:
+            continue
+        # A business-logic list entry names the method and, optionally, its
+        # signature.  A prose bullet such as `- Every day a loan is overdue:
+        # ...` is not a method: without this guard the identifier before the
+        # colon (`Every`) became a zero-argument service method.  Accept only
+        # an empty tail or a parenthesised signature.
+        if tail and not (tail.startswith("(") and tail.endswith(")")):
+            continue
+        if name.lower() in {"every", "each", "when", "while", "if", "all",
+                            "the", "this", "these", "those"}:
             continue
         service = by_name.get(normalize(current))
         if service is None:
@@ -4102,12 +4320,26 @@ def repair_join_associations(services, models, requirements, log=None):
     return services
 
 
-def repair_prose_state_actions(services, models, requirements, log=None):
-    """Add the state verb a prompt states (`complete tasks`, `confirm order`)."""
+def repair_prose_state_actions(services, models, requirements, log=None,
+                               adapters=None):
+    """Add the state verb a prompt states (`complete tasks`, `confirm order`).
+
+    `adapters`, when supplied, is the surface that actually exists.  A prose
+    verb with no adapter is not a callable action yet; adding a method for it
+    only creates dead code that the verifier can bind by accident.  The
+    declared-method check already prevents a second implementation when a
+    domain service owns the transition.
+    """
     if not isinstance(services, list) or not isinstance(models, list):
         return services
     text = requirements or ""
     sentences = re.split(r"(?<=[.;])\s+", text)
+    adapter_text = ""
+    if adapters is not None:
+        adapter_text = " ".join(
+            normalize(adapter.get("action_name") or "")
+            + " " + normalize(adapter.get("target_method") or "")
+            for adapter in adapters if isinstance(adapter, dict))
     added = []
     for model in models:
         if not isinstance(model, dict) or not model.get("name"):
@@ -4136,12 +4368,11 @@ def repair_prose_state_actions(services, models, requirements, log=None):
             field = next((name for name in mapping if name in fields), None)
             if field is None:
                 continue
+            if adapters is not None and normalize(verb) not in adapter_text:
+                continue
             method_name = (f"{verb}_"
                            f"{re.sub(r'(?<!^)(?=[A-Z])', '_', entity).lower()}")
-            names = {normalize(item.get("name"))
-                     for item in repository.get("methods") or []
-                     if isinstance(item, dict)}
-            if normalize(method_name) in names:
+            if normalize(method_name) in _declared_method_names(services):
                 continue
             params = [{"name": primary, "type": "int"}]
             if verb in ("borrow", "loan"):
@@ -4261,6 +4492,23 @@ def repair_prose_query_actions(services, models, requirements, log=None):
                 # strictness on a later repair pass; keep one method.
                 existing.update(method)
             return
+        # A capability method may already live on a domain service rather than
+        # the entity repository (`LibraryService.search_books`).  Adding the
+        # same capability to the repository as well gives one action two
+        # implementations and makes the verifier bind the wrong one.  A
+        # narrower method counts too: `search_orders_by_customer` already
+        # provides the search that `search_orders` would duplicate.
+        wanted = normalize(method["name"])
+        declared = _declared_method_names(services)
+        if any(existing == wanted or existing.startswith(wanted)
+               for existing in declared):
+            return
+        if wanted.startswith("search") and any(
+                existing.startswith("search") for existing in declared):
+            # One search capability is enough: `search_by_title` already
+            # implements "search books by title"; adding `search_books` beside
+            # it gives the verifier two methods for one prompt sentence.
+            return
         repository.setdefault("methods", []).append(method)
         added.append(f"{repository.get('service_name')}.{method['name']}")
 
@@ -4360,8 +4608,20 @@ def repair_prose_query_actions(services, models, requirements, log=None):
         entity_search = re.search(
             r"\b([A-Za-z][A-Za-z ]*?)\s+search\b", sentence, re.IGNORECASE)
         if search or entity_search:
-            model = entity_from(sentence,
-                                entity_search.group(1) if entity_search else None)
+            # The entity being searched is the object after "search", not
+            # necessarily the sentence's subject: "Customers should be able to
+            # search their orders" searches orders, not customers.
+            object_model = None
+            if search:
+                object_text = normalize(search.group(1))
+                object_model = next(
+                    (candidate for candidate in models
+                     if isinstance(candidate, dict)
+                     and candidate.get("name")
+                     and normalize(candidate["name"]) in object_text),
+                    None)
+            model = object_model or entity_from(
+                sentence, entity_search.group(1) if entity_search else None)
             if model is not None:
                 search_field = (_prose_field(model, search.group(1))
                                 if search else None)
@@ -4620,7 +4880,7 @@ def repair_capability_adapters(components, services, adapters, models,
                               requirements, log, persistence_ports)
     _expose_prose_pagination_action(components, services, adapters, models,
                                     requirements, log)
-    repair_prose_state_actions(services, models, requirements, log)
+    repair_prose_state_actions(services, models, requirements, log, adapters)
     repair_join_create_params(services, models, log)
     repair_join_method_keys(services, models, log)
     repair_join_associations(services, models, requirements, log)

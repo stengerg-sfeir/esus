@@ -1,19 +1,14 @@
 {
   "service_contracts": [
     {
-      "service_name": "ProductRepository",
       "methods": [
         {
+          "description": "Creates a new Category.",
           "name": "create",
-          "description": "Creates a new Product.",
           "params": [
             {
               "name": "name",
               "type": "str"
-            },
-            {
-              "name": "category_id",
-              "type": "int"
             },
             {
               "name": "created_at",
@@ -24,88 +19,20 @@
               "type": "datetime.datetime"
             }
           ],
-          "return_type": "models.Product",
-          "raises": []
+          "raises": [],
+          "return_type": "models.Category"
         },
         {
-          "name": "read_all",
-          "description": "Lists every Product; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "created_at",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "updated_at",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "list[Product]",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Product by its key.",
-          "params": [
-            {
-              "name": "product_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Product",
-          "raises": []
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Product.",
-          "params": [
-            {
-              "name": "product_id",
-              "type": "int"
-            },
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "created_at",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "updated_at",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "models.Product",
-          "raises": []
-        },
-        {
+          "description": "Deletes an existing Category.",
           "name": "delete",
-          "description": "Deletes an existing Product.",
           "params": [
             {
-              "name": "product_id",
+              "name": "category_id",
               "type": "int"
             },
             {
               "name": "name",
               "type": "str"
-            },
-            {
-              "name": "category_id",
-              "type": "int"
             },
             {
               "name": "created_at",
@@ -116,93 +43,89 @@
               "type": "datetime.datetime"
             }
           ],
-          "return_type": "None",
-          "raises": []
+          "raises": [
+            "CategoryNotFoundError"
+          ],
+          "return_type": "None"
         },
         {
-          "name": "get_products_by_category_id",
-          "description": "Lists the Product records belonging to one Category.",
+          "description": "Lists every Category; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Category]"
+        },
+        {
+          "description": "Reads one Category by its key.",
+          "name": "read_one",
           "params": [
             {
               "name": "category_id",
               "type": "int"
             }
           ],
-          "return_type": "list[Product]",
-          "raises": []
+          "raises": [
+            "CategoryNotFoundError"
+          ],
+          "return_type": "models.Category"
+        },
+        {
+          "description": "Updates an existing Category.",
+          "name": "update",
+          "params": [
+            {
+              "name": "category_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "raises": [
+            "CategoryNotFoundError"
+          ],
+          "return_type": "models.Category"
         }
-      ]
+      ],
+      "service_name": "CategoryRepository"
     },
     {
-      "service_name": "CategoryRepository",
       "methods": [
         {
+          "description": "Creates a new Product.",
           "name": "create",
-          "description": "Creates a new Category.",
           "params": [
             {
               "name": "name",
               "type": "str"
             },
-            {
-              "name": "created_at",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "updated_at",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "models.Category",
-          "raises": []
-        },
-        {
-          "name": "read_all",
-          "description": "Lists every Category; optional fields narrow the result.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "created_at",
-              "type": "datetime.datetime"
-            },
-            {
-              "name": "updated_at",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "list[Category]",
-          "raises": []
-        },
-        {
-          "name": "read_one",
-          "description": "Reads one Category by its key.",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "models.Category",
-          "raises": [
-            "CategoryNotFoundError"
-          ]
-        },
-        {
-          "name": "update",
-          "description": "Updates an existing Category.",
-          "params": [
             {
               "name": "category_id",
               "type": "int"
             },
             {
-              "name": "name",
-              "type": "str"
-            },
-            {
               "name": "created_at",
               "type": "datetime.datetime"
             },
@@ -211,22 +134,24 @@
               "type": "datetime.datetime"
             }
           ],
-          "return_type": "models.Category",
-          "raises": [
-            "CategoryNotFoundError"
-          ]
+          "raises": [],
+          "return_type": "models.Product"
         },
         {
+          "description": "Deletes an existing Product.",
           "name": "delete",
-          "description": "Deletes an existing Category.",
           "params": [
             {
-              "name": "category_id",
+              "name": "product_id",
               "type": "int"
             },
             {
               "name": "name",
               "type": "str"
+            },
+            {
+              "name": "category_id",
+              "type": "int"
             },
             {
               "name": "created_at",
@@ -237,12 +162,87 @@
               "type": "datetime.datetime"
             }
           ],
-          "return_type": "None",
-          "raises": [
-            "CategoryNotFoundError"
-          ]
+          "raises": [],
+          "return_type": "None"
+        },
+        {
+          "description": "Lists the Product records belonging to one Category.",
+          "name": "get_products_by_category_id",
+          "params": [
+            {
+              "name": "category_id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Product]"
+        },
+        {
+          "description": "Lists every Product; optional fields narrow the result.",
+          "name": "read_all",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "category_id",
+              "type": "int"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "raises": [],
+          "return_type": "list[Product]"
+        },
+        {
+          "description": "Reads one Product by its key.",
+          "name": "read_one",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Product"
+        },
+        {
+          "description": "Updates an existing Product.",
+          "name": "update",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "category_id",
+              "type": "int"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "raises": [],
+          "return_type": "models.Product"
         }
-      ]
+      ],
+      "service_name": "ProductRepository"
     }
   ]
 }

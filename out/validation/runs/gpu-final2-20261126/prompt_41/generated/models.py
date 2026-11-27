@@ -20,17 +20,17 @@ class Book:
 
 
 @dataclass
-class Member:
-    id: int = None
-    name: str = None
-    contact_details: str = None
-    membership_status: bool = None
-
-
-@dataclass
 class Loan:
     id: int = None
     member_id: int = None
     book_id: int = None
     loan_date: datetime.datetime = None
     return_date: Optional[datetime.date] = None
+
+
+@dataclass
+class Member:
+    id: int = None
+    name: str = None
+    contact_details: str = None
+    membership_status: bool = None

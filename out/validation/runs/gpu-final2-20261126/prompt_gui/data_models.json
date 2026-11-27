@@ -1,147 +1,147 @@
 {
   "data_models": [
     {
-      "name": "Wine",
       "fields": [
         {
+          "foreign_key": null,
           "name": "id",
-          "type": "int",
+          "nullable": false,
           "primary_key": true,
-          "nullable": false,
-          "unique": true,
-          "foreign_key": null,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "name",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "zone_name",
+          "nullable": false,
+          "primary_key": false,
           "status": "explicit",
-          "unique_status": "explicit"
-        },
-        {
-          "name": "vintage_year",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "wine_type",
           "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "unique": false
         },
         {
-          "name": "country_of_origin",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "cost_price",
-          "type": "decimal",
-          "primary_key": false,
+          "name": "row_number",
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "selling_price",
-          "type": "decimal",
           "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "stock_quantity",
+          "status": "explicit",
           "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "unique": false
         },
         {
-          "name": "storage_location_id",
-          "type": "int",
-          "primary_key": false,
+          "foreign_key": null,
+          "name": "shelf_number",
           "nullable": false,
-          "unique": false,
-          "foreign_key": {
-            "target_entity": "StorageLocation",
-            "target_field": "id",
-            "relationship": "one_to_one"
-          },
-          "status": "explicit"
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "max_capacity",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
         }
-      ]
+      ],
+      "name": "StorageLocation"
     },
     {
-      "name": "StorageLocation",
       "fields": [
         {
-          "name": "id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "zone_name",
+          "foreign_key": null,
+          "name": "name",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
           "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "unique": true,
+          "unique_status": "explicit"
         },
         {
-          "name": "row_number",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "vintage_year",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
         },
         {
-          "name": "shelf_number",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "wine_type",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
         },
         {
-          "name": "max_capacity",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "country_of_origin",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "cost_price",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "decimal",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "selling_price",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "decimal",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "stock_quantity",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
+        },
+        {
+          "foreign_key": {
+            "relationship": "one_to_one",
+            "target_entity": "StorageLocation",
+            "target_field": "id"
+          },
+          "name": "storage_location_id",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
         }
-      ]
+      ],
+      "name": "Wine"
     }
   ]
 }

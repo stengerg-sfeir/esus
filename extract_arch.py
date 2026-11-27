@@ -567,6 +567,7 @@ def repair_existing(output_dir):
             documents.get(pipeline_module.PATTERN_MATCHES), log))
     contracts, _dropped_contracts = load_method_contracts(
         str(directory), requirements)
+    contracts = repairs.repair_holder_names(documents, contracts, log)
     if contracts:
         contracts = repairs.repair_contracts(
             contracts, services, repositories, models, requirements, log)

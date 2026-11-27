@@ -58,7 +58,7 @@ class CustomerRepository:
         self._store = store
 
 
-    def create(self, name: str = None, email: str = None, phone_number: str = None) -> Any:
+    def create(self, name: str = None, email: str = None, phone_number: str = None) -> models.Customer:
         """Creates a new Customer. [crud:create: STANDARD_CRUD]"""
         values = {}
         if name is not None:
@@ -77,10 +77,36 @@ class CustomerRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
         return models.Customer(**record)
 
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        record = self._store.get(self.ENTITY, self.PK, id, error=errors.CustomerNotFoundError)
-        return models.Customer(**record)
+    def delete(self, id: int = None, name: str = None, email: str = None, phone_number: str = None) -> None:
+        """Deletes an existing Customer. [crud:delete: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if email is not None:
+            criteria.append(('email', 'eq', email))
+        if phone_number is not None:
+            criteria.append(('phone_number', 'eq', phone_number))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            raise errors.CustomerNotFoundError(f"Customer delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
+
+    def filter_customers(self, domain: str = None) -> list[models.Customer]:
+        """Filters Customer records by email. [FILTER_BY_EMAIL_DOMAIN]"""
+        result = []
+        domain = str(domain).lower().lstrip('@') if domain else ''
+        for row in self._store.select(self.ENTITY, []):
+            email = row.get('email')
+            if email is None:
+                continue
+            email = str(email).lower()
+            if not domain or email.endswith('@' + domain):
+                result.append(row)
+        return _model_list([models.Customer(**row) for row in result], models.Customer)
 
     def read_all(self, name: str = None, email: str = None, phone_number: str = None) -> list[models.Customer]:
         """Lists every Customer; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
@@ -94,7 +120,24 @@ class CustomerRepository:
         found = self._store.select(self.ENTITY, criteria)
         return [models.Customer(**r) for r in found]
 
-    def update(self, id: int = None, name: str = None, email: str = None, phone_number: str = None) -> Any:
+    def read_one(self, id: int = None) -> models.Customer:
+        """Reads one Customer by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        record = self._store.get(self.ENTITY, self.PK, id, error=errors.CustomerNotFoundError)
+        return models.Customer(**record)
+
+    def search_customers(self, name: str = None) -> list[models.Customer]:
+        """Searches Customer records across their text fields. [mechanical text search]"""
+        if not name:
+            return []
+        query = str(name).lower()
+        result = []
+        for row in self._store.select(self.ENTITY, []):
+            values = [row.get('name'), row.get('email'), row.get('phone_number')]
+            if any(value is not None and query in str(value).lower() for value in values):
+                result.append(row)
+        return _model_list([models.Customer(**row) for row in result], models.Customer)
+
+    def update(self, id: int = None, name: str = None, email: str = None, phone_number: str = None) -> models.Customer:
         """Updates an existing Customer. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if id is not None:
@@ -117,46 +160,3 @@ class CustomerRepository:
                 raise errors.CustomerEmailDuplicateError(f"Customer with {unique_field}={value!r} already exists")
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.CustomerNotFoundError)
         return models.Customer(**record)
-
-    def delete(self, id: int = None, name: str = None, email: str = None, phone_number: str = None) -> None:
-        """Deletes an existing Customer. [crud:delete: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if email is not None:
-            criteria.append(('email', 'eq', email))
-        if phone_number is not None:
-            criteria.append(('phone_number', 'eq', phone_number))
-        found = self._store.select(self.ENTITY, criteria)
-        if not found:
-            raise errors.CustomerNotFoundError(f"Customer delete matched no records")
-        for record in found:
-            self._store.delete(self.ENTITY, self.PK, record[self.PK])
-        return None
-
-    def search_customers(self, name: str = None) -> list[models.Customer]:
-        """Searches Customer records across their text fields. [mechanical text search]"""
-        if not name:
-            return []
-        query = str(name).lower()
-        result = []
-        for row in self._store.select(self.ENTITY, []):
-            values = [row.get('name'), row.get('email'), row.get('phone_number')]
-            if any(value is not None and query in str(value).lower() for value in values):
-                result.append(row)
-        return _model_list([models.Customer(**row) for row in result], models.Customer)
-
-    def filter_customers(self, domain: str = None) -> list[models.Customer]:
-        """Filters Customer records by email. [FILTER_BY_EMAIL_DOMAIN]"""
-        result = []
-        domain = str(domain).lower().lstrip('@') if domain else ''
-        for row in self._store.select(self.ENTITY, []):
-            email = row.get('email')
-            if email is None:
-                continue
-            email = str(email).lower()
-            if not domain or email.endswith('@' + domain):
-                result.append(row)
-        return _model_list([models.Customer(**row) for row in result], models.Customer)

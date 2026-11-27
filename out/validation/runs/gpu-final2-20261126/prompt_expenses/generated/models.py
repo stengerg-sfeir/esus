@@ -12,6 +12,14 @@ from typing import Any, Dict, List, Literal, Optional
 
 
 @dataclass
+class Budget:
+    id: int = None
+    category_id: int = None
+    month: str = None
+    amount_limit_cents: int = None
+
+
+@dataclass
 class Category:
     id: int = None
     name: str = None
@@ -29,11 +37,3 @@ class Expense:
     category_id: int = None
     payment_method: str = None
     is_recurring: bool = None
-
-
-@dataclass
-class Budget:
-    id: int = None
-    category_id: int = None
-    month: str = None
-    amount_limit_cents: int = None

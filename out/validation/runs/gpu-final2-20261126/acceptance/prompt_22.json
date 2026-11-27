@@ -37,6 +37,41 @@
       "reason": "every model declares a primary key"
     },
     {
+      "name": "api:OrderItemRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderItemRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderItemRepository.get_order_items_by_order_id",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderItemRepository.get_total_quantity_for_product",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderItemRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderItemRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderItemRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
       "name": "api:OrderRepository.calculate_total_order_amount",
       "status": "passed",
       "reason": "generated service API present"
@@ -94,37 +129,37 @@
     {
       "name": "api:OrderItemRepository.create",
       "status": "passed",
-      "reason": "generated service API present"
+      "reason": "generated repository API present"
     },
     {
       "name": "api:OrderItemRepository.delete",
       "status": "passed",
-      "reason": "generated service API present"
+      "reason": "generated repository API present"
     },
     {
       "name": "api:OrderItemRepository.get_order_items_by_order_id",
       "status": "passed",
-      "reason": "generated service API present"
+      "reason": "generated repository API present"
     },
     {
       "name": "api:OrderItemRepository.get_total_quantity_for_product",
       "status": "passed",
-      "reason": "generated service API present"
+      "reason": "generated repository API present"
     },
     {
       "name": "api:OrderItemRepository.read_all",
       "status": "passed",
-      "reason": "generated service API present"
+      "reason": "generated repository API present"
     },
     {
       "name": "api:OrderItemRepository.read_one",
       "status": "passed",
-      "reason": "generated service API present"
+      "reason": "generated repository API present"
     },
     {
       "name": "api:OrderItemRepository.update",
       "status": "passed",
-      "reason": "generated service API present"
+      "reason": "generated repository API present"
     },
     {
       "name": "api:OrderRepository.calculate_total_order_amount",
@@ -178,41 +213,6 @@
     },
     {
       "name": "api:ProductRepository.update",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:OrderItemRepository.create",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:OrderItemRepository.delete",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:OrderItemRepository.get_order_items_by_order_id",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:OrderItemRepository.get_total_quantity_for_product",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:OrderItemRepository.read_all",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:OrderItemRepository.read_one",
-      "status": "passed",
-      "reason": "generated repository API present"
-    },
-    {
-      "name": "api:OrderItemRepository.update",
       "status": "passed",
       "reason": "generated repository API present"
     },
@@ -227,6 +227,11 @@
       "reason": ""
     },
     {
+      "name": "cli-leaf:Order delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
       "name": "cli-leaf:Order list",
       "status": "passed",
       "reason": ""
@@ -237,32 +242,12 @@
       "reason": ""
     },
     {
-      "name": "cli-leaf:Order delete",
-      "status": "passed",
-      "reason": ""
-    },
-    {
-      "name": "cli-leaf:Product add",
-      "status": "passed",
-      "reason": ""
-    },
-    {
-      "name": "cli-leaf:Product list",
-      "status": "passed",
-      "reason": ""
-    },
-    {
-      "name": "cli-leaf:Product update",
-      "status": "passed",
-      "reason": ""
-    },
-    {
-      "name": "cli-leaf:Product delete",
-      "status": "passed",
-      "reason": ""
-    },
-    {
       "name": "cli-leaf:OrderItem add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:OrderItem delete",
       "status": "passed",
       "reason": ""
     },
@@ -277,7 +262,22 @@
       "reason": ""
     },
     {
-      "name": "cli-leaf:OrderItem delete",
+      "name": "cli-leaf:Product add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Product delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Product list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Product update",
       "status": "passed",
       "reason": ""
     },
@@ -287,14 +287,18 @@
       "reason": ""
     },
     {
+      "name": "schema:OrderItem",
+      "status": "passed",
+      "reason": ""
+    },
+    {
       "name": "schema:Product",
       "status": "passed",
       "reason": ""
     },
     {
-      "name": "schema:OrderItem",
-      "status": "passed",
-      "reason": ""
+      "name": "repository:OrderItemRepository",
+      "status": "passed"
     },
     {
       "name": "repository:OrderRepository",
@@ -302,10 +306,6 @@
     },
     {
       "name": "repository:ProductRepository",
-      "status": "passed"
-    },
-    {
-      "name": "repository:OrderItemRepository",
       "status": "passed"
     },
     {
@@ -321,6 +321,10 @@
       "status": "passed"
     },
     {
+      "name": "scenario:cli:Order delete",
+      "status": "passed"
+    },
+    {
       "name": "scenario:cli:Order list",
       "status": "passed"
     },
@@ -329,27 +333,11 @@
       "status": "passed"
     },
     {
-      "name": "scenario:cli:Order delete",
-      "status": "passed"
-    },
-    {
-      "name": "scenario:cli:Product add",
-      "status": "passed"
-    },
-    {
-      "name": "scenario:cli:Product list",
-      "status": "passed"
-    },
-    {
-      "name": "scenario:cli:Product update",
-      "status": "passed"
-    },
-    {
-      "name": "scenario:cli:Product delete",
-      "status": "passed"
-    },
-    {
       "name": "scenario:cli:OrderItem add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:OrderItem delete",
       "status": "passed"
     },
     {
@@ -361,7 +349,19 @@
       "status": "passed"
     },
     {
-      "name": "scenario:cli:OrderItem delete",
+      "name": "scenario:cli:Product add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Product delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Product list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Product update",
       "status": "passed"
     }
   ]

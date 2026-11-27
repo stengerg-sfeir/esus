@@ -1,24 +1,24 @@
 {
   "errors": [
     {
-      "name": "EventNotFoundError",
       "base": "LookupError",
-      "description": "Raised when an event is requested by an event ID that does not exist in the system."
+      "description": "Raised when an event is requested by an event ID that does not exist in the system.",
+      "name": "EventNotFoundError"
     },
     {
-      "name": "RegistrationCapacityExceededError",
       "base": "ValueError",
-      "description": "Raised when an attempt is made to register for an event that has reached its maximum capacity."
+      "description": "Raised when an attempt is made to register for an event that has reached its maximum capacity.",
+      "name": "RegistrationCapacityExceededError"
     },
     {
-      "name": "RegistrationEventIdNotFoundError",
       "base": "KeyError",
-      "description": "Raised when a registration record is attempted to be created without a valid event_id that exists in the system."
+      "description": "Raised when a registration record is attempted to be created without a valid event_id that exists in the system.",
+      "name": "RegistrationEventIdNotFoundError"
     },
     {
-      "name": "RegistrationUserIdNotFoundError",
       "base": "KeyError",
-      "description": "Raised when a registration record is attempted to be created without a valid user_id that exists in the system."
+      "description": "Raised when a registration record is attempted to be created without a valid user_id that exists in the system.",
+      "name": "RegistrationUserIdNotFoundError"
     }
   ]
 }

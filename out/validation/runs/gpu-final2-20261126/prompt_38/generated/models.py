@@ -12,15 +12,15 @@ from typing import Any, Dict, List, Literal, Optional
 
 
 @dataclass
-class User:
-    id: int = None
-    password_hash: str = None
-    email: str = None
-
-
-@dataclass
 class Document:
     id: int = None
     title: str = None
     content: str = None
     owner_user_id: int = None
+
+
+@dataclass
+class User:
+    id: int = None
+    password_hash: str = None
+    email: str = None

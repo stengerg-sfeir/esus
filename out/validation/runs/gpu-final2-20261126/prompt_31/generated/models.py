@@ -12,14 +12,14 @@ from typing import Any, Dict, List, Literal, Optional
 
 
 @dataclass
-class Customer:
-    id: int = None
-    name: str = None
-    email: str = None
-
-
-@dataclass
 class Account:
     id: int = None
     customer_id: int = None
     balance: Decimal = None
+
+
+@dataclass
+class Customer:
+    id: int = None
+    name: str = None
+    email: str = None

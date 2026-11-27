@@ -1,28 +1,28 @@
 {
   "invariants": [
     {
-      "text": "Appointment.id must be an auto-incremented integer primary key with default value None",
-      "kind": "schema"
+      "kind": "rule",
+      "text": "An appointment's end time must be greater than or equal to its start time."
     },
     {
-      "text": "Appointment.start_time must be a datetime",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Appointment.end_time must be a datetime"
     },
     {
-      "text": "Appointment.start_time must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Appointment.end_time must not be null"
     },
     {
-      "text": "Appointment.end_time must be a datetime",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Appointment.id must be an auto-incremented integer primary key with default value None"
     },
     {
-      "text": "Appointment.end_time must not be null",
-      "kind": "schema"
+      "kind": "schema",
+      "text": "Appointment.start_time must be a datetime"
     },
     {
-      "text": "An appointment's end time must be greater than or equal to its start time.",
-      "kind": "rule"
+      "kind": "schema",
+      "text": "Appointment.start_time must not be null"
     }
   ]
 }

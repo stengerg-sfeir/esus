@@ -19,16 +19,16 @@ class Customer:
 
 
 @dataclass
-class Room:
-    room_id: int = None
-    room_number: str = None
-    capacity: int = None
-
-
-@dataclass
 class Reservation:
     reservation_id: int = None
     customer_id: int = None
     room_id: int = None
     start_time: datetime.datetime = None
     end_time: datetime.datetime = None
+
+
+@dataclass
+class Room:
+    room_id: int = None
+    room_number: str = None
+    capacity: int = None

@@ -58,43 +58,13 @@ class ProductRepository:
         self._store = store
 
 
-    def read_all(self, name: str = None, category: str = None, price: int = None, quantity: int = None) -> list[models.Product]:
-        """Lists every Product; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if category is not None:
-            criteria.append(('category', 'eq', category))
-        if price is not None:
-            criteria.append(('price', 'eq', price))
-        if quantity is not None:
-            criteria.append(('quantity', 'eq', quantity))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Product(**r) for r in found]
-
-    def read_one(self, id: int = None) -> Any:
-        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
-        if not found:
-            return None
-        record = found[0]
-        return models.Product(**record)
-
-    def find_by_name(self, name: str = None) -> List[models.Product]:
-        """Search products by name using partial matching; returns a list of products whose name contains the given string. [crud:filter: FILTER_WITH_PAGINATION: by parameter shape]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Product(**r) for r in found]
-
     def filter_by_category(self, category: str = None) -> List[models.Product]:
-        """Filter products by category; returns a list of products that match the specified category. [crud:filter: FILTER_BY_FIELD]"""
+        """Filter products by category; returns a list of products that match the specified category. [mechanical contained-name filter]"""
         criteria = []
         if category is not None:
             criteria.append(('category', 'eq', category))
         found = self._store.select(self.ENTITY, criteria)
-        return [models.Product(**r) for r in found]
+        return _model_list([models.Product(**row) for row in found], models.Product)
 
     def filter_by_max_price(self, max_price: float = None) -> List[models.Product]:
         """Filter products with price less than or equal to the specified maximum price; returns a list of products within the price limit. [FILTER_BY_NAMED_FIELD: filter_by_max_price]"""
@@ -121,6 +91,36 @@ class ProductRepository:
             criteria.append(('quantity', 'ge', min_quantity))
         found = self._store.select(self.ENTITY, criteria)
         return [models.Product(**r) for r in found]
+
+    def find_by_name(self, name: str = None) -> List[models.Product]:
+        """Search products by name using partial matching; returns a list of products whose name contains the given string. [mechanical contained-name filter]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.Product(**row) for row in found], models.Product)
+
+    def read_all(self, name: str = None, category: str = None, price: int = None, quantity: int = None) -> list[models.Product]:
+        """Lists every Product; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if name is not None:
+            criteria.append(('name', 'eq', name))
+        if category is not None:
+            criteria.append(('category', 'eq', category))
+        if price is not None:
+            criteria.append(('price', 'eq', price))
+        if quantity is not None:
+            criteria.append(('quantity', 'eq', quantity))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Product(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Product:
+        """Reads one Product by its key. [crud:read_one: READ_ONE_BY_ID]"""
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
+        if not found:
+            return None
+        record = found[0]
+        return models.Product(**record)
 
     def search_product_by_name(self, name: str = None) -> list[models.Product]:
         """Search product by name. [mechanical text search]"""

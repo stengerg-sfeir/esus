@@ -22,16 +22,16 @@ class Book:
 
 
 @dataclass
-class Member:
-    member_id: int = None
-    name: str = None
-    email: str = None
-
-
-@dataclass
 class BorrowRecord:
     borrow_id: int = None
     book_id: int = None
     member_id: int = None
     borrow_date: datetime.datetime = None
     return_date: Optional[datetime.datetime] = None
+
+
+@dataclass
+class Member:
+    member_id: int = None
+    name: str = None
+    email: str = None

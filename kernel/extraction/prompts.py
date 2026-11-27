@@ -7,6 +7,8 @@ grammar, so the prompt and the grammar always agree about which names exist.
 
 import os
 
+from kernel.extraction.ordering import name_key
+
 NAMES_HEADING = (
     "Authoritative names produced by the previous extraction step. "
     "Use only these names, copied character for character. "
@@ -41,7 +43,8 @@ INTENTIONS_SYSTEM = (
 )
 ERRORS_SYSTEM = (
     "List the application error types the requirements need. Each entry is an exception class "
-    "the program will raise: give it a 'name' ending in 'Error', a 'base' naming the built-in it "
+    "the program will raise: give it a class name ending in 'Error' or 'Exception' (matching the "
+    "requirements when they name one), a 'base' naming the built-in it "
     "derives from, and a one-sentence 'description' saying when it is raised. "
     "When the requirements NAME a type, use that exact name — a requirement that says "
     "'CategoryNotFoundError' means a class of exactly that name, character for character. When "
@@ -201,7 +204,8 @@ COMPONENTS_SYSTEM = (
 CONTRACTS_SYSTEM = (
     "Extract high-level business service method signatures with parameters and return types. "
     "Include domain services and repository custom aggregates (e.g. "
-    "get_total_by_category_and_month). Name each service exactly as the authoritative list does. "
+    "get_total_by_category_and_month). Name each service exactly as the authoritative list does; "
+    "a domain service name ends in 'Service' and a repository name ends in 'Repository'. "
     "Declare each method once, and give every method the parameters the requirements imply — a "
     "method that reads or writes an entity needs that entity's key and the fields it acts on. "
     "Where the operations block below names operations for an entity, the interface that owns "
@@ -249,7 +253,8 @@ CONTRACTS_CUSTOM_SYSTEM = (
     "service whose only methods would be those standard wrappers. Repository "
     "interfaces and their custom aggregates are also completed outside this "
     "step; emit only the custom domain methods that carry business behaviour. "
-    "Name each service exactly as the authoritative list does. Declare each "
+    "Name each service exactly as the authoritative list does: a domain service "
+    "ends in 'Service' and a repository ends in 'Repository'. Declare each "
     "method once, and give every method the parameters the requirements imply. "
     "A state change the requirements describe needs the method that performs the "
     "transition, named for it: 'confirming an order reserves stock' needs a "
@@ -299,7 +304,8 @@ PERSISTENCE_SYSTEM = (
     "delete — are generated mechanically, so do NOT emit those methods here. "
     "The repository list and the entity mappings are already fixed: emit one entry for each listed "
     "entity, in the order given, using exactly those entity names and, for each mapping, exactly "
-    "the primary key shown. You choose the table name and, for each repository, only the additional "
+    "the primary key shown. Every interface_name ends in 'Repository'. You choose the table name "
+    "and, for each repository, only the additional "
     "query and aggregate methods the requirements actually describe. An empty methods list is "
     "correct when an entity has no such method. "
     "A repository holds the methods for its own entity only — never a method named after, or "
@@ -323,7 +329,8 @@ REPOSITORY_METHODS_SYSTEM = (
     "— create, read_one, read_all, update, delete — are generated mechanically from the "
     "data model. Produce only the CUSTOM query and aggregate methods the requirements "
     "describe for the listed repositories. The repository list and the entity names are "
-    "fixed: emit one entry for each listed entity, in the order given. An empty methods "
+    "fixed: emit one entry for each listed entity, in the order given, and every "
+    "interface_name ends in 'Repository'. An empty methods "
     "list is correct when an entity has no custom method. Do not emit CRUD methods, do not "
     "invent a repository, do not repeat a method, and never use an entity name as a method "
     "name. Give each custom method a real description and return type. Declare the "
@@ -376,6 +383,9 @@ def intentions_block(intentions):
     ]
     if not phrases:
         return None
+    # Step B reads these as grounding, not as an ordered narrative.  Sorting
+    # keeps the same phrases from producing a different prompt on a rerun.
+    phrases.sort(key=name_key)
     listed = "\n".join(f"- {phrase}" for phrase in phrases)
     return f"{INTENTIONS_HEADING}\n{listed}"
 

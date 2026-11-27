@@ -2,87 +2,87 @@
   "interaction_adapters": [
     {
       "action_name": "projectadd",
-      "target_service": "ProjectRepository",
-      "target_method": "create",
       "input_fields": [
         {
           "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "name",
+          "transform": "DIRECT"
         },
         {
           "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "description",
+          "transform": "DIRECT"
         },
         {
           "field_name": "status",
-          "target_param": "status",
-          "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
+          "required": true,
+          "target_param": "status",
+          "transform": "DIRECT"
         },
         {
           "field_name": "is_deleted",
+          "lookup_entity": null,
+          "required": true,
           "target_param": "is_deleted",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
+          "transform": "DIRECT"
         }
-      ]
-    },
-    {
-      "action_name": "projectupdate",
-      "target_service": "ProjectRepository",
-      "target_method": "update",
-      "input_fields": [
-        {
-          "field_name": "project_id",
-          "target_param": "project_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Project",
-          "required": false
-        },
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "status",
-          "target_param": "status",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
+      ],
+      "target_method": "create",
+      "target_service": "ProjectRepository"
     },
     {
       "action_name": "projectdelete",
-      "target_service": "ProjectRepository",
-      "target_method": "delete",
       "input_fields": [
         {
           "field_name": "project_id",
-          "target_param": "project_id",
-          "transform": "LOOKUP_ID",
           "lookup_entity": "Project",
-          "required": true
+          "required": true,
+          "target_param": "project_id",
+          "transform": "LOOKUP_ID"
         }
-      ]
+      ],
+      "target_method": "delete",
+      "target_service": "ProjectRepository"
+    },
+    {
+      "action_name": "projectupdate",
+      "input_fields": [
+        {
+          "field_name": "project_id",
+          "lookup_entity": "Project",
+          "required": false,
+          "target_param": "project_id",
+          "transform": "LOOKUP_ID"
+        },
+        {
+          "field_name": "name",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "name",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "description",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "description",
+          "transform": "DIRECT"
+        },
+        {
+          "field_name": "status",
+          "lookup_entity": null,
+          "required": false,
+          "target_param": "status",
+          "transform": "DIRECT"
+        }
+      ],
+      "target_method": "update",
+      "target_service": "ProjectRepository"
     }
   ]
 }

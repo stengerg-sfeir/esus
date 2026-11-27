@@ -1,130 +1,130 @@
 {
   "data_models": [
     {
-      "name": "Customer",
       "fields": [
         {
-          "name": "customer_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
+          "name": "customer_id",
+          "nullable": false,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "name",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "name",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
         },
         {
-          "name": "email",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
+          "name": "email",
+          "nullable": false,
+          "primary_key": false,
           "status": "explicit",
+          "type": "string",
+          "unique": false,
           "unique_status": "rejected"
         }
-      ]
+      ],
+      "name": "Customer"
     },
     {
-      "name": "Room",
       "fields": [
         {
-          "name": "room_id",
-          "type": "int",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
           "foreign_key": null,
-          "status": "explicit",
-          "unique_status": "explicit"
-        },
-        {
-          "name": "room_number",
-          "type": "string",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        },
-        {
-          "name": "capacity",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
-        }
-      ]
-    },
-    {
-      "name": "Reservation",
-      "fields": [
-        {
           "name": "reservation_id",
-          "type": "int",
-          "primary_key": true,
           "nullable": false,
-          "unique": true,
-          "foreign_key": null,
+          "primary_key": true,
           "status": "explicit",
+          "type": "int",
+          "unique": true,
           "unique_status": "explicit"
         },
         {
-          "name": "customer_id",
-          "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": {
+            "relationship": "one_to_many",
             "target_entity": "Customer",
-            "target_field": "customer_id",
-            "relationship": "one_to_many"
+            "target_field": "customer_id"
           },
-          "status": "explicit"
-        },
-        {
-          "name": "room_id",
+          "name": "customer_id",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
           "type": "int",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
+          "unique": false
+        },
+        {
           "foreign_key": {
+            "relationship": "one_to_many",
             "target_entity": "Room",
-            "target_field": "room_id",
-            "relationship": "one_to_many"
+            "target_field": "room_id"
           },
-          "status": "explicit"
+          "name": "room_id",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
         },
         {
+          "foreign_key": null,
           "name": "start_time",
-          "type": "datetime",
-          "primary_key": false,
           "nullable": false,
-          "unique": false,
-          "foreign_key": null,
-          "status": "explicit"
+          "primary_key": false,
+          "status": "explicit",
+          "type": "datetime",
+          "unique": false
         },
         {
-          "name": "end_time",
-          "type": "datetime",
-          "primary_key": false,
-          "nullable": false,
-          "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "name": "end_time",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "datetime",
+          "unique": false
         }
-      ]
+      ],
+      "name": "Reservation"
+    },
+    {
+      "fields": [
+        {
+          "foreign_key": null,
+          "name": "room_id",
+          "nullable": false,
+          "primary_key": true,
+          "status": "explicit",
+          "type": "int",
+          "unique": true,
+          "unique_status": "explicit"
+        },
+        {
+          "foreign_key": null,
+          "name": "room_number",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "string",
+          "unique": false
+        },
+        {
+          "foreign_key": null,
+          "name": "capacity",
+          "nullable": false,
+          "primary_key": false,
+          "status": "explicit",
+          "type": "int",
+          "unique": false
+        }
+      ],
+      "name": "Room"
     }
   ]
 }

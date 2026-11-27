@@ -1,18 +1,18 @@
 {
   "intentions": [
+    "Allow exporting filtered expenses to CSV files for external analysis",
+    "Build a CLI interface using Click with nested command groups for managing categories, budgets, and expenses",
     "Define and manage expense categories with unique names, descriptions, optional monthly budgets, and icons",
-    "Store and retrieve expenses with detailed metadata including amount in cents, date, category, payment method, and recurrence status",
+    "Detect recurring expenses based on amount and category patterns",
+    "Enable foreign key constraints in SQLite to maintain referential integrity between models",
+    "Enable monthly and yearly financial reporting with budget status (on_track, warning, exceeded)",
     "Enforce budget constraints via a unique (category_id, month) constraint on the budget table to prevent duplicate entries",
+    "Ensure all monetary values are stored as integers (cents) to avoid floating-point errors",
+    "Implement custom exception classes for common errors: CategoryNotFoundError, ExpenseNotFoundError, BudgetExceededException",
     "Implement robust SQLite-based repositories for category, expense, and budget data with CRUD operations and filtering capabilities",
     "Provide business logic in a service layer that validates data, checks budget limits, aggregates spending, and generates reports",
+    "Store and retrieve expenses with detailed metadata including amount in cents, date, category, payment method, and recurrence status",
     "Support filtering and querying expenses by category, date range, payment method, and recurrence",
-    "Enable monthly and yearly financial reporting with budget status (on_track, warning, exceeded)",
-    "Allow exporting filtered expenses to CSV files for external analysis",
-    "Detect recurring expenses based on amount and category patterns",
-    "Build a CLI interface using Click with nested command groups for managing categories, budgets, and expenses",
-    "Ensure all monetary values are stored as integers (cents) to avoid floating-point errors",
-    "Use auto-incremented primary keys with optional ID fields in domain models",
-    "Implement custom exception classes for common errors: CategoryNotFoundError, ExpenseNotFoundError, BudgetExceededException",
-    "Enable foreign key constraints in SQLite to maintain referential integrity between models"
+    "Use auto-incremented primary keys with optional ID fields in domain models"
   ]
 }

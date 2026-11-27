@@ -193,6 +193,9 @@ def build_parser():
     p_Employee_add.add_argument('--age', type=int, required=True, dest='age')
     p_Employee_add.add_argument('--salary', type=int, required=True, dest='salary')
     p_Employee_add.set_defaults(_binding=('Employee', 'add'))
+    p_Employee_delete = sub_Employee.add_parser('delete')
+    p_Employee_delete.add_argument('--id', type=int, required=True, dest='id')
+    p_Employee_delete.set_defaults(_binding=('Employee', 'delete'))
     p_Employee_update = sub_Employee.add_parser('update')
     p_Employee_update.add_argument('--id', type=int, required=True, dest='id')
     p_Employee_update.add_argument('--name', type=str, required=False, dest='name')
@@ -200,9 +203,6 @@ def build_parser():
     p_Employee_update.add_argument('--age', type=int, required=False, dest='age')
     p_Employee_update.add_argument('--salary', type=int, required=False, dest='salary')
     p_Employee_update.set_defaults(_binding=('Employee', 'update'))
-    p_Employee_delete = sub_Employee.add_parser('delete')
-    p_Employee_delete.add_argument('--id', type=int, required=True, dest='id')
-    p_Employee_delete.set_defaults(_binding=('Employee', 'delete'))
     return parser
 
 

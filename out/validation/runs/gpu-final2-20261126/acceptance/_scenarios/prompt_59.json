@@ -38,81 +38,6 @@
       }
     },
     {
-      "name": "cli:Order cancel",
-      "when": {
-        "cli_variants": [
-          [
-            "Order",
-            "cancel",
-            "--order-id",
-            "1"
-          ]
-        ],
-        "seed_overrides": {
-          "Order": {
-            "status": "confirmed"
-          }
-        }
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Order export",
-      "when": {
-        "cli_variants": [
-          [
-            "Order",
-            "export",
-            "--file-path",
-            "value1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Order update",
-      "when": {
-        "cli_variants": [
-          [
-            "Order",
-            "update",
-            "--order-id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Order delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Order",
-            "delete",
-            "--order-id",
-            "1"
-          ],
-          [
-            "Order",
-            "delete",
-            "--order-id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Customer add",
       "when": {
         "cli_variants": [
@@ -123,22 +48,6 @@
             "value1",
             "--email",
             "cli1@example.test"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Customer update",
-      "when": {
-        "cli_variants": [
-          [
-            "Customer",
-            "update",
-            "--customer-id",
-            "1"
           ]
         ]
       },
@@ -179,33 +88,13 @@
       }
     },
     {
-      "name": "cli:Product add",
+      "name": "cli:Customer update",
       "when": {
         "cli_variants": [
           [
-            "Product",
-            "add",
-            "--name",
-            "value1",
-            "--price",
-            "2",
-            "--stock-quantity",
-            "2"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Product update",
-      "when": {
-        "cli_variants": [
-          [
-            "Product",
+            "Customer",
             "update",
-            "--product-id",
+            "--customer-id",
             "1"
           ]
         ]
@@ -215,35 +104,130 @@
       }
     },
     {
-      "name": "cli:Product delete",
+      "name": "cli:Discount add",
       "when": {
         "cli_variants": [
           [
-            "Product",
+            "Discount",
+            "add",
+            "--name",
+            "value1",
+            "--value",
+            "2",
+            "--applies-to",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Discount delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Discount",
             "delete",
-            "--product-id",
+            "--discount-id",
             "1",
             "--name",
             "value1",
-            "--price",
+            "--value",
             "2.0",
-            "--stock-quantity",
-            "2"
+            "--applies-to",
+            "value1"
           ],
           [
-            "Product",
+            "Discount",
             "delete",
-            "--product-id",
+            "--discount-id",
             "1"
           ]
         ],
         "seed_overrides": {
-          "Product": {
+          "Discount": {
             "name": "value1",
-            "price": 2.0,
-            "stock_quantity": 2
+            "value": 2.0,
+            "applies_to": "value1"
           }
         }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Discount update",
+      "when": {
+        "cli_variants": [
+          [
+            "Discount",
+            "update",
+            "--discount-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order cancel",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "cancel",
+            "--order-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Order": {
+            "status": "confirmed"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "delete",
+            "--order-id",
+            "1"
+          ],
+          [
+            "Order",
+            "delete",
+            "--order-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order update",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "update",
+            "--order-id",
+            "1"
+          ]
+        ]
       },
       "expect": {
         "exit": 0
@@ -264,22 +248,6 @@
             "2",
             "--unit-price",
             "2"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:OrderLine update",
-      "when": {
-        "cli_variants": [
-          [
-            "OrderLine",
-            "update",
-            "--order-line-id",
-            "1"
           ]
         ]
       },
@@ -326,33 +294,13 @@
       }
     },
     {
-      "name": "cli:Discount add",
+      "name": "cli:OrderLine update",
       "when": {
         "cli_variants": [
           [
-            "Discount",
-            "add",
-            "--name",
-            "value1",
-            "--value",
-            "2",
-            "--applies-to",
-            "value1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Discount update",
-      "when": {
-        "cli_variants": [
-          [
-            "Discount",
+            "OrderLine",
             "update",
-            "--discount-id",
+            "--order-line-id",
             "1"
           ]
         ]
@@ -362,35 +310,71 @@
       }
     },
     {
-      "name": "cli:Discount delete",
+      "name": "cli:Product add",
       "when": {
         "cli_variants": [
           [
-            "Discount",
+            "Product",
+            "add",
+            "--name",
+            "value1",
+            "--price",
+            "2",
+            "--stock-quantity",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
             "delete",
-            "--discount-id",
+            "--product-id",
             "1",
             "--name",
             "value1",
-            "--value",
+            "--price",
             "2.0",
-            "--applies-to",
-            "value1"
+            "--stock-quantity",
+            "2"
           ],
           [
-            "Discount",
+            "Product",
             "delete",
-            "--discount-id",
+            "--product-id",
             "1"
           ]
         ],
         "seed_overrides": {
-          "Discount": {
+          "Product": {
             "name": "value1",
-            "value": 2.0,
-            "applies_to": "value1"
+            "price": 2.0,
+            "stock_quantity": 2
           }
         }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "update",
+            "--product-id",
+            "1"
+          ]
+        ]
       },
       "expect": {
         "exit": 0
@@ -407,22 +391,6 @@
             "value1",
             "--rate",
             "2"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Tax update",
-      "when": {
-        "cli_variants": [
-          [
-            "Tax",
-            "update",
-            "--tax-id",
-            "1"
           ]
         ]
       },
@@ -457,6 +425,22 @@
             "rate": 2.0
           }
         }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Tax update",
+      "when": {
+        "cli_variants": [
+          [
+            "Tax",
+            "update",
+            "--tax-id",
+            "1"
+          ]
+        ]
       },
       "expect": {
         "exit": 0

@@ -71,6 +71,12 @@ def map_type(spelling, entity_names=()):
     if not isinstance(spelling, str) or not spelling.strip():
         return "Any"
     text = spelling.strip()
+    # Service contracts sometimes spell an entity as `models.Expense` rather
+    # than `Expense`.  The namespace is a rendering detail, not a different
+    # type; leaving it on made `map_type` fall through to `Any`, so a
+    # read-by-id delegation could not tell one repository's return from
+    # another's.
+    text = re.sub(r"\bmodels\.", "", text)
     lowered = text.lower()
     if lowered in MODEL_TYPES:
         return MODEL_TYPES[lowered]

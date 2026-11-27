@@ -58,7 +58,11 @@ class TaskRepository:
         self._store = store
 
 
-    def create(self, description: str = None, is_complete: bool = None, created_at: Any = None, updated_at: Any = None) -> Any:
+    def complete_task(self, id: int = None) -> None:
+        """Completes a Task. [mechanical boolean filter]"""
+        return _model_list(self._store.select(self.ENTITY, [('is_complete', 'eq', True)]), models.Task)
+
+    def create(self, description: str = None, is_complete: bool = None, created_at: Any = None, updated_at: Any = None) -> models.Task:
         """Creates a new Task. [crud:create: STANDARD_CRUD]"""
         values = {}
         if description is not None:
@@ -81,42 +85,6 @@ class TaskRepository:
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
         return models.Task(**record)
 
-    def read_all(self, description: str = None, is_complete: bool = None, created_at: Any = None, updated_at: Any = None) -> list[models.Task]:
-        """Lists every Task; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
-        criteria = []
-        if description is not None:
-            criteria.append(('description', 'eq', description))
-        if is_complete is not None:
-            criteria.append(('is_complete', 'eq', is_complete))
-        if created_at is not None:
-            criteria.append(('created_at', 'eq', created_at))
-        if updated_at is not None:
-            criteria.append(('updated_at', 'eq', updated_at))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Task(**r) for r in found]
-
-    def update(self, id: int = None, description: str = None, is_complete: bool = None, created_at: Any = None, updated_at: Any = None) -> Any:
-        """Updates an existing Task. [crud:update: STANDARD_CRUD]"""
-        criteria = []
-        if id is not None:
-            criteria.append(('id', 'eq', id))
-        found = self._store.select(self.ENTITY, criteria)
-        if len(found) != 1:
-            raise LookupError(f"Task update matched {len(found)} records")
-        patch = {}
-        if id is not None and 'id' in ['id', 'description', 'is_complete', 'created_at', 'updated_at']:
-            patch['id'] = id
-        if description is not None and 'description' in ['id', 'description', 'is_complete', 'created_at', 'updated_at']:
-            patch['description'] = description
-        if is_complete is not None and 'is_complete' in ['id', 'description', 'is_complete', 'created_at', 'updated_at']:
-            patch['is_complete'] = is_complete
-        if created_at is not None and 'created_at' in ['id', 'description', 'is_complete', 'created_at', 'updated_at']:
-            patch['created_at'] = created_at
-        if updated_at is not None and 'updated_at' in ['id', 'description', 'is_complete', 'created_at', 'updated_at']:
-            patch['updated_at'] = updated_at
-        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
-        return models.Task(**record)
-
     def delete(self, id: int = None, description: str = None, is_complete: bool = None, created_at: Any = None, updated_at: Any = None) -> None:
         """Deletes an existing Task. [crud:delete: STANDARD_CRUD]"""
         criteria = []
@@ -137,7 +105,21 @@ class TaskRepository:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
 
-    def read_one(self, id: int = None) -> Any:
+    def read_all(self, description: str = None, is_complete: bool = None, created_at: Any = None, updated_at: Any = None) -> list[models.Task]:
+        """Lists every Task; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        criteria = []
+        if description is not None:
+            criteria.append(('description', 'eq', description))
+        if is_complete is not None:
+            criteria.append(('is_complete', 'eq', is_complete))
+        if created_at is not None:
+            criteria.append(('created_at', 'eq', created_at))
+        if updated_at is not None:
+            criteria.append(('updated_at', 'eq', updated_at))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Task(**r) for r in found]
+
+    def read_one(self, id: int = None) -> models.Task:
         """Reads one Task by its key. [crud:read_one: READ_ONE_BY_ID]"""
         found = self._store.select(self.ENTITY, [(self.PK, 'eq', id)])
         if not found:
@@ -145,6 +127,24 @@ class TaskRepository:
         record = found[0]
         return models.Task(**record)
 
-    def complete_task(self, id: int = None) -> None:
-        """Completes a Task. [mechanical boolean filter]"""
-        return _model_list(self._store.select(self.ENTITY, [('is_complete', 'eq', True)]), models.Task)
+    def update(self, id: int = None, description: str = None, is_complete: bool = None, created_at: Any = None, updated_at: Any = None) -> models.Task:
+        """Updates an existing Task. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if id is not None:
+            criteria.append(('id', 'eq', id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"Task update matched {len(found)} records")
+        patch = {}
+        if id is not None and 'id' in ['id', 'description', 'is_complete', 'created_at', 'updated_at']:
+            patch['id'] = id
+        if description is not None and 'description' in ['id', 'description', 'is_complete', 'created_at', 'updated_at']:
+            patch['description'] = description
+        if is_complete is not None and 'is_complete' in ['id', 'description', 'is_complete', 'created_at', 'updated_at']:
+            patch['is_complete'] = is_complete
+        if created_at is not None and 'created_at' in ['id', 'description', 'is_complete', 'created_at', 'updated_at']:
+            patch['created_at'] = created_at
+        if updated_at is not None and 'updated_at' in ['id', 'description', 'is_complete', 'created_at', 'updated_at']:
+            patch['updated_at'] = updated_at
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.Task(**record)
